@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cancelar reserva{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Cancelar reserva #{{ reserva.pk }}</div>
+      <div class="mod-card-hint">{{ reserva.cliente.nombre_completo }} · {{ reserva.vehiculo.placa }}</div>
+    </div>
+  </div>
+  <div class="mod-confirm">
+    <p>La reserva quedará marcada como cancelada. El historial se conservará.</p>
+    <form method="post">
+      {% csrf_token %}
+      <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-sec">Volver</a>
+      <button type="submit" class="mod-btn mod-btn-peligro">Confirmar cancelación</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

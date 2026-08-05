@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">{{ page_subtitle }}</div>
+    </div>
+  </div>
+
+  <div class="checklist-resumen">
+    <div><span>Cliente</span><strong>{{ reserva.cliente.nombre_completo }}</strong></div>
+    <div><span>Vehículo</span><strong>{{ reserva.vehiculo.nombre_corto }} · {{ reserva.vehiculo.placa }}</strong></div>
+    <div><span>Km al entregar</span><strong>{{ reserva.km_entrega|default:"—" }} km</strong></div>
+    <div><span>Combustible entrega</span><strong>{% if reserva.combustible_entrega %}{{ reserva.get_combustible_entrega_display }}{% else %}—{% endif %}</strong></div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="mod-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="mod-errores">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.name != 'km_devolucion' and field.name != 'combustible_devolucion' %}mod-field-full{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="mod-form-actions">
+      <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+      <button type="submit" class="mod-btn mod-btn-prim">Confirmar devolución</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

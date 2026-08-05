@@ -1,0 +1,78 @@
+.pago-resumen-panel,
+.reserva-precio-panel {
+  margin: 16px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+}
+
+.pago-resumen-titulo,
+.reserva-precio-titulo {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.pago-resumen-grid,
+.reserva-precio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.pago-resumen-grid span,
+.reserva-precio-grid span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 2px;
+}
+
+.pago-resumen-grid strong,
+.reserva-precio-grid strong {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.reserva-precio-saldo strong,
+#pr-saldo {
+  color: var(--accent);
+}
+
+.pago-resumen-nota {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.45;
+}
+
+.pago-estado {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.pago-estado-pagado { background: #e3f2eb; color: #1f7a55; }
+.pago-estado-parcial { background: #f8f0de; color: #96702a; }
+.pago-estado-pendiente { background: #f9e9e9; color: #a33a3e; }
+
+.reserva-pago-actual {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 12px 0 0;
+  font-size: 13px;
+  color: var(--text-3);
+}
+
+.mod-hint {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 4px;
+}

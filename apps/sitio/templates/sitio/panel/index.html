@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sitio web{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+<style>
+  .sitio-panel-seccion { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .sitio-panel-seccion:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+  .sitio-panel-seccion-titulo { font-size: 14px; font-weight: 700; margin-bottom: 0.25rem; }
+  .sitio-panel-seccion-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; }
+  .sitio-panel-red-row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem 1rem; align-items: end; }
+  .sitio-panel-red-row .mod-field-check { margin-bottom: 0.35rem; }
+  @media (max-width: 640px) { .sitio-panel-red-row { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <a href="/" target="_blank" class="mod-btn mod-btn-sec">Abrir sitio público ↗</a>
+  <a href="{% url 'sitio_web:panel_pagina_crear' %}" class="mod-btn mod-btn-prim">+ Nueva página</a>
+</div>
+
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Configuración del sitio web</div>
+      <div class="mod-card-hint">Textos, redes sociales, WhatsApp y reglas de reserva</div>
+    </div>
+  </div>
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    <input type="hidden" name="guardar_sitio" value="1" />
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Inicio</div>
+      <div class="sitio-panel-seccion-hint">Título, subtítulo y texto del home</div>
+      <div class="mod-grid">
+        <div class="mod-field mod-field-full">{{ form.home_titulo.label_tag }}{{ form.home_titulo }}</div>
+        <div class="mod-field mod-field-full">{{ form.home_subtitulo.label_tag }}{{ form.home_subtitulo }}</div>
+        <div class="mod-field mod-field-full">{{ form.home_texto.label_tag }}{{ form.home_texto }}</div>
+        <div class="mod-field mod-field-full">{{ form.horario.label_tag }}{{ form.horario }}</div>
+        <div class="mod-field mod-field-full">{{ form.meta_descripcion.label_tag }}{{ form.meta_descripcion }}<span class="mod-hint">{{ form.meta_descripcion.help_text }}</span></div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">WhatsApp</div>
+      <div class="sitio-panel-seccion-hint">Número, mensaje automático y botón flotante en la web</div>
+      <div class="mod-grid">
+        <div class="mod-field">{{ form.whatsapp.label_tag }}{{ form.whatsapp }}<span class="mod-hint">{{ form.whatsapp.help_text }}</span></div>
+        <div class="mod-field mod-field-check">{{ form.mostrar_whatsapp }}{{ form.mostrar_whatsapp.label_tag }}</div>
+        <div class="mod-field mod-field-full">{{ form.whatsapp_mensaje.label_tag }}{{ form.whatsapp_mensaje }}<span class="mod-hint">{{ form.whatsapp_mensaje.help_text }}</span></div>
+        <div class="mod-field mod-field-check">{{ form.whatsapp_flotante }}{{ form.whatsapp_flotante.label_tag }}<span class="mod-hint">{{ form.whatsapp_flotante.help_text }}</span></div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Redes sociales</div>
+      <div class="sitio-panel-seccion-hint">Pega el enlace y marca cuáles quieres mostrar en la web</div>
+      <div class="mod-grid">
+        <div class="mod-field sitio-panel-red-row mod-field-full">
+          <div>{{ form.instagram.label_tag }}{{ form.instagram }}</div>
+          <div class="mod-field-check">{{ form.mostrar_instagram }}{{ form.mostrar_instagram.label_tag }}</div>
+        </div>
+        <div class="mod-field sitio-panel-red-row mod-field-full">
+          <div>{{ form.facebook.label_tag }}{{ form.facebook }}</div>
+          <div class="mod-field-check">{{ form.mostrar_facebook }}{{ form.mostrar_facebook.label_tag }}</div>
+        </div>
+        <div class="mod-field sitio-panel-red-row mod-field-full">
+          <div>{{ form.tiktok.label_tag }}{{ form.tiktok }}</div>
+          <div class="mod-field-check">{{ form.mostrar_tiktok }}{{ form.mostrar_tiktok.label_tag }}</div>
+        </div>
+        <div class="mod-field sitio-panel-red-row mod-field-full">
+          <div>{{ form.youtube.label_tag }}{{ form.youtube }}</div>
+          <div class="mod-field-check">{{ form.mostrar_youtube }}{{ form.mostrar_youtube.label_tag }}</div>
+        </div>
+        <div class="mod-field sitio-panel-red-row mod-field-full">
+          <div>{{ form.twitter.label_tag }}{{ form.twitter }}</div>
+          <div class="mod-field-check">{{ form.mostrar_twitter }}{{ form.mostrar_twitter.label_tag }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Reserva online</div>
+      <div class="mod-grid">
+        <div class="mod-field mod-field-check">{{ form.reserva_auto_confirmar }}{{ form.reserva_auto_confirmar.label_tag }}<span class="mod-hint">{{ form.reserva_auto_confirmar.help_text }}</span></div>
+        <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
+        <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
+        <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
+      </div>
+    </div>
+
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar</button>
+    </div>
+  </form>
+</div>
+
+<div class="mod-card" style="margin-top: 1.5rem;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Páginas informativas</div>
+      <div class="mod-card-hint">Nosotros, contacto, servicios…</div>
+    </div>
+  </div>
+  {% if paginas %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Título</th>
+          <th>URL</th>
+          <th>Menú</th>
+          <th>Publicada</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in paginas %}
+        <tr>
+          <td>{{ p.titulo }}</td>
+          <td>/pagina/{{ p.slug }}/</td>
+          <td>{% if p.en_menu %}Sí{% else %}No{% endif %}</td>
+          <td>{% if p.publicada %}Sí{% else %}No{% endif %}</td>
+          <td><a href="{% url 'sitio_web:panel_pagina_editar' p.pk %}">Editar</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p style="padding: 1rem 1.5rem;">No hay páginas. Crea una o ejecuta <code>python manage.py sembrar_sitio</code>.</p>
+  {% endif %}
+</div>
+
+<div class="mod-card" style="margin-top: 1.5rem; padding: 1rem 1.5rem;">
+  <p><strong>Vehículos en la web:</strong> edita cada vehículo en <a href="{% url 'vehiculos:lista' %}">Flota → Vehículos</a> y marca «Visible en sitio web», transmisión y «Destacado en inicio».</p>
+</div>
+{% endblock %}

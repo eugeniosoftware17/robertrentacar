@@ -1,0 +1,77 @@
+{% extends "sitio/base_public.html" %}
+
+{% block title %}Alquiler de vehículos — Flota | {{ empresa.nombre }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block og_title %}Flota de vehículos — {{ empresa.nombre }}{% endblock %}
+{% block og_description %}{{ meta_description }}{% endblock %}
+
+{% block content %}
+<section class="sitio-section sitio-section--top">
+  <div class="sitio-container">
+    <h1>Alquiler de vehículos — nuestra flota</h1>
+    <p class="sitio-lead">Filtra por categoría, transmisión o disponibilidad.</p>
+
+    <form method="get" class="sitio-filtros">
+      <select name="categoria" class="sitio-input">
+        <option value="">Todas las categorías</option>
+        {% for value, label in categorias %}
+        <option value="{{ value }}" {% if categoria_filtro == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="transmision" class="sitio-input">
+        <option value="">Transmisión</option>
+        {% for value, label in transmisiones %}
+        <option value="{{ value }}" {% if transmision_filtro == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input type="date" name="desde" value="{{ fecha_inicio }}" class="sitio-input" placeholder="Desde" />
+      <input type="date" name="hasta" value="{{ fecha_fin }}" class="sitio-input" placeholder="Hasta" />
+      <button type="submit" class="sitio-btn sitio-btn-prim">Filtrar</button>
+      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-sec">Limpiar</a>
+    </form>
+
+    {% if vehiculos %}
+    <div class="sitio-grid">
+      {% for v in vehiculos %}
+      <article class="sitio-card">
+        <a href="{{ v.get_absolute_url }}">
+          {% with fotos=v.fotos_para_web %}
+          {% if fotos %}
+          <img src="{{ fotos.0.url }}" alt="Alquiler {{ v.nombre_corto }} — {{ empresa.nombre }}" class="sitio-card-img" loading="lazy" />
+          {% else %}
+          <div class="sitio-card-img sitio-card-img--empty">Sin foto</div>
+          {% endif %}
+          {% endwith %}
+          <div class="sitio-card-body">
+            <p class="sitio-card-ref">Ref. {{ v.placa }}</p>
+            <h3>{{ v.nombre_corto }}</h3>
+            <div class="sitio-card-tags">
+              <span>{{ v.get_categoria_display }}</span>
+              <span>{{ v.get_transmision_display }}</span>
+              <span>{{ v.anio }}</span>
+              {% if v.color %}<span>{{ v.color }}</span>{% endif %}
+            </div>
+            <p class="sitio-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
+          </div>
+        </a>
+      </article>
+      {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <nav class="sitio-pager">
+      {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">← Anterior</a>
+      {% endif %}
+      <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">Siguiente →</a>
+      {% endif %}
+    </nav>
+    {% endif %}
+    {% else %}
+    <p class="sitio-empty">No hay vehículos con esos filtros. Prueba otras fechas o categorías.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

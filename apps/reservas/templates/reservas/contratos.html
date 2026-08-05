@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Contratos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por cliente o vehículo..." class="mod-input" />
+    <select name="estado" class="mod-input mod-select">
+      <option value="">Todos los estados</option>
+      {% for value, label in estados %}
+      <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-sec">Ver reservas</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Listado de contratos</div>
+      <div class="mod-card-hint">{{ total }} contrato{{ total|pluralize:"s" }} · solo reservas confirmadas, activas o completadas</div>
+    </div>
+  </div>
+
+  {% if reservas %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Vehículo</th>
+          <th>Fechas</th>
+          <th>Total alquiler</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reserva in reservas %}
+        <tr>
+          <td>#{{ reserva.pk }}</td>
+          <td>
+            <div class="mod-nombre">{{ reserva.cliente.nombre_completo }}</div>
+            <div class="mod-sub">{{ reserva.lugar_entrega }}</div>
+          </td>
+          <td>
+            <div class="mod-nombre">{{ reserva.vehiculo.nombre_corto }}</div>
+            <div class="mod-sub">{{ reserva.vehiculo.placa }}</div>
+          </td>
+          <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }}<div class="mod-sub">{{ reserva.dias }} día{{ reserva.dias|pluralize:"s" }}</div></td>
+          <td>RD$ {{ reserva.precio_total|floatformat:0 }}</td>
+          <td>
+            {% if reserva.estado == 'confirmada' %}
+            <span class="mod-badge azul">Confirmada</span>
+            {% elif reserva.estado == 'activa' %}
+            <span class="mod-badge verde">Activa</span>
+            {% elif reserva.estado == 'completada' %}
+            <span class="mod-badge gris">Completada</span>
+            {% endif %}
+          </td>
+          <td class="mod-acciones">
+            <a href="{% url 'reservas:contrato' reserva.pk %}" class="mod-link" target="_blank">Ver contrato</a>
+            <a href="{% url 'reservas:editar' reserva.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'pagos:crear' %}?reserva={{ reserva.pk }}" class="mod-link">Pago</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio">
+    <p>No hay contratos. Confirma una reserva para generar su contrato.</p>
+    <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-prim">Ir a reservas</a>
+  </div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Título de la página — cada módulo lo sobreescribe -->
+    <title>{% block title %}{% endblock %}Rent Car</title>
+    <!-- CSS global: variables, reset, sidebar, componentes -->
+    <link rel="stylesheet" href="{% static 'css/global.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/partials/navbar.css' %}" />
+    <!-- CSS específico del módulo activo -->
+    {% block extra_css %}{% endblock %}
+  </head>
+
+  <body>
+    <!-- Menú lateral — viene de templates/partials/sidebar.html -->
+    {% include "partials/sidebar.html" %}
+
+    <!-- Fondo oscuro al abrir sidebar en móvil -->
+    <div class="scrim" id="scrim"></div>
+
+    <!-- Área principal (todo lo que está a la derecha del sidebar) -->
+    <div class="main">
+      {% include "partials/navbar.html" %}
+
+      <!-- Contenido de cada módulo -->
+      <main class="content" id="main-content">
+        {% if messages %}
+        <div class="flash-messages">
+          {% for message in messages %}
+          <div class="flash flash-{{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <!-- /main -->
+    <!-- HTMX — navegación sin recargar la página -->
+    
+
+    <!-- JS global del panel -->
+    <script src="{% static 'js/partials/navbar.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

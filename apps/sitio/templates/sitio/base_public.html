@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html lang="es-DO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ empresa.nombre }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ empresa.nombre }} — alquiler de vehículos en República Dominicana. Reserva online.{% endblock %}" />
+  <meta name="robots" content="{% block robots %}index, follow{% endblock %}" />
+  <link rel="canonical" href="{% block canonical %}{{ request.build_absolute_uri }}{% endblock %}" />
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:locale" content="es_DO" />
+  <meta property="og:site_name" content="{{ empresa.nombre }}" />
+  <meta property="og:title" content="{% block og_title %}{{ empresa.nombre }}{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}{{ empresa.nombre }} — alquiler de vehículos en República Dominicana.{% endblock %}" />
+  <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock %}" />
+  {% block og_image %}{% endblock %}
+  <meta name="twitter:card" content="summary_large_image" />
+  {% block structured_data %}{% endblock %}
+  <link rel="stylesheet" href="{% static 'sitio/sitio.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="sitio-body">
+  <header class="sitio-header">
+    <div class="sitio-container sitio-header-inner">
+      <a class="sitio-logo" href="{% url 'sitio:home' %}">
+        <span class="sitio-logo-mark">RC</span>
+        <span>{{ empresa.nombre }}</span>
+      </a>
+      <button type="button" class="sitio-nav-toggle" id="navToggle" aria-label="Menú">☰</button>
+      <nav class="sitio-nav" id="sitioNav" aria-label="Principal">
+        <a href="{% url 'sitio:home' %}">Inicio</a>
+        <a href="{% url 'sitio:flota' %}">Vehículos</a>
+        {% for p in menu_paginas %}
+        <a href="{% url 'sitio:pagina' p.slug %}">{{ p.titulo }}</a>
+        {% endfor %}
+        <a class="sitio-nav-staff" href="{% url 'cuentas:login' %}">Acceso empleados</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="sitio-main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="sitio-footer">
+    <div class="sitio-container sitio-footer-grid">
+      <div>
+        <strong>{{ empresa.nombre }}</strong>
+        {% if empresa.direccion %}<p>{{ empresa.direccion }}</p>{% endif %}
+        {% if empresa.telefono %}<p>Tel: {{ empresa.telefono }}</p>{% endif %}
+        {% if sitio.horario %}<p>{{ sitio.horario }}</p>{% endif %}
+      </div>
+      <div class="sitio-footer-links">
+        <a href="{% url 'sitio:flota' %}">Ver flota</a>
+      </div>
+      {% if sitio.tiene_redes %}
+      <div class="sitio-footer-redes">
+        <p class="sitio-footer-redes-titulo">Síguenos</p>
+        {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--footer" aria_label="Redes sociales" %}
+      </div>
+      {% endif %}
+    </div>
+    <div class="sitio-container sitio-copy">© {{ empresa.nombre }}</div>
+  </footer>
+
+  {% include "sitio/partials/whatsapp_flotante.html" %}
+
+  <script src="{% static 'sitio/sitio.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

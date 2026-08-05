@@ -1,0 +1,215 @@
+{% extends "sitio/base_public.html" %}
+{% load static sitio_extras %}
+
+{% block title %}Alquiler {{ vehiculo.nombre_corto }} — RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}/día | {{ empresa.nombre }}{% endblock %}
+{% block meta_description %}{{ meta_description }}{% endblock %}
+{% block og_title %}Alquiler {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
+{% block og_description %}{{ meta_description }}{% endblock %}
+{% block canonical %}{{ request.scheme }}://{{ request.get_host }}{{ vehiculo.get_absolute_url }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_url %}{{ request.scheme }}://{{ request.get_host }}{{ vehiculo.get_absolute_url }}{% endblock %}
+{% block og_image %}
+{% with fotos=vehiculo.fotos_para_web %}
+{% if fotos %}<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ fotos.0.url }}" />{% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ vehiculo.nombre_corto|escapejs }}",
+  "description": "{{ meta_description|escapejs }}",
+  "sku": "{{ vehiculo.placa|escapejs }}",
+  "brand": { "@type": "Brand", "name": "{{ vehiculo.marca|escapejs }}" },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "DOP",
+    "price": "{{ vehiculo.tarifa_diaria }}",
+    "availability": "https://schema.org/InStock",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ vehiculo.get_absolute_url|escapejs }}"
+  }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="sitio-section sitio-section--top sitio-section--detalle">
+  <div class="sitio-container sitio-container--wide">
+    <a href="{% url 'sitio:flota' %}" class="sitio-volver">← Volver a la flota</a>
+
+    <div class="sitio-detalle">
+      <div class="sitio-detalle-col-principal">
+        {% with fotos=vehiculo.fotos_para_web %}
+        {% if fotos %}
+        <div class="sitio-galeria">
+          <div class="sitio-galeria-main">
+            <img id="galeriaMain" src="{{ fotos.0.url }}" alt="{{ vehiculo.nombre_corto }}" />
+          </div>
+          {% if fotos|length > 1 %}
+          <div class="sitio-galeria-thumbs">
+            {% for foto in fotos %}
+            <button type="button" class="sitio-galeria-thumb{% if forloop.first %} is-active{% endif %}" data-src="{{ foto.url }}" aria-label="Foto {{ forloop.counter }}">
+              <img src="{{ foto.url }}" alt="" />
+            </button>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% else %}
+        <div class="sitio-card-img sitio-card-img--empty sitio-detalle-placeholder">Sin foto</div>
+        {% endif %}
+        {% endwith %}
+
+        <header class="sitio-detalle-header sitio-detalle-header--movil">
+          <h1 class="sitio-detalle-titulo">{{ vehiculo.nombre_corto }}</h1>
+          <p class="sitio-detalle-ref">Ref. {{ vehiculo.placa }} · VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
+        </header>
+
+        {% if vehiculo.descripcion_web %}
+        <div class="sitio-bloque">
+          <h2 class="sitio-bloque-titulo">Descripción</h2>
+          <p class="sitio-text sitio-text--bloque">{{ vehiculo.descripcion_web }}</p>
+        </div>
+        {% endif %}
+
+        <div class="sitio-ficha">
+          <div class="sitio-ficha-head">
+            <h2>Ficha técnica</h2>
+            <span class="sitio-ficha-ref">Ref. {{ vehiculo.placa }}</span>
+          </div>
+          <table class="sitio-ficha-tabla">
+            <tbody>
+              <tr><th scope="row">Marca</th><td>{{ vehiculo.marca }}</td></tr>
+              <tr><th scope="row">Modelo</th><td>{{ vehiculo.modelo }}</td></tr>
+              <tr><th scope="row">Año</th><td>{{ vehiculo.anio }}</td></tr>
+              <tr><th scope="row">Placa / Ref.</th><td>{{ vehiculo.placa }}</td></tr>
+              <tr><th scope="row">Código</th><td>VEH-{{ vehiculo.pk|stringformat:"04d" }}</td></tr>
+              <tr><th scope="row">Categoría</th><td>{{ vehiculo.get_categoria_display }}</td></tr>
+              <tr><th scope="row">Transmisión</th><td>{{ vehiculo.get_transmision_display }}</td></tr>
+              <tr><th scope="row">Color</th><td>{{ vehiculo.color|default:"—" }}</td></tr>
+              <tr><th scope="row">Kilometraje</th><td>{{ vehiculo.kilometraje|floatformat:0 }} km</td></tr>
+              <tr><th scope="row">Estado</th><td><span class="sitio-ficha-estado">Disponible</span></td></tr>
+              <tr class="sitio-ficha-sep"><th scope="row">Tarifa diaria</th><td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td></tr>
+              <tr><th scope="row">Estimado 7 días</th><td>RD$ {{ tarifa_semanal|floatformat:0 }}</td></tr>
+              <tr><th scope="row">Estimado 30 días</th><td>RD$ {{ tarifa_mensual|floatformat:0 }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sitio-info-grid">
+          <div class="sitio-bloque">
+            <h2 class="sitio-bloque-titulo">Condiciones de alquiler</h2>
+            <ul class="sitio-lista-info">
+              <li>Reserva con mínimo {{ sitio.anticipacion_horas }} horas de anticipación</li>
+              <li>{% if sitio.reserva_auto_confirmar %}Confirmación automática al reservar{% else %}Confirmación por teléfono o WhatsApp tras la solicitud{% endif %}</li>
+              {% if sitio.horario %}<li>Horario: {{ sitio.horario }}</li>{% endif %}
+              <li>Documento de identidad y licencia vigente requeridos</li>
+            </ul>
+          </div>
+          <div class="sitio-bloque">
+            <h2 class="sitio-bloque-titulo">Incluye</h2>
+            <ul class="sitio-lista-info">
+              <li>Vehículo en condiciones de circulación</li>
+              <li>Documentación al día</li>
+              <li>Asistencia de {{ empresa.nombre }}</li>
+            </ul>
+          </div>
+        </div>
+
+        {% if empresa.direccion or empresa.telefono or sitio.whatsapp_activo or sitio.tiene_redes %}
+        <div class="sitio-bloque sitio-bloque--contacto">
+          <h2 class="sitio-bloque-titulo">Contacto</h2>
+          <dl class="sitio-contacto-dl">
+            {% if empresa.direccion %}<div><dt>Dirección</dt><dd>{{ empresa.direccion }}</dd></div>{% endif %}
+            {% if empresa.telefono %}<div><dt>Teléfono</dt><dd>{{ empresa.telefono }}</dd></div>{% endif %}
+            {% if sitio.whatsapp_activo %}<div><dt>WhatsApp</dt><dd>{{ sitio.whatsapp }}</dd></div>{% endif %}
+          </dl>
+          {% if sitio.whatsapp_activo %}
+          <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--sm sitio-btn--wa" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+          {% endif %}
+          {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--bloque" %}
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="sitio-detalle-col-lateral">
+        <div class="sitio-lateral-sticky">
+          <div class="sitio-reserva-panel">
+            <header class="sitio-detalle-header sitio-detalle-header--desktop">
+              <h1 class="sitio-detalle-titulo">{{ vehiculo.nombre_corto }}</h1>
+              <p class="sitio-detalle-ref">Ref. {{ vehiculo.placa }} · VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
+            </header>
+
+            <div class="sitio-precio-box">
+              <span class="sitio-precio-box-label">Tarifa diaria</span>
+              <p class="sitio-precio sitio-precio--lg">RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
+              <p class="sitio-precio-extra">7 días ≈ RD$ {{ tarifa_semanal|floatformat:0 }} · 30 días ≈ RD$ {{ tarifa_mensual|floatformat:0 }}</p>
+            </div>
+
+            <div class="sitio-calendario-box sitio-calendario-box--compact" id="calendarioReserva"
+                 data-ocupadas="{{ ocupadas_json }}"
+                 data-mantenimiento="{{ mantenimiento_json }}"
+                 data-min="{{ fecha_min }}"
+                 data-reservar-url="{% url 'sitio:reservar' vehiculo.slug %}">
+              <h2 class="sitio-cal-titulo-box">Reservar fechas</h2>
+              <p class="sitio-hint sitio-hint--compact">Clic en calendario · <strong class="sitio-ocupado-label">rojo</strong> = ocupado</p>
+
+              <div class="sitio-cal-head">
+                <button type="button" class="sitio-cal-nav" id="sitio-cal-prev" title="Mes anterior">‹</button>
+                <div class="sitio-cal-titulo" id="sitio-cal-titulo"></div>
+                <button type="button" class="sitio-cal-nav" id="sitio-cal-next" title="Mes siguiente">›</button>
+              </div>
+              <div class="sitio-cal-dias-head">
+                <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+              </div>
+              <div class="sitio-cal-grid" id="sitio-cal-grid"></div>
+              <div class="sitio-cal-leyenda sitio-cal-leyenda--compact">
+                <span><i class="sc-dot libre"></i> Libre</span>
+                <span><i class="sc-dot ocupado"></i> Ocupado</span>
+                <span><i class="sc-dot seleccion"></i> Selección</span>
+              </div>
+
+              <div class="sitio-fechas-row sitio-fechas-row--compact">
+                <label>Inicio <input type="date" id="fechaInicio" class="sitio-input sitio-input--compact" min="{{ fecha_min }}" /></label>
+                <label>Fin <input type="date" id="fechaFin" class="sitio-input sitio-input--compact" min="{{ fecha_min }}" /></label>
+              </div>
+              <p id="totalEstimado" class="sitio-total-estimado"></p>
+              <a href="#" id="btnReservar" class="sitio-btn sitio-btn-prim sitio-btn--disabled sitio-btn--block">Reservar ahora</a>
+            </div>
+
+            <p class="sitio-reserva-nota">Al reservar, {{ empresa.nombre }} te contactará para confirmar.</p>
+          </div>
+
+          {% if relacionados %}
+          <aside class="sitio-relacionados">
+            <h2 class="sitio-relacionados-titulo">También te puede interesar</h2>
+            {% for grupo in relacionados %}
+            <div class="sitio-relacionados-grupo">
+              <div class="sitio-relacionados-head">
+                <h3>{{ grupo.titulo }}</h3>
+                <a href="{% url 'sitio:flota' %}{% if grupo.filtro_categoria %}?categoria={{ grupo.filtro_categoria }}{% if grupo.filtro_transmision %}&amp;transmision={{ grupo.filtro_transmision }}{% endif %}{% elif grupo.filtro_transmision %}?transmision={{ grupo.filtro_transmision }}{% endif %}" class="sitio-relacionados-ver">Ver más</a>
+              </div>
+              <div class="sitio-relacionados-lista">
+                {% for v in grupo.vehiculos %}
+                {% include "sitio/partials/vehiculo_mini.html" with v=v %}
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </aside>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.SITIO_TARIFA_DIA = {{ vehiculo.tarifa_diaria }};
+</script>
+<script src="{% static 'sitio/detalle.js' %}"></script>
+{% endblock %}

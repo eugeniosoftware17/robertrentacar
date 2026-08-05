@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar pago{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-confirm">
+    <p>¿Eliminar el pago de <strong>RD$ {{ pago.monto }}</strong> de la reserva #{{ pago.reserva_id }}?</p>
+    <form method="post">
+      {% csrf_token %}
+      <a href="{% url 'pagos:lista' %}" class="mod-btn mod-btn-sec">Volver</a>
+      <button type="submit" class="mod-btn mod-btn-peligro">Eliminar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

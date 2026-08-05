@@ -1,0 +1,39 @@
+from decimal import Decimal
+
+from django.db import models
+
+from apps.reservas.models import Reserva
+
+
+class Pago(models.Model):
+    class Tipo(models.TextChoices):
+        DEPOSITO = 'deposito', 'Depósito'
+        PARCIAL = 'parcial', 'Pago parcial'
+        TOTAL = 'total', 'Pago total'
+        REEMBOLSO = 'reembolso', 'Reembolso'
+
+    class Metodo(models.TextChoices):
+        EFECTIVO = 'efectivo', 'Efectivo'
+        TARJETA = 'tarjeta', 'Tarjeta'
+        TRANSFERENCIA = 'transferencia', 'Transferencia'
+
+    reserva = models.ForeignKey(
+        Reserva,
+        on_delete=models.PROTECT,
+        related_name='pagos',
+        verbose_name='Reserva',
+    )
+    monto = models.DecimalField('Monto (RD$)', max_digits=10, decimal_places=2)
+    tipo = models.CharField('Tipo', max_length=20, choices=Tipo.choices, default=Tipo.PARCIAL)
+    metodo = models.CharField('Método', max_length=20, choices=Metodo.choices, default=Metodo.EFECTIVO)
+    referencia = models.CharField('Referencia', max_length=60, blank=True)
+    notas = models.TextField('Notas', blank=True)
+    fecha = models.DateTimeField('Fecha del pago', auto_now_add=True)
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Pago'
+        verbose_name_plural = 'Pagos'
+
+    def __str__(self):
+        return f'RD$ {self.monto} — Reserva #{self.reserva_id}'

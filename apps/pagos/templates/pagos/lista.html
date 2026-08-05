@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pagos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por cliente, placa o referencia..." class="mod-input" />
+    <button type="submit" class="mod-btn mod-btn-sec">Buscar</button>
+  </form>
+  <a href="{% url 'pagos:crear' %}" class="mod-btn mod-btn-prim">+ Registrar pago</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Historial de pagos</div>
+      <div class="mod-card-hint">{{ total }} pago{{ total|pluralize:"s" }} · Total filtrado RD$ {{ total_cobrado|floatformat:0 }}</div>
+    </div>
+  </div>
+
+  {% if pagos %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Reserva</th>
+          <th>Cliente</th>
+          <th>Monto</th>
+          <th>Tipo</th>
+          <th>Método</th>
+          <th>Fecha</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for pago in pagos %}
+        <tr>
+          <td>#{{ pago.reserva_id }}</td>
+          <td>{{ pago.reserva.cliente.nombre_completo }}</td>
+          <td>RD$ {{ pago.monto|floatformat:0 }}</td>
+          <td>{{ pago.get_tipo_display }}</td>
+          <td>{{ pago.get_metodo_display }}</td>
+          <td>{{ pago.fecha|date:"d/m/Y H:i" }}</td>
+          <td class="mod-acciones">
+            <a href="{% url 'pagos:eliminar' pago.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio"><p>No hay pagos registrados.</p></div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

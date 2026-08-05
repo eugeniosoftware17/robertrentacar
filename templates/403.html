@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Acceso denegado{% endblock %}
+
+{% block content %}
+<div class="mod-card" style="max-width: 520px; margin: 2rem auto; text-align: center;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Acceso denegado</div>
+      <div class="mod-card-hint">No tienes permiso para ver esta sección</div>
+    </div>
+  </div>
+  <div style="padding: 1.5rem;">
+    <p>Tu cuenta de empleado no incluye acceso a este módulo del sistema.</p>
+    <p>Si necesitas acceso, pide al administrador que lo habilite en <strong>Configuración → Permisos de empleados</strong>.</p>
+    <a href="{% url 'dashboard' %}" class="mod-btn mod-btn-prim" style="margin-top: 1rem;">Volver al inicio</a>
+  </div>
+</div>
+{% endblock %}

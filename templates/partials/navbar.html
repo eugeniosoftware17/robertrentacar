@@ -1,0 +1,76 @@
+{% load static %}
+
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle" type="button" aria-label="Abrir menú">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <div class="topbar-titulo">
+      <h1 class="page-title">{{ page_title|default:"Panel" }}</h1>
+      {% if page_subtitle %}
+      <p class="page-sub">{{ page_subtitle }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="topbar-center">
+    <div class="topbar-buscador">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <input type="text" placeholder="Buscar..." id="globalSearch" />
+    </div>
+  </div>
+
+  <div class="topbar-acciones">
+    <div class="topbar-notif-wrap" id="notifWrap">
+      <button type="button" class="topbar-btn" id="notifBtn" title="Reservas web pendientes de contacto" aria-expanded="false" aria-haspopup="true" aria-controls="notifPanel">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.7 21a2 2 0 0 1-3.4 0" />
+        </svg>
+        {% if alertas_reservas_web_count %}
+        <span class="topbar-punto"></span>
+        {% endif %}
+      </button>
+      <div class="topbar-notif-panel" id="notifPanel" hidden role="dialog" aria-label="Notificaciones de reservas web">
+        <div class="topbar-notif-head">Reservas desde la web</div>
+        {% if alertas_reservas_web %}
+        <ul class="topbar-notif-list">
+          {% for r in alertas_reservas_web %}
+          <li>
+            <a href="{% url 'reservas:editar' r.pk %}">
+              <strong>#{{ r.pk }} · {{ r.cliente.nombre_completo }}</strong>
+              <span>{{ r.vehiculo.placa }} · {{ r.fecha_inicio|date:"d/m" }}–{{ r.fecha_fin|date:"d/m" }}</span>
+              <span class="topbar-notif-tel">{{ r.cliente.telefono }}</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% if menu_permisos.reservas %}
+        <a class="topbar-notif-foot" href="{% url 'reservas:lista' %}?origen=web">Ver todas las reservas</a>
+        {% endif %}
+        {% else %}
+        <p class="topbar-notif-empty">No hay reservas nuevas por contactar.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <button class="topbar-btn" id="themeBtn" type="button" title="Cambiar tema">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" />
+      </svg>
+    </button>
+
+    <div class="topbar-linea"></div>
+    <div class="topbar-avatar" title="{{ usuario_nombre|default:user.username }}">{{ usuario_iniciales|default:"" }}</div>
+
+    {% if menu_permisos.reservas %}
+    <button class="topbar-reserva" id="btnNuevaReserva" type="button" data-url="{% url 'reservas:crear' %}">+ Nueva reserva</button>
+    {% endif %}
+  </div>
+</header>

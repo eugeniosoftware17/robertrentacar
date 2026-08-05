@@ -1,0 +1,80 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <div class="brand-mark">RC</div>
+    <div>
+      <div class="brand-name">{{ empresa_nombre|default:"Rent Car" }}</div>
+      <div class="brand-sub">Panel administrativo</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    {% if menu_permisos.dashboard %}
+    <div class="nav-label">General</div>
+    <a class="nav-item" href="{% url 'dashboard' %}">Dashboard</a>
+    {% endif %}
+    {% if menu_permisos.calendario %}
+    <a class="nav-item" href="{% url 'calendario:index' %}">Calendario</a>
+    {% endif %}
+
+    {% if menu_permisos.vehiculos or menu_permisos.mantenimiento %}
+    <div class="nav-label">Flota</div>
+    {% if menu_permisos.vehiculos %}
+    <a class="nav-item" href="{% url 'vehiculos:lista' %}">Vehículos</a>
+    {% endif %}
+    {% if menu_permisos.mantenimiento %}
+    <a class="nav-item" href="{% url 'mantenimiento:lista' %}">Mantenimiento</a>
+    {% endif %}
+    {% endif %}
+
+    {% if menu_permisos.reservas or menu_permisos.clientes or menu_permisos.pagos %}
+    <div class="nav-label">Comercial</div>
+    {% if menu_permisos.reservas %}
+    <a class="nav-item" href="{% url 'reservas:lista' %}">Reservas</a>
+    {% endif %}
+    {% if menu_permisos.clientes %}
+    <a class="nav-item" href="{% url 'clientes:lista' %}">Clientes</a>
+    {% endif %}
+    {% if menu_permisos.reservas %}
+    <a class="nav-item" href="{% url 'reservas:contratos' %}">Contratos</a>
+    {% endif %}
+    {% if menu_permisos.pagos %}
+    <a class="nav-item" href="{% url 'pagos:lista' %}">Pagos</a>
+    {% endif %}
+    {% endif %}
+
+    {% if menu_permisos.reportes %}
+    <div class="nav-label">Análisis</div>
+    <a class="nav-item" href="{% url 'reportes:index' %}">Reportes</a>
+    {% endif %}
+
+    {% if menu_permisos.configuracion %}
+    <div class="nav-label">Sistema</div>
+    <a class="nav-item" href="{% url 'configuracion:index' %}">Configuración</a>
+    {% endif %}
+    {% if menu_permisos.sitio_web %}
+    <a class="nav-item" href="{% url 'sitio_web:panel_index' %}">Sitio web</a>
+    {% endif %}
+    {% if user.is_superuser or user.is_staff %}
+    <a class="nav-item" href="/admin/" target="_blank">Admin Django</a>
+    {% endif %}
+  </nav>
+
+  {% if user.is_authenticated %}
+  <div class="sidebar-foot">
+    <div class="avatar">{{ usuario_iniciales|default:"U" }}</div>
+    <div>
+      <div class="who">{{ usuario_nombre|default:user.username }}</div>
+      <div class="role">{{ usuario_rol|default:"Usuario" }}</div>
+    </div>
+    <form method="post" action="{% url 'cuentas:logout' %}" class="side-x-form">
+      {% csrf_token %}
+      <button type="submit" class="side-x" title="Cerrar sesión">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
+      </svg>
+      </button>
+    </form>
+  </div>
+  {% endif %}
+</aside>

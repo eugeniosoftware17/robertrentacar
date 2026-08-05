@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Vehículos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vehiculos/vehiculos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por marca, modelo o placa..." class="mod-input" />
+    <select name="estado" class="mod-input mod-select">
+      <option value="">Todos los estados</option>
+      {% for value, label in estados %}
+      <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'vehiculos:crear' %}" class="mod-btn mod-btn-prim">+ Nuevo vehículo</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Flota de vehículos</div>
+      <div class="mod-card-hint">{{ total }} vehículo{{ total|pluralize:"s" }}</div>
+    </div>
+  </div>
+
+  {% if vehiculos %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Vehículo</th>
+          <th>Placa</th>
+          <th>Categoría</th>
+          <th>Tarifa/día</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vehiculo in vehiculos %}
+        <tr>
+          <td>
+            <div class="mod-nombre">{{ vehiculo.nombre_corto }}</div>
+            <div class="mod-sub">{{ vehiculo.color|default:"Sin color" }}</div>
+          </td>
+          <td>{{ vehiculo.placa }}</td>
+          <td>{{ vehiculo.get_categoria_display }}</td>
+          <td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td>
+          <td>
+            {% if vehiculo.estado == 'disponible' %}
+            <span class="mod-badge verde">Disponible</span>
+            {% elif vehiculo.estado == 'rentado' %}
+            <span class="mod-badge azul">Rentado</span>
+            {% else %}
+            <span class="mod-badge amarillo">Mantenimiento</span>
+            {% endif %}
+          </td>
+          <td class="mod-acciones">
+            <a href="{% url 'vehiculos:editar' vehiculo.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'vehiculos:eliminar' vehiculo.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio">
+    <p>No hay vehículos registrados.</p>
+    <a href="{% url 'vehiculos:crear' %}" class="mod-btn mod-btn-prim">Agregar vehículo</a>
+  </div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vehiculos/vehiculos.js' %}"></script>
+{% endblock %}

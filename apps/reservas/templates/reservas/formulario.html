@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+<link rel="stylesheet" href="{% static 'pagos/pagos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">{{ page_subtitle }}</div>
+    </div>
+  </div>
+
+  <div class="reserva-form-layout">
+  <form method="post" class="mod-form reserva-form-main">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="mod-errores">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    {% if accion == 'editar' and reserva.requiere_contacto_web %}
+    <div class="mod-alerta mod-alerta-web">
+      <p><strong>Reserva desde la web</strong> — contacta al cliente: {{ reserva.cliente.telefono }}{% if reserva.cliente.email %} · {{ reserva.cliente.email }}{% endif %}</p>
+      <button type="submit" name="marcar_contactado" value="1" class="mod-btn mod-btn-sec">Marcar como contactado</button>
+    </div>
+    {% endif %}
+
+    <div class="mod-grid">
+        {% for field in form %}
+        <div class="mod-field {% if field.field.widget.input_type == 'checkbox' %}mod-field-check{% endif %} {% if field.name == 'notas' %}mod-field-full{% endif %}">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.name == 'deposito' %}
+          <div class="mod-hint">Este monto se registra como pago automático al guardar.</div>
+          {% endif %}
+          {% if field.name == 'vehiculo' %}
+          <div class="mod-hint">Los días ocupados de este vehículo se marcan en rojo en el calendario.</div>
+          {% endif %}
+          {% if field.errors %}
+          <div class="mod-error">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="reserva-precio-panel" id="reserva-precio-panel">
+        <div class="reserva-precio-titulo">Resumen del alquiler</div>
+        <div class="reserva-precio-grid">
+          <div><span>Días</span><strong id="rp-dias">—</strong></div>
+          <div><span>Tarifa</span><strong id="rp-tarifa">—</strong></div>
+          <div><span>Total alquiler</span><strong id="rp-total">—</strong></div>
+          <div><span>Depósito</span><strong id="rp-deposito">RD$ 0</strong></div>
+          <div class="reserva-precio-saldo"><span>Saldo pendiente</span><strong id="rp-saldo">—</strong></div>
+        </div>
+      </div>
+
+      {% if reserva %}
+      <div class="reserva-pago-actual">
+        <span>Pagado hasta ahora: <strong>RD$ {{ reserva.total_pagado|floatformat:0 }}</strong></span>
+        <span>Saldo real: <strong>RD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong></span>
+        <a href="{% url 'pagos:crear' %}?reserva={{ reserva.pk }}" class="mod-link">+ Registrar otro pago</a>
+      </div>
+
+      {% if reserva.entrega_registrada or reserva.devolucion_registrada %}
+      <div class="checklist-resumen">
+        {% if reserva.entrega_registrada %}
+        <div><span>Entrega</span><strong>{{ reserva.km_entrega|floatformat:0 }} km · {{ reserva.get_combustible_entrega_display|default:"—" }}</strong></div>
+        {% endif %}
+        {% if reserva.devolucion_registrada %}
+        <div><span>Devolución</span><strong>{{ reserva.km_devolucion|floatformat:0 }} km · {{ reserva.get_combustible_devolucion_display|default:"—" }}</strong></div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="reserva-acciones-extra">
+        {% if reserva.puede_registrar_entrega and not reserva.entrega_registrada %}
+        <a href="{% url 'reservas:entrega' reserva.pk %}" class="mod-btn mod-btn-sec">Registrar entrega</a>
+        {% endif %}
+        {% if reserva.puede_registrar_devolucion and reserva.entrega_registrada and not reserva.devolucion_registrada %}
+        <a href="{% url 'reservas:devolucion' reserva.pk %}" class="mod-btn mod-btn-sec">Registrar devolución</a>
+        {% endif %}
+        <a href="{% url 'reservas:contrato' reserva.pk %}" class="mod-btn mod-btn-sec">Ver contrato</a>
+      </div>
+      {% endif %}
+
+      <div class="mod-form-actions">
+        <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+        <button type="submit" class="mod-btn mod-btn-prim" id="reserva-submit-btn">
+          {% if accion == 'crear' %}Crear reserva{% else %}Actualizar{% endif %}
+        </button>
+      </div>
+    </form>
+
+    <aside class="reserva-cal-panel" id="reserva-cal-panel">
+      <div class="reserva-cal-head">
+        <button type="button" class="reserva-cal-nav" id="reserva-cal-prev" title="Mes anterior">‹</button>
+        <div class="reserva-cal-titulo" id="reserva-cal-titulo">Disponibilidad</div>
+        <button type="button" class="reserva-cal-nav" id="reserva-cal-next" title="Mes siguiente">›</button>
+      </div>
+      <p class="reserva-cal-sub" id="reserva-cal-sub">Selecciona un vehículo para ver sus días ocupados</p>
+      <div class="reserva-cal-dias-head">
+        <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+      </div>
+      <div class="reserva-cal-grid" id="reserva-cal-grid"></div>
+      <div class="reserva-cal-leyenda">
+        <span><i class="rc-dot libre"></i> Disponible</span>
+        <span><i class="rc-dot ocupado"></i> Ocupado</span>
+        <span><i class="rc-dot seleccion"></i> Tu selección</span>
+        <span><i class="rc-dot conflicto"></i> Conflicto</span>
+      </div>
+      <div class="reserva-cal-alerta" id="reserva-cal-alerta" hidden></div>
+      <ul class="reserva-cal-bloques" id="reserva-cal-bloques"></ul>
+    </aside>
+  </div>
+</div>
+
+{{ tarifas_json|json_script:"reservas-tarifas-data" }}
+{{ ocupacion_json|json_script:"reservas-ocupacion-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'reservas/reservas.js' %}"></script>
+{% endblock %}

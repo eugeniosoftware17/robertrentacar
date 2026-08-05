@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Ocupación de flota{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <a href="?exportar=csv" class="mod-btn mod-btn-prim">Exportar Excel</a>
+  <a href="{% url 'reportes:index' %}" class="mod-btn mod-btn-sec">Volver</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Ocupación mensual</div>
+      <div class="mod-card-hint">{{ total_vehiculos }} vehículo{{ total_vehiculos|pluralize:"s" }} · {{ dias_mes }} días</div>
+    </div>
+  </div>
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr><th>Vehículo</th><th>Placa</th><th>Días ocupados</th><th>Ocupación</th><th>Reservas</th></tr>
+      </thead>
+      <tbody>
+        {% for fila in filas %}
+        <tr>
+          <td>{{ fila.vehiculo.nombre_corto }}</td>
+          <td>{{ fila.vehiculo.placa }}</td>
+          <td>{{ fila.dias_ocupados }}</td>
+          <td>{{ fila.ocupacion_pct }}%</td>
+          <td>{{ fila.reservas }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">No hay vehículos activos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

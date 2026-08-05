@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reservas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por cliente o vehículo..." class="mod-input" />
+    <select name="estado" class="mod-input mod-select">
+      <option value="">Todos los estados</option>
+      {% for value, label in estados %}
+      <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'reservas:crear' %}" class="mod-btn mod-btn-prim">+ Nueva reserva</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Listado de reservas</div>
+      <div class="mod-card-hint">{{ total }} reserva{{ total|pluralize:"s" }} · el contrato se imprime al confirmar</div>
+    </div>
+  </div>
+
+  {% if reservas %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Cliente</th>
+          <th>Vehículo</th>
+          <th>Fechas</th>
+          <th>Total alquiler</th>
+          <th>Pagado</th>
+          <th>Saldo</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reserva in reservas %}
+        <tr>
+          <td>#{{ reserva.pk }}</td>
+          <td>
+            <div class="mod-nombre">{{ reserva.cliente.nombre_completo }}</div>
+            <div class="mod-sub">{{ reserva.lugar_entrega }}</div>
+          </td>
+          <td>
+            <div class="mod-nombre">{{ reserva.vehiculo.nombre_corto }}</div>
+            <div class="mod-sub">{{ reserva.vehiculo.placa }}</div>
+          </td>
+          <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }}<div class="mod-sub">{{ reserva.dias }} día{{ reserva.dias|pluralize:"s" }}</div></td>
+          <td>RD$ {{ reserva.precio_total|floatformat:0 }}</td>
+          <td>RD$ {{ reserva.total_pagado|floatformat:0 }}</td>
+          <td>
+            {% if reserva.saldo_pendiente > 0 %}
+            <strong class="mod-saldo-pend">RD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong>
+            {% else %}
+            <span class="mod-saldo-ok">Pagado</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if reserva.origen == 'web' %}
+            <span class="mod-badge violeta" title="Reserva desde sitio web">Web</span>
+            {% endif %}
+            {% if reserva.estado == 'confirmada' %}
+            <span class="mod-badge azul">Confirmada</span>
+            {% elif reserva.estado == 'activa' %}
+            <span class="mod-badge verde">Activa</span>
+            {% elif reserva.estado == 'completada' %}
+            <span class="mod-badge gris">Completada</span>
+            {% elif reserva.estado == 'cancelada' %}
+            <span class="mod-badge rojo">Cancelada</span>
+            {% else %}
+            <span class="mod-badge amarillo">Pendiente</span>
+            {% endif %}
+          </td>
+          <td class="mod-acciones">
+            <a href="{% url 'reservas:editar' reserva.pk %}" class="mod-link">Editar</a>
+            {% if reserva.puede_registrar_entrega and not reserva.entrega_registrada %}
+            <a href="{% url 'reservas:entrega' reserva.pk %}" class="mod-link verde">Entrega</a>
+            {% endif %}
+            {% if reserva.puede_registrar_devolucion and reserva.entrega_registrada %}
+            <a href="{% url 'reservas:devolucion' reserva.pk %}" class="mod-link verde">Devolución</a>
+            {% endif %}
+            <a href="{% url 'reservas:contrato' reserva.pk %}" class="mod-link">Contrato</a>
+            <a href="{% url 'pagos:crear' %}?reserva={{ reserva.pk }}" class="mod-link">Pago</a>
+            {% if reserva.estado != 'cancelada' %}
+            <a href="{% url 'reservas:cancelar' reserva.pk %}" class="mod-link">Cancelar</a>
+            {% endif %}
+            <a href="{% url 'reservas:eliminar' reserva.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio">
+    <p>No hay reservas registradas.</p>
+    <a href="{% url 'reservas:crear' %}" class="mod-btn mod-btn-prim">Crear primera reserva</a>
+  </div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'reservas/reservas.js' %}"></script>
+{% endblock %}

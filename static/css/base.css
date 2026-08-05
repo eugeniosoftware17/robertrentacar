@@ -1,0 +1,201 @@
+/* ============================================================
+   SIDEBAR — Estilos del menú lateral
+   ============================================================ */
+
+/* ── Contenedor principal ────────────────────────────────── */
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: var(--side-bg);
+  color: var(--side-text);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 60;
+  transition: transform .25s ease;
+}
+
+/* ── Logo / Marca ────────────────────────────────────────── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--side-line);
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: linear-gradient(140deg, var(--copper), #E0AF6B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #231607;
+}
+
+.brand-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #fff;
+  letter-spacing: -.2px;
+}
+
+.brand-sub {
+  font-size: 10.5px;
+  color: #6D84A8;
+  margin-top: 2px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+/* ── Navegación ──────────────────────────────────────────── */
+.nav {
+  padding: 12px 11px 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Etiqueta de grupo */
+.nav-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #5A6E8F;
+  padding: 14px 10px 7px;
+  font-weight: 700;
+}
+
+/* Iconos del menú */
+.nav-item img {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  object-fit: contain;
+  opacity: .85;
+}
+
+.nav-item:hover img,
+.nav-item.active img {
+  opacity: 1;
+}
+
+/* Ítem del menú */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: none;
+  border: none;
+  text-align: left;
+  font-size: 13.4px;
+  font-weight: 500;
+  color: var(--side-text);
+  margin-bottom: 2px;
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+
+/* Hover */
+.nav-item:hover {
+  background: rgba(255, 255, 255, .06);
+  color: var(--side-text-hi);
+}
+
+/* Ítem activo */
+.nav-item.active {
+  background: var(--side-active);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Línea vertical izquierda del ítem activo */
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -11px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: var(--brand-500);
+  border-radius: 0 3px 3px 0;
+}
+
+/* Badge numérico */
+.nav-badge {
+  margin-left: auto;
+  background: var(--brand-600);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 20px;
+}
+
+/* Badge de advertencia */
+.nav-badge.warn {
+  background: var(--copper);
+  color: #241606;
+}
+
+/* ── Footer: usuario logueado ────────────────────────────── */
+.sidebar-foot {
+  padding: 12px 14px 16px;
+  border-top: 1px solid var(--side-line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(140deg, var(--brand-600), var(--brand-500));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+
+.sidebar-foot .who  { font-size: 12.5px; font-weight: 600; color: #fff; }
+.sidebar-foot .role { font-size: 10.5px; color: #6D84A8; }
+
+/* Botón cerrar sesión */
+.side-x-form { margin-left: auto; }
+
+.side-x {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #6D84A8;
+  display: flex;
+  padding: 4px;
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.side-x-form .side-x { margin-left: 0; }
+.side-x:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+
+/* ── Responsive: ocultar en móvil ────────────────────────── */
+@media (max-width: 860px) {
+  .sidebar { transform: translateX(-100%); box-shadow: var(--sh-3); }
+  .sidebar.open { transform: none; }
+}

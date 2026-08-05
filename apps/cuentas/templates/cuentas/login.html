@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión — Rent Car</title>
+    <link rel="stylesheet" href="{% static 'cuentas/login.css' %}" />
+  </head>
+  <body>
+    <div class="login-wrap">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-mark">RC</div>
+          <div>
+            <h1>Rent Car</h1>
+            <p>Panel administrativo</p>
+          </div>
+        </div>
+
+        {% if form.errors %}
+        <div class="login-error">Usuario o contraseña incorrectos.</div>
+        {% endif %}
+
+        <form method="post" class="login-form">
+          {% csrf_token %}
+          {{ form.username }}
+          {{ form.password }}
+          <button type="submit" class="login-btn">Entrar</button>
+        </form>
+        <p class="login-foot"><a href="{% url 'sitio:home' %}">← Volver al sitio público</a></p>
+      </div>
+    </div>
+  </body>
+</html>

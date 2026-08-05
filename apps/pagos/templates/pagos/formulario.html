@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Pagos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+<link rel="stylesheet" href="{% static 'pagos/pagos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">{{ page_subtitle }}</div>
+    </div>
+  </div>
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="mod-errores">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div id="pago-resumen-panel" class="pago-resumen-panel" {% if not reserva_sel %}style="display:none"{% endif %}>
+      <div class="pago-resumen-titulo">Resumen de la reserva</div>
+      <div class="pago-resumen-grid">
+        <div><span>Cliente</span><strong id="pr-cliente">{% if reserva_sel %}{{ reserva_sel.cliente.nombre_completo }}{% else %}—{% endif %}</strong></div>
+        <div><span>Vehículo</span><strong id="pr-vehiculo">{% if reserva_sel %}{{ reserva_sel.vehiculo.nombre_corto }} · {{ reserva_sel.vehiculo.placa }}{% else %}—{% endif %}</strong></div>
+        <div><span>Días de alquiler</span><strong id="pr-dias">{% if reserva_sel %}{{ reserva_sel.dias }}{% else %}—{% endif %}</strong></div>
+        <div><span>Total alquiler</span><strong id="pr-total">{% if reserva_sel %}RD$ {{ reserva_sel.precio_total|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+        <div><span>Ya pagado</span><strong id="pr-pagado">{% if reserva_sel %}RD$ {{ reserva_sel.total_pagado|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+        <div><span>Saldo pendiente</span><strong id="pr-saldo">{% if reserva_sel %}RD$ {{ reserva_sel.saldo_pendiente|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+      </div>
+      <div id="pr-estado" class="pago-estado pago-estado-{% if reserva_sel %}{{ reserva_sel.estado_pago }}{% endif %}">
+        {% if reserva_sel %}{{ reserva_sel.estado_pago_label }}{% endif %}
+      </div>
+      <p class="pago-resumen-nota">El total del alquiler se calcula por días × tarifa diaria. Los pagos (depósito, parcial o total) se restan de ese monto.</p>
+    </div>
+
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.name == 'notas' %}mod-field-full{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <a href="{% url 'pagos:lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+      <button type="submit" class="mod-btn mod-btn-prim">Registrar pago</button>
+    </div>
+  </form>
+</div>
+
+{{ reservas_info|json_script:"pagos-reservas-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'pagos/pagos.js' %}"></script>
+{% endblock %}

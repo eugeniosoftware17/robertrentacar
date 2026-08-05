@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mantenimiento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar vehículo o descripción..." class="mod-input" />
+    <select name="estado" class="mod-input mod-select">
+      <option value="">Todos los estados</option>
+      {% for value, label in estados %}
+      <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'mantenimiento:crear' %}" class="mod-btn mod-btn-prim">+ Nuevo servicio</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Mantenimientos</div>
+      <div class="mod-card-hint">{{ total }} registro{{ total|pluralize:"s" }}</div>
+    </div>
+  </div>
+
+  {% if registros %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Vehículo</th>
+          <th>Fecha</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Costo</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for registro in registros %}
+        <tr>
+          <td>
+            <div class="mod-nombre">{{ registro.vehiculo.nombre_corto }}</div>
+            <div class="mod-sub">{{ registro.vehiculo.placa }}</div>
+          </td>
+          <td>{{ registro.fecha|date:"d/m/Y" }}</td>
+          <td>{{ registro.get_tipo_display }}</td>
+          <td><span class="mod-badge azul">{{ registro.get_estado_display }}</span></td>
+          <td>RD$ {{ registro.costo|floatformat:0 }}</td>
+          <td class="mod-acciones">
+            <a href="{% url 'mantenimiento:editar' registro.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'mantenimiento:eliminar' registro.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio"><p>No hay mantenimientos registrados.</p></div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

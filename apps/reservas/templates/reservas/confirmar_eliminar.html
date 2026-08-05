@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar reserva{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'reservas/reservas.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Eliminar reserva</div>
+      <div class="mod-card-hint">Esta acción no se puede deshacer</div>
+    </div>
+  </div>
+
+  <div class="mod-confirm">
+    <p>¿Seguro que deseas eliminar la reserva <strong>#{{ reserva.pk }}</strong> de {{ reserva.cliente.nombre_completo }}?</p>
+
+    <form method="post" class="mod-form-actions">
+      {% csrf_token %}
+      <a href="{% url 'reservas:lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+      <button type="submit" class="mod-btn mod-btn-peligro">Eliminar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contrato #{{ reserva.pk }} — {{ empresa.nombre }}</title>
+  <link rel="stylesheet" href="{% static 'reservas/contrato.css' %}" />
+</head>
+<body>
+  <div class="contrato-toolbar no-print">
+    <a href="{% url 'reservas:lista' %}" class="btn">← Volver</a>
+    <button onclick="window.print()" class="btn btn-prim">Imprimir / PDF</button>
+  </div>
+
+  <article class="contrato">
+    <header class="contrato-head">
+      <div>
+        <h1>{{ empresa.nombre }}</h1>
+        <p>{{ empresa.direccion }}{% if empresa.telefono %} · {{ empresa.telefono }}{% endif %}</p>
+        {% if empresa.rnc %}<p>RNC: {{ empresa.rnc }}</p>{% endif %}
+      </div>
+      <div class="contrato-meta">
+        <strong>Contrato de alquiler</strong>
+        <span>#{{ reserva.pk }}</span>
+        <span>{{ reserva.creado_en|date:"d/m/Y" }}</span>
+      </div>
+    </header>
+
+    <section>
+      <h2>Cliente</h2>
+      <p><strong>{{ reserva.cliente.nombre_completo }}</strong></p>
+      <p>Documento: {{ reserva.cliente.documento }} · Tel: {{ reserva.cliente.telefono }}</p>
+      <p>Licencia: {{ reserva.cliente.licencia_numero }} (vence {{ reserva.cliente.licencia_vence|date:"d/m/Y" }})</p>
+    </section>
+
+    <section>
+      <h2>Vehículo</h2>
+      <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}</p>
+      <p>Categoría: {{ reserva.vehiculo.get_categoria_display }} · Tarifa diaria RD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
+    </section>
+
+    <section>
+      <h2>Periodo y lugares</h2>
+      <table>
+        <tr><td>Inicio</td><td>{{ reserva.fecha_inicio|date:"d/m/Y" }} {{ reserva.hora_entrega|time:"H:i" }}</td><td>{{ reserva.lugar_entrega }}</td></tr>
+        <tr><td>Fin</td><td>{{ reserva.fecha_fin|date:"d/m/Y" }} {{ reserva.hora_devolucion|time:"H:i" }}</td><td>{{ reserva.lugar_devolucion }}</td></tr>
+        <tr><td>Días</td><td colspan="2">{{ reserva.dias }}</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Montos</h2>
+      <table>
+        <tr><td>Precio total</td><td>RD$ {{ reserva.precio_total|floatformat:2 }}</td></tr>
+        <tr><td>Depósito</td><td>RD$ {{ reserva.deposito|floatformat:2 }}</td></tr>
+        <tr><td>Pagado</td><td>RD$ {{ reserva.total_pagado|floatformat:2 }}</td></tr>
+        <tr><td>Saldo pendiente</td><td>RD$ {{ reserva.saldo_pendiente|floatformat:2 }}</td></tr>
+      </table>
+    </section>
+
+    {% if empresa.notas_contrato or reserva.notas %}
+    <section>
+      <h2>Condiciones</h2>
+      {% if empresa.notas_contrato %}<p>{{ empresa.notas_contrato|linebreaks }}</p>{% endif %}
+      {% if reserva.notas %}<p><strong>Notas:</strong> {{ reserva.notas }}</p>{% endif %}
+    </section>
+    {% endif %}
+
+    <footer class="contrato-firmas">
+      <div><span>Cliente</span></div>
+      <div><span>{{ empresa.nombre }}</span></div>
+    </footer>
+  </article>
+</body>
+</html>

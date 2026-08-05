@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Sin acceso{% endblock %}
+
+{% block content %}
+<div class="mod-card" style="max-width: 560px; margin: 2rem auto;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Cuenta sin rol asignado</div>
+      <div class="mod-card-hint">Contacta al administrador del sistema</div>
+    </div>
+  </div>
+  <div style="padding: 1.5rem;">
+    <p>Tu usuario <strong>{{ user.username }}</strong> puede iniciar sesión, pero no tiene un rol configurado.</p>
+    <p>El administrador debe asignarte al grupo <strong>Empleado</strong> o <strong>Administrador</strong> desde Admin Django → Usuarios.</p>
+    <form method="post" action="{% url 'cuentas:logout' %}" style="margin-top: 1rem;">
+      {% csrf_token %}
+      <button type="submit" class="mod-btn mod-btn-sec">Cerrar sesión</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

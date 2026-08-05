@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Datos de la empresa</div>
+      <div class="mod-card-hint">Aparecen en contratos y documentos</div>
+    </div>
+  </div>
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    <input type="hidden" name="guardar_empresa" value="1" />
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.name == 'notas_contrato' or field.name == 'direccion' %}mod-field-full{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar configuración</button>
+    </div>
+  </form>
+</div>
+
+{% if puede_editar_permisos %}
+<div class="mod-card mod-form-card" style="margin-top: 1.5rem;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Permisos de empleados</div>
+      <div class="mod-card-hint">Selecciona qué secciones del menú pueden ver los usuarios del grupo Empleado</div>
+    </div>
+  </div>
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    <input type="hidden" name="guardar_permisos" value="1" />
+    <div class="mod-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+      {% for field in permisos_form %}
+      <div class="mod-field mod-field-check">
+        <label class="mod-check-label">
+          {{ field }}
+          <span>{{ field.label }}</span>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar permisos</button>
+    </div>
+  </form>
+
+  <div style="padding: 0 1.5rem 1.5rem; color: var(--text-muted, #666); font-size: 0.9rem;">
+    <p><strong>Cómo crear un empleado:</strong></p>
+    <ol style="margin: 0.5rem 0 0 1.2rem;">
+      <li>Ve a <a href="/admin/auth/user/add/" target="_blank">Admin Django → Usuarios → Añadir</a></li>
+      <li>NO marques «Superusuario» (salvo que sea el dueño del negocio)</li>
+      <li>En «Grupos», selecciona <strong>Empleado</strong> — hereda los permisos marcados arriba</li>
+      <li>O asigna permisos uno a uno: «Acceder a Reservas», «Acceder a Clientes», etc.</li>
+      <li>Guarda y comparte usuario/contraseña con tu empleado</li>
+    </ol>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

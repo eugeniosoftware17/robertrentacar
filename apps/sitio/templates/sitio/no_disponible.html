@@ -1,0 +1,13 @@
+{% extends "sitio/base_public.html" %}
+
+{% block title %}No disponible — {{ empresa.nombre }}{% endblock %}
+
+{% block content %}
+<section class="sitio-section sitio-section--top">
+  <div class="sitio-container sitio-exito">
+    <h1>Vehículo no disponible</h1>
+    <p>Este vehículo no está publicado en este momento.</p>
+    <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim">Ver flota</a>
+  </div>
+</section>
+{% endblock %}

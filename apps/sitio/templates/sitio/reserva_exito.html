@@ -1,0 +1,22 @@
+{% extends "sitio/base_public.html" %}
+{% load sitio_extras %}
+
+{% block title %}Reserva recibida — {{ empresa.nombre }}{% endblock %}
+{% block robots %}noindex, nofollow{% endblock %}
+
+{% block content %}
+<section class="sitio-section sitio-section--top">
+  <div class="sitio-container sitio-exito">
+    <h1>¡Listo!</h1>
+    <p class="sitio-lead">Reserva #{{ reserva.pk }} registrada.</p>
+    <p>{{ mensaje }}</p>
+    <p class="sitio-meta">{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }} · {{ reserva.vehiculo.nombre_corto }}</p>
+    <div class="sitio-exito-acciones">
+      <a href="{% url 'sitio:home' %}" class="sitio-btn sitio-btn-prim">Volver al inicio</a>
+      {% if sitio.whatsapp_activo %}
+      <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

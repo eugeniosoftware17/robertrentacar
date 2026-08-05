@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'core/dashboard.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+{% if alertas_reservas_web_count %}
+<div class="dash-alerta-web">
+  <strong>{{ alertas_reservas_web_count }} reserva{{ alertas_reservas_web_count|pluralize:"s" }} web</strong> pendiente{{ alertas_reservas_web_count|pluralize:"s" }} de contacto.
+  <a href="{% url 'reservas:lista' %}?origen=web">Ver reservas</a>
+</div>
+{% endif %}
+
+<div class="dash-stats">
+  <div class="dash-stat-card">
+    <div class="dash-stat-icono" style="background: #e3f2eb; color: #1f7a55">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 17h14M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm14 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM5 13l1.5-5A2 2 0 0 1 8.4 6.5h7.2a2 2 0 0 1 1.9 1.5L19 13" />
+      </svg>
+    </div>
+    <div class="dash-stat-label">Vehículos disponibles</div>
+    <div class="dash-stat-valor">
+      {{ vehiculos_disponibles }} <span class="dash-stat-total">/ {{ total_vehiculos }}</span>
+    </div>
+    <div class="dash-stat-delta flat">Flota activa registrada</div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icono" style="background: #d9eeee; color: #0e7a80">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="4" width="18" height="17" rx="2" />
+        <path d="M3 10h18M8 2v4M16 2v4" />
+      </svg>
+    </div>
+    <div class="dash-stat-label">Reservas activas hoy</div>
+    <div class="dash-stat-valor">{{ reservas_hoy }}</div>
+    <div class="dash-stat-delta up">↑ {{ reservas_confirmadas_hoy }} confirmada{{ reservas_confirmadas_hoy|pluralize:"s" }} nueva{{ reservas_confirmadas_hoy|pluralize:"s" }}</div>
+  </div>
+
+  <div class="dash-stat-card">
+    <div class="dash-stat-icono" style="background: #fef3c7; color: #96702a">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 7v5l3 3" />
+      </svg>
+    </div>
+    <div class="dash-stat-label">Entregas y devoluciones</div>
+    <div class="dash-stat-valor">{{ movimientos_total }}</div>
+    <div class="dash-stat-delta flat">{{ entregas_hoy|add:devoluciones_hoy }} hoy · {{ entregas_manana|add:devoluciones_manana }} mañana</div>
+  </div>
+
+  <div class="dash-stat-card dash-stat-ingresos">
+    <div class="dash-stat-icono" style="background: #d9eeee; color: #0e7a80">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    </div>
+    <div class="dash-stat-label">Finanzas del mes</div>
+    <div class="dash-stat-fin-grid">
+      <div>
+        <span class="dash-fin-lbl">Cobrado en caja</span>
+        <span class="dash-fin-val">RD$ {{ caja_mes|floatformat:0 }}</span>
+      </div>
+      <div>
+        <span class="dash-fin-lbl">Facturado (reservas)</span>
+        <span class="dash-fin-val sec">RD$ {{ facturado_mes|floatformat:0 }}</span>
+      </div>
+      <div>
+        <span class="dash-fin-lbl">Saldo pendiente</span>
+        <span class="dash-fin-val pend">RD$ {{ saldo_pendiente_mes|floatformat:0 }}</span>
+      </div>
+    </div>
+    <div class="dash-stat-delta {% if variacion_caja >= 0 %}up{% else %}down{% endif %}">
+      {% if variacion_caja >= 0 %}↑{% else %}↓{% endif %}
+      {{ variacion_caja|floatformat:1 }}% caja vs mes anterior
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid-2">
+  <div class="dash-card">
+    <div class="dash-card-head">
+      <div class="dash-card-titulo">Cobros en caja</div>
+      <div class="dash-card-hint">Últimos 6 meses · RD$ miles (neto)</div>
+    </div>
+    <div class="dash-card-body">
+      <div class="dash-barras" id="graficaBarras"></div>
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-head">
+      <div class="dash-card-titulo">Próximos movimientos</div>
+      <div class="dash-card-hint">Hoy y mañana</div>
+    </div>
+    <div class="dash-card-body">
+      {% for mov in proximos_movimientos %}
+      <div class="dash-movimiento">
+        <div class="dash-mov-icono">🚗</div>
+        <div>
+          <div class="dash-mov-nombre">{{ mov.vehiculo }}</div>
+          <div class="dash-mov-sub">{{ mov.tipo }} · {{ mov.cliente }}</div>
+        </div>
+        <div class="dash-mov-hora">
+          <div>{{ mov.fecha_texto }}</div>
+          <div class="dash-mov-lugar">{{ mov.lugar }}</div>
+          {% if mov.url_entrega %}
+          <a href="{% url 'reservas:entrega' mov.reserva_id %}" class="dash-mov-link">Registrar entrega</a>
+          {% elif mov.url_devolucion %}
+          <a href="{% url 'reservas:devolucion' mov.reserva_id %}" class="dash-mov-link">Registrar devolución</a>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="dash-vacio">No hay movimientos programados para hoy o mañana.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="dash-grid-2 dash-mt">
+  <div class="dash-card">
+    <div class="dash-card-head">
+      <div class="dash-card-titulo">Vehículos más rentados</div>
+      <div class="dash-card-hint">Este mes</div>
+    </div>
+    <div class="dash-card-body">
+      {% for item in top_vehiculos %}
+      <div class="dash-rank">
+        <div class="dash-rank-pos">{% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}</div>
+        <div class="dash-rank-info">
+          <div class="dash-rank-nombre">{{ item.vehiculo__marca }} {{ item.vehiculo__modelo }}</div>
+          <div class="dash-rank-sub">{{ item.total_reservas }} alquiler{{ item.total_reservas|pluralize:"es" }} · RD$ {{ item.ingresos|floatformat:0 }}</div>
+        </div>
+        <span class="dash-badge azul">{{ item.total_reservas }} res.</span>
+      </div>
+      {% empty %}
+      <div class="dash-vacio">Aún no hay reservas este mes.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="dash-card">
+    <div class="dash-card-head">
+      <div class="dash-card-titulo">Alertas de mantenimiento</div>
+      <div class="dash-card-hint">Requieren atención</div>
+    </div>
+    <div class="dash-card-body">
+      {% for alerta in alertas %}
+      <div class="dash-alerta">
+        <div class="dash-alerta-icono" style="background: {{ alerta.fondo }}">{{ alerta.icono }}</div>
+        <div>
+          <div class="dash-alerta-nombre">{{ alerta.nombre }}</div>
+          <div class="dash-alerta-sub">{{ alerta.detalle }}</div>
+        </div>
+        <span class="dash-badge {{ alerta.clase }}">{{ alerta.tipo }}</span>
+      </div>
+      {% empty %}
+      <div class="dash-vacio">No hay alertas pendientes.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{{ grafica_datos|json_script:"grafica-datos" }}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'core/dashboard.js' %}"></script>
+{% endblock %}

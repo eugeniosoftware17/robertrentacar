@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reporte de ingresos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="date" name="desde" value="{{ desde }}" class="mod-input" />
+    <input type="date" name="hasta" value="{{ hasta }}" class="mod-input" />
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <div class="mod-toolbar-actions">
+    <a href="?desde={{ desde }}&hasta={{ hasta }}&exportar=csv" class="mod-btn mod-btn-prim">Exportar Excel</a>
+    <a href="{% url 'reportes:index' %}" class="mod-btn mod-btn-sec">Volver</a>
+  </div>
+</div>
+
+<div class="rep-resumen">
+  <div class="rep-card">
+    <span>Facturado</span>
+    <strong>RD$ {{ facturado_total|floatformat:0 }}</strong>
+    <small>{{ total_reservas }} reserva{{ total_reservas|pluralize:"s" }}</small>
+  </div>
+  <div class="rep-card">
+    <span>Cobrado (reservas)</span>
+    <strong class="verde">RD$ {{ cobrado_total|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Saldo pendiente</span>
+    <strong class="rojo">RD$ {{ saldo_pendiente|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Caja del periodo</span>
+    <strong>RD$ {{ caja_periodo|floatformat:0 }}</strong>
+    <small>Pagos registrados en fechas</small>
+  </div>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Desglose por estado</div>
+      <div class="mod-card-hint">Del {{ desde }} al {{ hasta }}</div>
+    </div>
+  </div>
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr><th>Estado</th><th>Reservas</th><th>Facturado</th><th>Cobrado</th><th>Saldo</th></tr>
+      </thead>
+      <tbody>
+        {% for fila in por_estado %}
+        <tr>
+          <td>{{ fila.estado }}</td>
+          <td>{{ fila.cantidad }}</td>
+          <td>RD$ {{ fila.facturado|floatformat:0 }}</td>
+          <td>RD$ {{ fila.cobrado|floatformat:0 }}</td>
+          <td>RD$ {{ fila.saldo|floatformat:0 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Sin datos en el periodo.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

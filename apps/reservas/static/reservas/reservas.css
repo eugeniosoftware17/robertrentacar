@@ -1,0 +1,496 @@
+/* ============================================================
+   RESERVAS — Estilos del módulo
+   ============================================================ */
+
+.mod-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.mod-buscar {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+  min-width: 240px;
+}
+
+.mod-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-2);
+  overflow: hidden;
+}
+
+.mod-form-card { max-width: 1100px; }
+
+.reserva-form-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 0;
+  align-items: start;
+}
+
+.reserva-form-main {
+  border-right: 1px solid var(--line);
+}
+
+/* Calendario de disponibilidad en formulario */
+.reserva-cal-panel {
+  padding: 16px 14px 18px;
+  position: sticky;
+  top: 20px;
+}
+
+.reserva-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.reserva-cal-titulo {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.reserva-cal-nav {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.reserva-cal-nav:hover {
+  background: var(--topbar-input-bg);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+}
+
+.reserva-cal-sub {
+  font-size: 11px;
+  color: var(--text-3);
+  text-align: center;
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.reserva-cal-dias-head {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.reserva-cal-dias-head span {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  padding: 2px 0;
+}
+
+.reserva-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+
+.reserva-cal-dia {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--surface) 96%, var(--accent) 4%);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: .12s;
+}
+
+.reserva-cal-dia.vacio {
+  background: transparent;
+  cursor: default;
+}
+
+.reserva-cal-dia.hoy {
+  font-weight: 800;
+}
+
+.reserva-cal-dia.ocupado {
+  background: #f9e9e9;
+  color: #a33a3e;
+  border-color: #e8bcbc;
+}
+
+.reserva-cal-dia.seleccion {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+.reserva-cal-dia.conflicto {
+  background: #a33a3e;
+  color: #fff;
+  border-color: #8b2f33;
+  font-weight: 800;
+}
+
+.reserva-cal-dia:not(.vacio):not(.ocupado):hover {
+  border-color: var(--accent);
+}
+
+.reserva-cal-leyenda {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 10.5px;
+  color: var(--text-3);
+}
+
+.reserva-cal-leyenda span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rc-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.rc-dot.libre { background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%); border: 1px solid var(--line); }
+.rc-dot.ocupado { background: #f9e9e9; border: 1px solid #e8bcbc; }
+.rc-dot.seleccion { background: color-mix(in srgb, var(--accent) 25%, var(--surface)); border: 1px solid var(--accent); }
+.rc-dot.conflicto { background: #a33a3e; }
+
+.reserva-cal-alerta {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f9e9e9;
+  color: #a33a3e;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.reserva-cal-bloques {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.reserva-cal-bloques li {
+  font-size: 10.5px;
+  color: var(--text-3);
+  padding: 6px 0;
+  border-top: 1px solid var(--line);
+  line-height: 1.35;
+}
+
+.reserva-cal-bloques li strong {
+  color: var(--text);
+  margin-right: 4px;
+}
+
+.reserva-cal-bloques li span {
+  display: block;
+  font-size: 10px;
+  margin-top: 2px;
+}
+
+#reserva-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mod-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 17px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mod-card-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.mod-card-hint {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+
+.mod-tabla-wrap { overflow-x: auto; }
+
+.mod-tabla {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.mod-tabla th,
+.mod-tabla td {
+  padding: 12px 17px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.mod-tabla th {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--text-3);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+}
+
+.mod-tabla tr:hover td { background: color-mix(in srgb, var(--surface) 96%, var(--accent) 4%); }
+
+.mod-nombre { font-size: 13px; font-weight: 600; color: var(--text); }
+.mod-sub { font-size: 11.5px; color: var(--text-3); margin-top: 1px; }
+
+.mod-acciones { white-space: nowrap; }
+
+.mod-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+.mod-link:hover { text-decoration: underline; }
+.mod-link.rojo { color: var(--color-red); }
+.mod-link.verde { color: #1f7a55; }
+
+.checklist-resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px;
+  margin: 0 17px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+}
+
+.checklist-resumen span {
+  display: block;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 2px;
+}
+
+.checklist-resumen strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.reserva-acciones-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 17px 4px;
+}
+
+.mod-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.mod-badge.verde { background: #e3f2eb; color: #1f7a55; }
+.mod-badge.azul { background: #d9eeee; color: #0b5a60; }
+.mod-badge.amarillo { background: #f8f0de; color: #96702a; }
+.mod-badge.rojo { background: #f9e9e9; color: #a33a3e; }
+.mod-badge.gris { background: #eef2f7; color: #64748b; }
+.mod-badge.violeta { background: #ede9fe; color: #5b4d8a; }
+
+.mod-saldo-pend { color: #a33a3e; font-size: 13px; }
+.mod-saldo-ok { color: #1f7a55; font-size: 12px; font-weight: 700; }
+
+.mod-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 14px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: .15s;
+}
+.mod-btn-prim {
+  background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 70%, var(--copper)));
+  color: #fff;
+}
+.mod-btn-prim:hover { filter: brightness(1.05); }
+.mod-btn-sec {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--text);
+}
+.mod-btn-sec:hover { background: var(--topbar-input-bg); }
+.mod-btn-peligro {
+  background: #a33a3e;
+  color: #fff;
+}
+.mod-btn-peligro:hover { filter: brightness(1.05); }
+
+.mod-input,
+.mod-textarea,
+.mod-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+.mod-input:focus,
+.mod-textarea:focus,
+.mod-select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.mod-textarea { resize: vertical; min-height: 90px; }
+.mod-select { max-width: 220px; }
+
+.mod-form { padding: 18px 17px 20px; }
+
+.mod-alerta-web {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff8e6 0%, #fef3cd 100%);
+  border: 1px solid #e8d48a;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #7a5c00;
+}
+
+.mod-alerta-web p { margin: 0; }
+
+.mod-alerta-web {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #fff8e6 0%, #fef3cd 100%);
+  border: 1px solid #e8d48a;
+  border-radius: 10px;
+  font-size: 13px;
+  color: #7a5c00;
+}
+
+.mod-alerta-web p { margin: 0; }
+
+.mod-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.mod-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  margin-bottom: 6px;
+}
+.mod-field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 24px;
+}
+.mod-field-check label { margin: 0; }
+.mod-field-full { grid-column: 1 / -1; }
+
+.mod-info-precio {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  color: var(--text);
+  font-size: 13px;
+}
+
+.mod-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.mod-errores,
+.mod-error {
+  color: var(--color-red);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.mod-vacio,
+.mod-confirm {
+  padding: 28px 17px;
+  text-align: center;
+  color: var(--text-3);
+}
+.mod-vacio p,
+.mod-confirm p { margin-bottom: 16px; }
+
+@media (max-width: 760px) {
+  .mod-grid { grid-template-columns: 1fr; }
+  .mod-buscar { flex-direction: column; }
+  .mod-select { max-width: none; }
+
+  .reserva-form-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .reserva-form-main {
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .reserva-cal-panel {
+    position: static;
+  }
+}

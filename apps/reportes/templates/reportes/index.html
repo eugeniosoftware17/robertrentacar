@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reportes{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-cards-grid">
+  <a href="{% url 'reportes:ingresos' %}" class="mod-report-card">
+    <h3>Ingresos</h3>
+    <p>Resumen de ingresos por rango de fechas y estado de reserva.</p>
+  </a>
+  <a href="{% url 'reportes:ocupacion' %}" class="mod-report-card">
+    <h3>Ocupación de flota</h3>
+    <p>Porcentaje de días ocupados por vehículo en el mes actual.</p>
+  </a>
+</div>
+{% endblock %}

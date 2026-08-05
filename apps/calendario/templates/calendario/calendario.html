@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Calendario{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'calendario/calendario.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="cal-stats">
+  <div class="cal-stat">
+    <span class="cal-stat-val">{{ total_mes }}</span>
+    <span class="cal-stat-lbl">Reservas</span>
+  </div>
+  <div class="cal-stat">
+    <span class="cal-stat-val">{{ entregas_mes }}</span>
+    <span class="cal-stat-lbl">Entregas mes</span>
+  </div>
+  <div class="cal-stat">
+    <span class="cal-stat-val">{{ devoluciones_mes }}</span>
+    <span class="cal-stat-lbl">Devoluciones mes</span>
+  </div>
+  <div class="cal-stat cal-stat-alerta">
+    <span class="cal-stat-val">{{ sin_pagar }}</span>
+    <span class="cal-stat-lbl">Sin pagar</span>
+  </div>
+  <div class="cal-stat cal-stat-hoy">
+    <span class="cal-stat-val">{{ entregas_hoy }} / {{ devoluciones_hoy }}</span>
+    <span class="cal-stat-lbl">Entregas / dev. hoy</span>
+  </div>
+</div>
+
+<div class="cal-layout" id="calLayout">
+  <div class="cal-main" id="calMain">
+    <div class="cal-toolbar">
+      <div class="cal-toolbar-row cal-toolbar-nav">
+        <div class="cal-nav">
+          {% if vista == 'semana' %}
+          <a href="?anio={{ semana_prev.year }}&mes={{ semana_prev.month }}&dia={{ semana_prev.day }}&vista=semana{{ query_filtros }}" class="cal-nav-btn" title="Semana anterior">‹</a>
+          <a href="?anio={{ hoy_anio }}&mes={{ hoy_mes }}&vista=semana{{ query_filtros }}" class="cal-nav-hoy">Hoy</a>
+          <a href="?anio={{ semana_next.year }}&mes={{ semana_next.month }}&dia={{ semana_next.day }}&vista=semana{{ query_filtros }}" class="cal-nav-btn" title="Semana siguiente">›</a>
+          {% else %}
+          <a href="?anio={{ anio_prev }}&mes={{ mes_prev }}{{ query_extra }}" class="cal-nav-btn" title="Mes anterior">‹</a>
+          <a href="?anio={{ hoy_anio }}&mes={{ hoy_mes }}{{ query_extra }}" class="cal-nav-hoy">Hoy</a>
+          <a href="?anio={{ anio_next }}&mes={{ mes_next }}{{ query_extra }}" class="cal-nav-btn" title="Mes siguiente">›</a>
+          {% endif %}
+        </div>
+
+        <form class="cal-fecha-sel" method="get" id="calFechaForm">
+          {% if filtro_estado %}<input type="hidden" name="estado" value="{{ filtro_estado }}" />{% endif %}
+          {% if filtro_vehiculo %}<input type="hidden" name="vehiculo" value="{{ filtro_vehiculo }}" />{% endif %}
+          {% if filtro_cliente %}<input type="hidden" name="cliente" value="{{ filtro_cliente }}" />{% endif %}
+          <input type="hidden" name="vista" value="{{ vista }}" id="calVistaHidden" />
+          <select name="mes" class="mod-input mod-select cal-sel-mes" aria-label="Mes">
+            {% for num, nombre in meses_opciones %}
+            <option value="{{ num }}" {% if num == mes %}selected{% endif %}>{{ nombre }}</option>
+            {% endfor %}
+          </select>
+          <select name="anio" class="mod-input mod-select cal-sel-anio" aria-label="Año">
+            {% for a in anios_opciones %}
+            <option value="{{ a }}" {% if a == anio %}selected{% endif %}>{{ a }}</option>
+            {% endfor %}
+          </select>
+        </form>
+
+        <h2 class="cal-titulo">
+          {% if vista == 'semana' %}
+          {{ semana_inicio|date:"d M" }} — {{ semana_fin|date:"d M Y" }}
+          {% else %}
+          {{ mes_nombre }} {{ anio }}
+          {% endif %}
+        </h2>
+      </div>
+
+      <div class="cal-toolbar-row cal-toolbar-filtros">
+        <form class="cal-filtros" method="get" id="calFiltrosForm">
+          <input type="hidden" name="anio" value="{{ anio }}" />
+          <input type="hidden" name="mes" value="{{ mes }}" />
+          <input type="hidden" name="vista" value="{{ vista }}" />
+          <select name="estado" class="mod-input mod-select" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            {% for value, label in estados %}
+            <option value="{{ value }}" {% if filtro_estado == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+          <select name="vehiculo" class="mod-input mod-select" onchange="this.form.submit()">
+            <option value="">Todos los vehículos</option>
+            {% for v in vehiculos %}
+            <option value="{{ v.pk }}" {% if filtro_vehiculo == v.pk|stringformat:"s" %}selected{% endif %}>{{ v.nombre_corto }} · {{ v.placa }}</option>
+            {% endfor %}
+          </select>
+          <select name="cliente" class="mod-input mod-select" onchange="this.form.submit()">
+            <option value="">Todos los clientes</option>
+            {% for c in clientes_filtro %}
+            <option value="{{ c.pk }}" {% if filtro_cliente == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.nombre_completo }}</option>
+            {% endfor %}
+          </select>
+        </form>
+
+        <div class="cal-vistas" role="tablist">
+          <a href="?anio={{ anio }}&mes={{ mes }}&vista=mes{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}{% if filtro_vehiculo %}&vehiculo={{ filtro_vehiculo }}{% endif %}{% if filtro_cliente %}&cliente={{ filtro_cliente }}{% endif %}" class="cal-vista-btn {% if vista == 'mes' %}activa{% endif %}" title="Vista mensual">Mes</a>
+          <a href="?anio={{ anio }}&mes={{ mes }}&vista=gantt{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}{% if filtro_vehiculo %}&vehiculo={{ filtro_vehiculo }}{% endif %}{% if filtro_cliente %}&cliente={{ filtro_cliente }}{% endif %}" class="cal-vista-btn {% if vista == 'gantt' %}activa{% endif %}" title="Vista por vehículo">Flota</a>
+          <a href="?anio={{ anio }}&mes={{ mes }}&vista=semana{% if filtro_estado %}&estado={{ filtro_estado }}{% endif %}{% if filtro_vehiculo %}&vehiculo={{ filtro_vehiculo }}{% endif %}{% if filtro_cliente %}&cliente={{ filtro_cliente }}{% endif %}" class="cal-vista-btn {% if vista == 'semana' %}activa{% endif %}" title="Vista semanal">Semana</a>
+        </div>
+
+        <div class="cal-opciones">
+          <button type="button" class="cal-opc-btn" id="calColorModo" title="Alternar color por estado o vehículo">Color: estado</button>
+          <button type="button" class="cal-opc-btn" id="calDensidad" title="Alternar densidad de celdas">Cómodo</button>
+        </div>
+
+        {% if menu_permisos.reservas %}
+        <a href="{% url 'reservas:crear' %}" class="cal-btn-nueva">+ Nueva reserva</a>
+        {% endif %}
+      </div>
+
+      <div class="cal-toolbar-resumen">
+        {{ total_mes }} reserva{{ total_mes|pluralize:"s" }}
+        · {{ sin_pagar }} sin pagar
+        · {{ entregas_hoy }} entrega{{ entregas_hoy|pluralize:"s" }} hoy
+        · {{ devoluciones_hoy }} devolución{{ devoluciones_hoy|pluralize:"es" }} hoy
+      </div>
+    </div>
+
+    {% if vista == 'mes' %}
+    <div class="cal-grid" id="calGrid">
+      {% for nombre in dias_semana %}
+      <div class="cal-dia-head {% if forloop.counter >= 6 %}cal-finde-head{% endif %} {% if forloop.counter0 == hoy_dow %}cal-col-hoy-head{% endif %}">{{ nombre }}</div>
+      {% endfor %}
+
+      {% for semana in semanas %}
+        {% for dia in semana %}
+        {% if dia.en_mes %}
+        <div class="cal-celda {% if dia.es_hoy %}cal-hoy{% endif %} {% if dia.es_finde %}cal-finde{% endif %} {% if dia.es_pasado %}cal-pasado{% endif %} {% if dia.es_col_hoy %}cal-col-hoy{% endif %} {% if dia.total_eventos %}cal-ocupado{% endif %}"
+             data-fecha="{{ dia.fecha_iso }}" data-dow="{{ dia.dow }}" tabindex="0">
+          <div class="cal-celda-top">
+            <div class="cal-num">{{ dia.numero }}</div>
+            {% if dia.total_eventos %}
+            <span class="cal-contador">{{ dia.total_eventos }}</span>
+            {% endif %}
+          </div>
+          <div class="cal-eventos">
+            {% for evento in dia.eventos|slice:":4" %}
+            <a href="{{ evento.editar_url }}"
+               class="cal-evento {{ evento.estado_clase }} {{ evento.pago_clase }} cal-ev-{{ evento.tipo_dia }}"
+               data-color-veh="{{ evento.vehiculo_color }}"
+               data-tooltip="{{ evento.cliente }} · {{ evento.placa }} · RD$ {{ evento.precio_total|floatformat:0 }} · {{ evento.estado_pago_label }}">
+              {% if evento.tipo_dia == 'entrega' %}<span class="cal-ev-icon" aria-hidden="true">🚗</span>{% elif evento.tipo_dia == 'devolucion' %}<span class="cal-ev-icon" aria-hidden="true">🏁</span>{% endif %}
+              {{ evento.vehiculo|truncatechars:13 }}
+            </a>
+            {% endfor %}
+            {% if dia.eventos|length > 4 %}
+            <button type="button" class="cal-mas" data-fecha="{{ dia.fecha_iso }}" data-count="{{ dia.eventos|length }}">
+              +{{ dia.eventos|length|add:"-4" }} más
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% else %}
+        <div class="cal-celda cal-vacia"></div>
+        {% endif %}
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    {% elif vista == 'gantt' %}
+    <div class="cal-gantt-wrap">
+      <div class="cal-gantt" style="--cal-dias: {{ dias_en_mes }}">
+        <div class="cal-gantt-head">
+          <div class="cal-gantt-veh-head">Vehículo</div>
+          <div class="cal-gantt-dias-head">
+            {% for d in gantt_dias %}
+            <div class="cal-gantt-dia {% if d.es_hoy %}cal-hoy{% endif %} {% if d.es_finde %}cal-finde{% endif %}">{{ d.numero }}</div>
+            {% endfor %}
+          </div>
+        </div>
+        {% for fila in gantt_filas %}
+        <div class="cal-gantt-row">
+          <div class="cal-gantt-veh" title="{{ fila.vehiculo.placa }}">
+            <strong>{{ fila.vehiculo.nombre_corto }}</strong>
+            <span>{{ fila.vehiculo.placa }}</span>
+          </div>
+          <div class="cal-gantt-track">
+            {% for bar in fila.barras %}
+            <a href="{{ bar.editar_url }}"
+               class="cal-gantt-bar {{ bar.estado_clase }} {{ bar.pago_clase }}"
+               style="grid-column: {{ bar.col_start }} / span {{ bar.col_span }}; --bar-color: {{ bar.vehiculo_color }}"
+               data-tooltip="{{ bar.tooltip }}"
+               title="{{ bar.tooltip }}">{{ bar.label|truncatechars:18 }}</a>
+            {% endfor %}
+          </div>
+        </div>
+        {% empty %}
+        <p class="cal-gantt-vacio">No hay vehículos activos.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% elif vista == 'semana' %}
+    <div class="cal-semana" id="calSemana">
+      {% for dia in dias_semana_vista %}
+      <div class="cal-semana-col {% if dia.es_hoy %}cal-hoy{% endif %} {% if dia.es_finde %}cal-finde{% endif %} {% if dia.es_pasado %}cal-pasado{% endif %}"
+           data-fecha="{{ dia.fecha_iso }}" tabindex="0">
+        <div class="cal-semana-head">
+          <span class="cal-semana-dow">{{ dia.nombre_corto }}</span>
+          <span class="cal-semana-num">{{ dia.numero }}</span>
+        </div>
+        <div class="cal-semana-eventos">
+          {% for evento in dia.eventos %}
+          <a href="{{ evento.editar_url }}"
+             class="cal-evento cal-evento-semana {{ evento.estado_clase }} {{ evento.pago_clase }}"
+             data-color-veh="{{ evento.vehiculo_color }}"
+             data-tooltip="{{ evento.cliente }} · {{ evento.placa }}">
+            {% if evento.tipo_dia == 'entrega' %}🚗 {% elif evento.tipo_dia == 'devolucion' %}🏁 {% endif %}
+            <strong>{{ evento.vehiculo }}</strong>
+            <span>{{ evento.cliente|truncatechars:20 }}</span>
+          </a>
+          {% empty %}
+          <span class="cal-semana-libre">Libre</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <aside class="cal-panel" id="calPanel">
+    <div class="cal-panel-head">
+      <div>
+        <div class="cal-panel-titulo" id="calPanelTitulo">Detalle del día</div>
+        <div class="cal-panel-sub" id="calPanelSub">Selecciona un día · doble clic para nueva reserva</div>
+      </div>
+      <button type="button" class="cal-panel-cerrar" id="calPanelCerrar" aria-label="Cerrar panel">×</button>
+    </div>
+    <div class="cal-panel-body" id="calPanelBody">
+      <p class="cal-panel-vacio">Haz clic en un día para ver reservas, pagos y saldos. Usa ← → para cambiar de mes.</p>
+    </div>
+    <div class="cal-panel-foot">
+      <a href="{% url 'reservas:crear' %}" class="cal-btn-sec" id="calPanelNueva">Nueva reserva</a>
+    </div>
+  </aside>
+</div>
+
+<div class="cal-leyenda-wrap">
+  <button type="button" class="cal-leyenda-toggle" id="calLeyendaToggle" aria-expanded="true">
+    Leyenda <span class="cal-leyenda-arrow">▾</span>
+  </button>
+  <div class="cal-leyenda" id="calLeyenda">
+    <span class="cal-leyenda-item"><i class="cal-dot pendiente"></i> Pendiente</span>
+    <span class="cal-leyenda-item"><i class="cal-dot confirmada"></i> Confirmada</span>
+    <span class="cal-leyenda-item"><i class="cal-dot activa"></i> Activa</span>
+    <span class="cal-leyenda-item"><i class="cal-dot completada"></i> Completada</span>
+    <span class="cal-leyenda-sep">|</span>
+    <span class="cal-leyenda-item"><i class="cal-dot pago-pagado"></i> Pagado</span>
+    <span class="cal-leyenda-item"><i class="cal-dot pago-parcial"></i> Pago parcial</span>
+    <span class="cal-leyenda-item"><i class="cal-dot pago-pendiente"></i> Sin pagar</span>
+    <span class="cal-leyenda-sep">|</span>
+    <span class="cal-leyenda-item">🚗 Entrega</span>
+    <span class="cal-leyenda-item">🏁 Devolución</span>
+  </div>
+</div>
+
+<div class="cal-tooltip" id="calTooltip" role="tooltip" hidden></div>
+
+{{ eventos_json|json_script:"cal-eventos-data" }}
+{{ anio|json_script:"cal-anio-data" }}
+{{ mes|json_script:"cal-mes-data" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'calendario/calendario.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vehiculos/vehiculos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">{{ page_subtitle }}</div>
+    </div>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="mod-form">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="mod-errores">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.field.widget.input_type == 'checkbox' %}mod-field-check{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+        <div class="mod-error">{{ field.errors.0 }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if accion == 'editar' and vehiculo.visible_en_web and vehiculo.slug %}
+    <div class="mod-card mod-card--hint" style="margin-bottom: 1rem; padding: 0.85rem 1.15rem;">
+      <strong>Enlace público (SEO):</strong>
+      <a href="{{ vehiculo.get_absolute_url }}" target="_blank" rel="noopener">{{ vehiculo.get_absolute_url }}</a>
+      <span class="mod-hint">Se genera automáticamente con marca, modelo y año.</span>
+    </div>
+    {% endif %}
+
+    {% if accion == 'editar' %}
+    <div class="mod-card-head veh-galeria-head">
+      <div>
+        <div class="mod-card-titulo">Fotos para la web (máx. 3)</div>
+        <div class="mod-card-hint">Se muestran en el sitio público. La foto principal del formulario también sirve si no hay galería.</div>
+      </div>
+    </div>
+    <div class="mod-grid veh-galeria-grid">
+      {% for slot in galeria_slots %}
+      <div class="mod-field veh-galeria-slot">
+        <label>Foto {{ slot.orden }}</label>
+        {% if slot.foto %}
+        <img src="{{ slot.foto.imagen.url }}" alt="" class="veh-galeria-preview" />
+        <label class="mod-check-label"><input type="checkbox" name="eliminar_foto_galeria_{{ slot.orden }}" /> Eliminar</label>
+        {% endif %}
+        <input type="file" name="foto_galeria_{{ slot.orden }}" accept="image/*" class="mod-input" />
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="mod-form-actions">
+      <a href="{% url 'vehiculos:lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+      <button type="submit" class="mod-btn mod-btn-prim">
+        {% if accion == 'crear' %}Guardar vehículo{% else %}Actualizar{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'vehiculos/vehiculos.js' %}"></script>
+{% endblock %}

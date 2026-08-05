@@ -1,0 +1,163 @@
+/* ============================================================
+   GLOBAL — Variables, reset y layout principal
+   ============================================================ */
+
+:root {
+  --brand-500: #3B82F6;
+  --brand-600: #2563EB;
+  --copper: #C9954A;
+  --accent: #0E7A80;
+  --accent-hover: #0B5A60;
+
+  --side-bg: #0F1729;
+  --side-text: #94A3B8;
+  --side-text-hi: #E2E8F0;
+  --side-line: rgba(255, 255, 255, .08);
+  --side-active: rgba(59, 130, 246, .15);
+
+  --bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --text: #0F172A;
+  --text-muted: #64748B;
+  --border: #E2E8F0;
+
+  --topbar-bg: var(--surface);
+  --topbar-border: var(--border);
+  --topbar-input-bg: #F6F7F9;
+  --topbar-btn-bg: var(--surface);
+  --topbar-btn-hover: #F6F7F9;
+  --topbar-icon: #525C6B;
+  --topbar-shadow: 0 1px 0 rgba(15, 23, 42, .04), 0 8px 24px rgba(15, 23, 42, .04);
+
+  --sh-3: 0 12px 40px rgba(15, 23, 42, .18);
+  --sh-2: 0 2px 8px rgba(15, 23, 42, .06);
+  --line: var(--border);
+  --r-md: 12px;
+  --text-3: var(--text-muted);
+  --f-dis: "Segoe UI", system-ui, sans-serif;
+  --color-green: #1f7a55;
+  --color-red: #a33a3e;
+  --brand-50: rgba(59, 130, 246, .08);
+}
+
+[data-theme="dark"] {
+  --bg: #0B1120;
+  --surface: #111827;
+  --text: #F1F5F9;
+  --text-muted: #94A3B8;
+  --border: #1E293B;
+
+  --topbar-bg: var(--surface);
+  --topbar-border: var(--border);
+  --topbar-input-bg: #1E293B;
+  --topbar-btn-bg: #1E293B;
+  --topbar-btn-hover: #334155;
+  --topbar-icon: #CBD5E1;
+  --topbar-shadow: 0 1px 0 rgba(0, 0, 0, .25), 0 8px 24px rgba(0, 0, 0, .18);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  display: flex;
+}
+
+/* ── Layout principal ─────────────────────────────────────── */
+.main {
+  flex: 1;
+  margin-left: 250px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content {
+  flex: 1;
+  padding: 24px 28px 32px;
+}
+
+/* Fondo oscuro del menú móvil */
+.scrim {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, .45);
+  z-index: 50;
+}
+
+.scrim.open {
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .main {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}
+
+.flash-messages {
+  margin-bottom: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.flash {
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.flash-success {
+  background: #e3f2eb;
+  color: #1f7a55;
+  border: 1px solid #bfe3d0;
+}
+
+.flash-error {
+  background: #f9e9e9;
+  color: #a33a3e;
+  border: 1px solid #efcaca;
+}
+
+.mod-paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.mod-pag-btn {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.mod-pag-info {
+  font-size: 12px;
+  color: var(--text-muted);
+}
