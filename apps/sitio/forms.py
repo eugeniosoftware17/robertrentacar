@@ -142,6 +142,9 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'bloquear_mantenimiento',
             'mensaje_reserva_exito',
             'meta_descripcion',
+            'home_html_extra',
+            'css_global',
+            'js_global',
         ]
         widgets = {
             'home_titulo': forms.TextInput(attrs={'class': 'mod-input'}),
@@ -158,6 +161,9 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'anticipacion_horas': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),
             'mensaje_reserva_exito': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
             'meta_descripcion': forms.TextInput(attrs={'class': 'mod-input', 'maxlength': 160}),
+            'home_html_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 6}),
+            'css_global': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
+            'js_global': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
             'whatsapp_flotante': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'mostrar_whatsapp': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'mostrar_instagram': forms.CheckboxInput(attrs={'class': 'mod-check'}),
@@ -173,11 +179,13 @@ class ConfiguracionSitioForm(forms.ModelForm):
 class PaginaInformativaForm(forms.ModelForm):
     class Meta:
         model = PaginaInformativa
-        fields = ['slug', 'titulo', 'contenido', 'publicada', 'en_menu', 'orden']
+        fields = ['slug', 'titulo', 'contenido', 'css_extra', 'js_extra', 'publicada', 'en_menu', 'orden']
         widgets = {
             'slug': forms.TextInput(attrs={'class': 'mod-input'}),
             'titulo': forms.TextInput(attrs={'class': 'mod-input'}),
-            'contenido': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 12}),
+            'contenido': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 14}),
+            'css_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
+            'js_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
             'orden': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),
             'publicada': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'en_menu': forms.CheckboxInput(attrs={'class': 'mod-check'}),

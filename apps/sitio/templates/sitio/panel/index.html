@@ -13,6 +13,20 @@
   .sitio-panel-red-row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem 1rem; align-items: end; }
   .sitio-panel-red-row .mod-field-check { margin-bottom: 0.35rem; }
   @media (max-width: 640px) { .sitio-panel-red-row { grid-template-columns: 1fr; } }
+  .mod-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .sitio-panel-alerta {
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+    font-size: 13px;
+    color: var(--text-2);
+  }
 </style>
 {% endblock %}
 
@@ -90,6 +104,18 @@
         <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
         <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
         <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Código personalizado (avanzado)</div>
+      <div class="sitio-panel-alerta">
+        Solo para administradores. HTML, CSS o JS incorrecto puede afectar el sitio público. Prueba en una página antes de usar código global.
+      </div>
+      <div class="mod-grid">
+        <div class="mod-field mod-field-full">{{ form.home_html_extra.label_tag }}{{ form.home_html_extra }}<span class="mod-hint">{{ form.home_html_extra.help_text }}</span></div>
+        <div class="mod-field mod-field-full">{{ form.css_global.label_tag }}{{ form.css_global }}<span class="mod-hint">{{ form.css_global.help_text }}</span></div>
+        <div class="mod-field mod-field-full">{{ form.js_global.label_tag }}{{ form.js_global }}<span class="mod-hint">{{ form.js_global.help_text }}</span></div>
       </div>
     </div>
 

@@ -1240,7 +1240,40 @@
 }
 
 .sitio-prosa { max-width: 720px; }
-.sitio-contenido { white-space: pre-wrap; }
+
+.sitio-contenido--html {
+  line-height: 1.65;
+}
+
+.sitio-contenido--html h2,
+.sitio-contenido--html h3 {
+  margin: 1.5rem 0 0.65rem;
+}
+
+.sitio-contenido--html p {
+  margin: 0 0 0.85rem;
+}
+
+.sitio-contenido--html ul,
+.sitio-contenido--html ol {
+  margin: 0 0 1rem 1.25rem;
+}
+
+.sitio-contenido--html img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.sitio-contenido--html iframe {
+  max-width: 100%;
+  border: 0;
+  border-radius: 10px;
+}
+
+.sitio-section--custom {
+  padding-top: 0;
+}
 
 .sitio-footer {
   background: #1a2e2b;

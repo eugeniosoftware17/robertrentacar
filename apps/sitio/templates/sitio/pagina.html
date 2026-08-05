@@ -2,11 +2,23 @@
 
 {% block title %}{{ pagina.titulo }} — {{ empresa.nombre }}{% endblock %}
 
+{% block extra_css %}
+{% if pagina.css_extra %}
+<style id="pagina-css-{{ pagina.slug }}">{{ pagina.css_extra|safe }}</style>
+{% endif %}
+{% endblock %}
+
 {% block content %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-prosa">
     <h1>{{ pagina.titulo }}</h1>
-    <div class="sitio-contenido">{{ pagina.contenido|linebreaks }}</div>
+    <div class="sitio-contenido sitio-contenido--html">{{ pagina.contenido|safe }}</div>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+{% if pagina.js_extra %}
+<script id="pagina-js-{{ pagina.slug }}">{{ pagina.js_extra|safe }}</script>
+{% endif %}
 {% endblock %}

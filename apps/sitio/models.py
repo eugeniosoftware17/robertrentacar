@@ -61,6 +61,21 @@ class ConfiguracionSitio(models.Model):
         blank=True,
         help_text='Texto para Google (máx. 160 caracteres). Si está vacío se genera automáticamente.',
     )
+    home_html_extra = models.TextField(
+        'HTML extra del inicio',
+        blank=True,
+        help_text='Bloque HTML personalizado en la página de inicio (antes del pie de llamada a la acción).',
+    )
+    css_global = models.TextField(
+        'CSS global del sitio',
+        blank=True,
+        help_text='Estilos aplicados a todas las páginas públicas. Solo administradores.',
+    )
+    js_global = models.TextField(
+        'JavaScript global del sitio',
+        blank=True,
+        help_text='Scripts en todas las páginas (Analytics, Pixel, etc.). Solo administradores.',
+    )
 
     class Meta:
         verbose_name = 'Configuración del sitio'
@@ -124,7 +139,20 @@ class PaginaInformativa(models.Model):
 
     slug = models.SlugField('Identificador', max_length=40, unique=True)
     titulo = models.CharField('Título', max_length=120)
-    contenido = models.TextField('Contenido')
+    contenido = models.TextField(
+        'Contenido (HTML)',
+        help_text='Puedes usar HTML: <h2>, <p>, <img>, <iframe>, listas, etc.',
+    )
+    css_extra = models.TextField(
+        'CSS de la página',
+        blank=True,
+        help_text='Estilos solo para esta página.',
+    )
+    js_extra = models.TextField(
+        'JavaScript de la página',
+        blank=True,
+        help_text='Scripts solo para esta página.',
+    )
     publicada = models.BooleanField('Publicada', default=True)
     en_menu = models.BooleanField('Mostrar en menú', default=True)
     orden = models.PositiveSmallIntegerField('Orden en menú', default=0)

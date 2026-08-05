@@ -120,6 +120,14 @@
 </section>
 {% endif %}
 
+{% if sitio.home_html_extra %}
+<section class="sitio-section sitio-section--custom">
+  <div class="sitio-container sitio-contenido sitio-contenido--html">
+    {{ sitio.home_html_extra|safe }}
+  </div>
+</section>
+{% endif %}
+
 <section class="sitio-section sitio-section--cta">
   <div class="sitio-container sitio-cta-box">
     <div>

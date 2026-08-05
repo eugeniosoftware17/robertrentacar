@@ -18,6 +18,9 @@
   <meta name="twitter:card" content="summary_large_image" />
   {% block structured_data %}{% endblock %}
   <link rel="stylesheet" href="{% static 'sitio/sitio.css' %}" />
+  {% if sitio.css_global %}
+  <style id="sitio-css-global">{{ sitio.css_global|safe }}</style>
+  {% endif %}
   {% block extra_css %}{% endblock %}
 </head>
 <body class="sitio-body">
@@ -68,5 +71,8 @@
 
   <script src="{% static 'sitio/sitio.js' %}"></script>
   {% block extra_js %}{% endblock %}
+  {% if sitio.js_global %}
+  <script id="sitio-js-global">{{ sitio.js_global|safe }}</script>
+  {% endif %}
 </body>
 </html>

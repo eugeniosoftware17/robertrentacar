@@ -5,6 +5,26 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+<style>
+  .sitio-panel-seccion { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+  .sitio-panel-seccion:first-of-type { margin-top: 0; padding-top: 0; border-top: none; }
+  .sitio-panel-seccion-titulo { font-size: 14px; font-weight: 700; margin-bottom: 0.25rem; }
+  .sitio-panel-seccion-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; }
+  .mod-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .sitio-panel-alerta {
+    margin-bottom: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+    font-size: 13px;
+    color: var(--text-2);
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,19 +32,50 @@
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">Contenido HTML y código opcional por página</div>
     </div>
   </div>
   <form method="post" class="mod-form">
     {% csrf_token %}
-    <div class="mod-grid">
-      {% for field in form %}
-      <div class="mod-field {% if field.field.widget.input_type == 'checkbox' %}mod-field-check{% endif %} {% if field.name == 'contenido' %}mod-field-full{% endif %}">
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Datos de la página</div>
+      <div class="mod-grid">
+        <div class="mod-field">{{ form.slug.label_tag }}{{ form.slug }}<span class="mod-hint">URL: /pagina/<strong>identificador</strong>/</span></div>
+        <div class="mod-field">{{ form.titulo.label_tag }}{{ form.titulo }}</div>
+        <div class="mod-field">{{ form.orden.label_tag }}{{ form.orden }}</div>
+        <div class="mod-field mod-field-check">{{ form.publicada }}{{ form.publicada.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.en_menu }}{{ form.en_menu.label_tag }}</div>
       </div>
-      {% endfor %}
     </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Contenido HTML</div>
+      <div class="sitio-panel-seccion-hint">{{ form.contenido.help_text }}</div>
+      <div class="mod-field mod-field-full">
+        {{ form.contenido.label_tag }}
+        {{ form.contenido }}
+        {% if form.contenido.errors %}<div class="mod-error">{{ form.contenido.errors.0 }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">CSS y JavaScript (opcional)</div>
+      <div class="sitio-panel-alerta">Código incorrecto puede romper esta página. Usa CSS/JS global en Sitio web si aplica a todo el sitio.</div>
+      <div class="mod-grid">
+        <div class="mod-field mod-field-full">
+          {{ form.css_extra.label_tag }}
+          {{ form.css_extra }}
+          <span class="mod-hint">{{ form.css_extra.help_text }}</span>
+        </div>
+        <div class="mod-field mod-field-full">
+          {{ form.js_extra.label_tag }}
+          {{ form.js_extra }}
+          <span class="mod-hint">{{ form.js_extra.help_text }}</span>
+        </div>
+      </div>
+    </div>
+
     <div class="mod-form-actions">
       <a href="{% url 'sitio_web:panel_index' %}" class="mod-btn mod-btn-sec">Cancelar</a>
       <button type="submit" class="mod-btn mod-btn-prim">Guardar</button>
