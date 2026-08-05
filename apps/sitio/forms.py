@@ -116,12 +116,26 @@ class ReservaWebForm(forms.Form):
 
 
 class ConfiguracionSitioForm(forms.ModelForm):
+    quitar_home_fondo = forms.BooleanField(
+        required=False,
+        label='Quitar imagen de fondo actual',
+    )
+
     class Meta:
         model = ConfiguracionSitio
         fields = [
             'home_titulo',
             'home_subtitulo',
             'home_texto',
+            'home_diseno',
+            'home_fondo_imagen',
+            'home_fondo_opacidad',
+            'home_mostrar_panel',
+            'home_mostrar_categorias',
+            'home_mostrar_destacados',
+            'home_mostrar_cta',
+            'home_mostrar_contador',
+            'home_mostrar_redes_hero',
             'whatsapp',
             'whatsapp_mensaje',
             'whatsapp_flotante',
@@ -150,6 +164,15 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'home_titulo': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_subtitulo': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_texto': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 4}),
+            'home_diseno': forms.Select(attrs={'class': 'mod-input'}),
+            'home_fondo_imagen': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
+            'home_fondo_opacidad': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0, 'max': 100}),
+            'home_mostrar_panel': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_mostrar_categorias': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_mostrar_destacados': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_mostrar_cta': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_mostrar_contador': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_mostrar_redes_hero': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'whatsapp': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': '+1 809 555 1234'}),
             'whatsapp_mensaje': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 2}),
             'horario': forms.TextInput(attrs={'class': 'mod-input'}),
@@ -174,6 +197,12 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'reserva_auto_confirmar': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'bloquear_mantenimiento': forms.CheckboxInput(attrs={'class': 'mod-check'}),
         }
+
+    def clean_home_fondo_opacidad(self):
+        valor = self.cleaned_data.get('home_fondo_opacidad')
+        if valor is not None and not 0 <= valor <= 100:
+            raise forms.ValidationError('Debe estar entre 0 y 100.')
+        return valor
 
 
 class PaginaInformativaForm(forms.ModelForm):

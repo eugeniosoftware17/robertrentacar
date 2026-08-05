@@ -359,6 +359,105 @@
   padding: 3.5rem 0 4rem;
 }
 
+.sitio-hero-bg,
+.sitio-hero-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sitio-hero-bg {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.sitio-hero-overlay {
+  background: rgba(8, 66, 72, calc(var(--hero-overlay, 60) * 1%));
+}
+
+.sitio-hero .sitio-container {
+  position: relative;
+  z-index: 1;
+}
+
+.sitio-hero--foto {
+  min-height: min(72vh, 640px);
+  display: flex;
+  align-items: center;
+  padding: 4rem 0;
+}
+
+.sitio-hero--foto .sitio-hero-grid--solo {
+  width: 100%;
+}
+
+.sitio-hero--compacto {
+  padding: 2.25rem 0 2.75rem;
+}
+
+.sitio-hero--compacto h1 {
+  font-size: clamp(1.5rem, 3.5vw, 2rem);
+}
+
+.sitio-hero-grid--solo {
+  grid-template-columns: 1fr;
+}
+
+.sitio-hero-grid--split {
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 2.5rem;
+}
+
+.sitio-hero-copy--center {
+  text-align: center;
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+.sitio-hero-copy--center .sitio-lead,
+.sitio-hero-copy--center .sitio-text--hero {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sitio-hero-copy--center h1 {
+  max-width: none;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.sitio-hero-copy--center .sitio-hero-actions,
+.sitio-hero-copy--center .sitio-hero-redes {
+  justify-content: center;
+}
+
+.sitio-hero-copy--center .sitio-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.sitio-hero-split-img {
+  min-height: 280px;
+  border-radius: var(--sitio-radius);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sitio-hero--split:not(:has(.sitio-hero-split-img)) {
+  background: linear-gradient(135deg, #084248 0%, #0b5a60 45%, #127a82 100%);
+}
+
+.sitio-hero--clasico:has(.sitio-hero-bg),
+.sitio-hero--compacto:has(.sitio-hero-bg),
+.sitio-hero--centrado:has(.sitio-hero-bg),
+.sitio-hero--foto:has(.sitio-hero-bg) {
+  background: #084248;
+}
+
 .sitio-hero-grid {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -1446,6 +1545,9 @@
   .sitio-nav.is-open { display: flex; }
   .sitio-header-inner { flex-wrap: wrap; }
   .sitio-hero-grid { grid-template-columns: 1fr; }
+  .sitio-hero-grid--split { grid-template-columns: 1fr; }
+  .sitio-hero-split-img { min-height: 220px; order: -1; }
+  .sitio-hero--foto { min-height: 58vh; }
   .sitio-cta-box { flex-direction: column; align-items: flex-start; }
   .sitio-detalle { grid-template-columns: 1fr; }
   .sitio-lateral-sticky { position: static; }

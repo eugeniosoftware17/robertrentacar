@@ -1,0 +1,54 @@
+{% load sitio_extras %}
+<section
+  class="sitio-hero sitio-hero--home sitio-hero--{{ sitio.home_diseno }}"
+  {% if sitio.home_tiene_fondo and sitio.home_diseno != 'split' %}
+  style="--hero-overlay: {{ sitio.home_fondo_opacidad }};"
+  {% endif %}
+>
+  {% if sitio.home_tiene_fondo and sitio.home_diseno != 'split' %}
+  <div class="sitio-hero-bg" style="background-image: url('{{ sitio.home_fondo_imagen.url }}');"></div>
+  <div class="sitio-hero-overlay"></div>
+  {% endif %}
+
+  <div class="sitio-container sitio-hero-grid{% if not sitio.home_mostrar_panel or sitio.home_diseno == 'centrado' or sitio.home_diseno == 'foto' %} sitio-hero-grid--solo{% endif %}{% if sitio.home_diseno == 'split' %} sitio-hero-grid--split{% endif %}">
+    <div class="sitio-hero-copy{% if sitio.home_diseno == 'centrado' or sitio.home_diseno == 'foto' %} sitio-hero-copy--center{% endif %}">
+      <p class="sitio-kicker">{{ empresa.nombre }}</p>
+      <h1>{{ sitio.home_titulo }}</h1>
+      {% if sitio.home_subtitulo %}
+      <p class="sitio-lead">{{ sitio.home_subtitulo }}</p>
+      {% else %}
+      <p class="sitio-lead">Alquiler de vehículos con reserva online, tarifas claras y flota verificada.</p>
+      {% endif %}
+      {% if sitio.home_texto %}<p class="sitio-text sitio-text--hero">{{ sitio.home_texto }}</p>{% endif %}
+      <div class="sitio-hero-actions">
+        <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim">Ver vehículos disponibles</a>
+        {% if sitio.whatsapp_activo %}
+        <a href="{% whatsapp_url sitio %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">Reservar por WhatsApp</a>
+        {% endif %}
+      </div>
+      {% if sitio.home_mostrar_redes_hero and sitio.tiene_redes %}
+      <div class="sitio-hero-redes">
+        {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--hero" %}
+      </div>
+      {% endif %}
+      {% if sitio.home_mostrar_contador and total_vehiculos %}
+      <p class="sitio-hero-stat"><strong>{{ total_vehiculos }}</strong> vehículo{{ total_vehiculos|pluralize:"s" }} disponible{{ total_vehiculos|pluralize:"s" }} para renta</p>
+      {% endif %}
+    </div>
+
+    {% if sitio.home_diseno == 'split' and sitio.home_tiene_fondo %}
+    <div class="sitio-hero-split-img" style="background-image: url('{{ sitio.home_fondo_imagen.url }}');"></div>
+    {% elif sitio.home_mostrar_panel and sitio.home_diseno != 'centrado' and sitio.home_diseno != 'foto' %}
+    <div class="sitio-hero-panel">
+      <h2 class="sitio-hero-panel-titulo">¿Por qué reservar con nosotros?</h2>
+      <ul class="sitio-hero-beneficios">
+        <li>Disponibilidad real por vehículo y fecha</li>
+        <li>Reserva online en minutos</li>
+        <li>SUV, sedán, pick-up, van y más</li>
+        <li>Atención personalizada{% if sitio.whatsapp_activo %} por WhatsApp{% endif %}</li>
+      </ul>
+      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim sitio-btn--block">Explorar flota</a>
+    </div>
+    {% endif %}
+  </div>
+</section>

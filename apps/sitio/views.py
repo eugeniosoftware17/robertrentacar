@@ -197,9 +197,13 @@ def panel_index(request):
     paginas = PaginaInformativa.objects.all()
 
     if request.method == 'POST' and 'guardar_sitio' in request.POST:
-        form = ConfiguracionSitioForm(request.POST, instance=config)
+        form = ConfiguracionSitioForm(request.POST, request.FILES, instance=config)
         if form.is_valid():
-            form.save()
+            sitio = form.save(commit=False)
+            if form.cleaned_data.get('quitar_home_fondo') and config.home_fondo_imagen:
+                config.home_fondo_imagen.delete(save=False)
+                sitio.home_fondo_imagen = None
+            sitio.save()
             messages.success(request, 'Configuración del sitio guardada.')
             return redirect('sitio_web:panel_index')
     else:

@@ -27,45 +27,9 @@
 {% endblock %}
 
 {% block content %}
-<section class="sitio-hero sitio-hero--home">
-  <div class="sitio-container sitio-hero-grid">
-    <div class="sitio-hero-copy">
-      <p class="sitio-kicker">{{ empresa.nombre }}</p>
-      <h1>{{ sitio.home_titulo }}</h1>
-      {% if sitio.home_subtitulo %}
-      <p class="sitio-lead">{{ sitio.home_subtitulo }}</p>
-      {% else %}
-      <p class="sitio-lead">Alquiler de vehículos con reserva online, tarifas claras y flota verificada.</p>
-      {% endif %}
-      {% if sitio.home_texto %}<p class="sitio-text sitio-text--hero">{{ sitio.home_texto }}</p>{% endif %}
-      <div class="sitio-hero-actions">
-        <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim">Ver vehículos disponibles</a>
-        {% if sitio.whatsapp_activo %}
-        <a href="{% whatsapp_url sitio %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">Reservar por WhatsApp</a>
-        {% endif %}
-      </div>
-      {% if sitio.tiene_redes %}
-      <div class="sitio-hero-redes">
-        {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--hero" %}
-      </div>
-      {% endif %}
-      {% if total_vehiculos %}
-      <p class="sitio-hero-stat"><strong>{{ total_vehiculos }}</strong> vehículo{{ total_vehiculos|pluralize:"s" }} disponible{{ total_vehiculos|pluralize:"s" }} para renta</p>
-      {% endif %}
-    </div>
-    <div class="sitio-hero-panel">
-      <h2 class="sitio-hero-panel-titulo">¿Por qué reservar con nosotros?</h2>
-      <ul class="sitio-hero-beneficios">
-        <li>Disponibilidad real por vehículo y fecha</li>
-        <li>Reserva online en minutos</li>
-        <li>SUV, sedán, pick-up, van y más</li>
-        <li>Atención personalizada{% if sitio.whatsapp_activo %} por WhatsApp{% endif %}</li>
-      </ul>
-      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim sitio-btn--block">Explorar flota</a>
-    </div>
-  </div>
-</section>
+{% include "sitio/partials/home_hero.html" %}
 
+{% if sitio.home_mostrar_categorias %}
 <section class="sitio-section sitio-section--categorias">
   <div class="sitio-container">
     <h2>Elige por categoría</h2>
@@ -80,8 +44,9 @@
     </div>
   </div>
 </section>
+{% endif %}
 
-{% if destacados %}
+{% if sitio.home_mostrar_destacados and destacados %}
 <section class="sitio-section">
   <div class="sitio-container">
     <div class="sitio-section-head">
@@ -128,6 +93,7 @@
 </section>
 {% endif %}
 
+{% if sitio.home_mostrar_cta %}
 <section class="sitio-section sitio-section--cta">
   <div class="sitio-container sitio-cta-box">
     <div>
@@ -142,4 +108,5 @@
     </div>
   </div>
 </section>
+{% endif %}
 {% endblock %}

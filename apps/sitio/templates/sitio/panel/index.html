@@ -27,6 +27,55 @@
     font-size: 13px;
     color: var(--text-2);
   }
+  .sitio-panel-diseno-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+  .sitio-panel-diseno-opt {
+    display: block;
+    cursor: pointer;
+  }
+  .sitio-panel-diseno-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .sitio-panel-diseno-card {
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 0.75rem;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.35;
+    transition: border-color .15s, background .15s;
+  }
+  .sitio-panel-diseno-opt input:checked + .sitio-panel-diseno-card {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  }
+  .sitio-panel-diseno-preview {
+    height: 44px;
+    border-radius: 6px;
+    margin-bottom: 0.45rem;
+    background: linear-gradient(135deg, #084248, #127a82);
+  }
+  .sitio-panel-diseno-preview--foto { background: linear-gradient(rgba(0,0,0,.45), rgba(0,0,0,.45)), linear-gradient(135deg, #555, #888); }
+  .sitio-panel-diseno-preview--centrado { display: flex; align-items: center; justify-content: center; }
+  .sitio-panel-diseno-preview--centrado::after { content: ''; width: 40%; height: 8px; background: rgba(255,255,255,.7); border-radius: 4px; }
+  .sitio-panel-diseno-preview--split { display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; }
+  .sitio-panel-diseno-preview--split::before { content: ''; background: rgba(255,255,255,.25); }
+  .sitio-panel-diseno-preview--split::after { content: ''; background: rgba(255,255,255,.5); }
+  .sitio-panel-diseno-preview--compacto { height: 28px; }
+  .sitio-panel-fondo-preview {
+    max-width: 280px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    margin-top: 0.5rem;
+  }
+  .sitio-panel-toggles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.35rem 1rem;
+  }
 </style>
 {% endblock %}
 
@@ -43,19 +92,64 @@
       <div class="mod-card-hint">Textos, redes sociales, WhatsApp y reglas de reserva</div>
     </div>
   </div>
-  <form method="post" class="mod-form">
+  <form method="post" class="mod-form" enctype="multipart/form-data">
     {% csrf_token %}
     <input type="hidden" name="guardar_sitio" value="1" />
 
     <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Inicio</div>
-      <div class="sitio-panel-seccion-hint">Título, subtítulo y texto del home</div>
+      <div class="sitio-panel-seccion-titulo">Textos del inicio</div>
+      <div class="sitio-panel-seccion-hint">Título, subtítulo y párrafo principal</div>
       <div class="mod-grid">
         <div class="mod-field mod-field-full">{{ form.home_titulo.label_tag }}{{ form.home_titulo }}</div>
         <div class="mod-field mod-field-full">{{ form.home_subtitulo.label_tag }}{{ form.home_subtitulo }}</div>
         <div class="mod-field mod-field-full">{{ form.home_texto.label_tag }}{{ form.home_texto }}</div>
         <div class="mod-field mod-field-full">{{ form.horario.label_tag }}{{ form.horario }}</div>
         <div class="mod-field mod-field-full">{{ form.meta_descripcion.label_tag }}{{ form.meta_descripcion }}<span class="mod-hint">{{ form.meta_descripcion.help_text }}</span></div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Diseño e imagen de fondo</div>
+      <div class="sitio-panel-seccion-hint">Elige un estilo y sube una foto para el hero (opcional)</div>
+      <div class="sitio-panel-diseno-grid">
+        {% for value, label in form.fields.home_diseno.choices %}
+        <label class="sitio-panel-diseno-opt">
+          <input type="radio" name="home_diseno" value="{{ value }}" {% if form.instance.home_diseno == value %}checked{% endif %} />
+          <span class="sitio-panel-diseno-card">
+            <span class="sitio-panel-diseno-preview sitio-panel-diseno-preview--{{ value }}"></span>
+            {{ label }}
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="mod-grid">
+        <div class="mod-field">
+          {{ form.home_fondo_imagen.label_tag }}
+          {{ form.home_fondo_imagen }}
+          <span class="mod-hint">{{ form.home_fondo_imagen.help_text }}</span>
+          {% if form.instance.home_fondo_imagen %}
+          <img src="{{ form.instance.home_fondo_imagen.url }}" alt="" class="sitio-panel-fondo-preview" />
+          <div class="mod-field-check" style="margin-top:0.5rem;">{{ form.quitar_home_fondo }}{{ form.quitar_home_fondo.label_tag }}</div>
+          {% endif %}
+        </div>
+        <div class="mod-field">
+          {{ form.home_fondo_opacidad.label_tag }}
+          {{ form.home_fondo_opacidad }}
+          <span class="mod-hint">{{ form.home_fondo_opacidad.help_text }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">Secciones visibles en el inicio</div>
+      <div class="sitio-panel-seccion-hint">Activa o desactiva bloques de la página principal</div>
+      <div class="sitio-panel-toggles">
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_panel }}{{ form.home_mostrar_panel.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_categorias }}{{ form.home_mostrar_categorias.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_destacados }}{{ form.home_mostrar_destacados.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_cta }}{{ form.home_mostrar_cta.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_contador }}{{ form.home_mostrar_contador.label_tag }}</div>
+        <div class="mod-field mod-field-check">{{ form.home_mostrar_redes_hero }}{{ form.home_mostrar_redes_hero.label_tag }}</div>
       </div>
     </div>
 
