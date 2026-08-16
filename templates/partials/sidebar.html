@@ -43,9 +43,14 @@
     {% endif %}
     {% endif %}
 
-    {% if menu_permisos.reportes %}
+    {% if menu_permisos.reportes or menu_permisos.finanzas %}
     <div class="nav-label">Análisis</div>
+    {% if menu_permisos.reportes %}
     <a class="nav-item" href="{% url 'reportes:index' %}">Reportes</a>
+    {% endif %}
+    {% if menu_permisos.finanzas %}
+    <a class="nav-item" href="{% url 'finanzas:index' %}">Finanzas</a>
+    {% endif %}
     {% endif %}
 
     {% if menu_permisos.configuracion %}

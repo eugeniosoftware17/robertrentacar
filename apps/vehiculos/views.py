@@ -7,6 +7,7 @@ from apps.core.utils import paginar_queryset
 
 from .forms import VehiculoForm
 from .models import Vehiculo, VehiculoFoto
+from .services import resumen_financiero
 
 
 def lista(request):
@@ -99,6 +100,22 @@ def editar(request, pk):
         'accion': 'editar',
         'vehiculo': vehiculo,
         'galeria_slots': galeria_slots,
+    })
+
+
+def rentabilidad(request, pk):
+    vehiculo = get_object_or_404(Vehiculo, pk=pk)
+    desde = request.GET.get('desde') or ''
+    hasta = request.GET.get('hasta') or ''
+    resumen = resumen_financiero(vehiculo, desde=desde or None, hasta=hasta or None)
+
+    return render(request, 'vehiculos/rentabilidad.html', {
+        'page_title': 'Rentabilidad',
+        'page_subtitle': vehiculo.nombre_corto,
+        'vehiculo': vehiculo,
+        'resumen': resumen,
+        'desde': desde,
+        'hasta': hasta,
     })
 
 

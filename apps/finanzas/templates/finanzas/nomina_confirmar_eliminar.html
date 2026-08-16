@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eliminar pago de nómina{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Eliminar pago de nómina</div>
+      <div class="mod-card-hint">{{ pago }}</div>
+    </div>
+  </div>
+  <div class="mod-confirm">
+    <p>¿Confirmas que deseas eliminar este pago?</p>
+    <form method="post">
+      {% csrf_token %}
+      <a href="{% url 'finanzas:nomina_lista' %}" class="mod-btn mod-btn-sec">Volver</a>
+      <button type="submit" class="mod-btn mod-btn-peligro">Eliminar</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Finanzas{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="date" name="desde" value="{{ desde }}" class="mod-input" />
+    <input type="date" name="hasta" value="{{ hasta }}" class="mod-input" />
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+</div>
+
+<div class="rep-resumen">
+  <div class="rep-card">
+    <span>Nómina del periodo</span>
+    <strong>RD$ {{ total_nomina|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Gastos del periodo</span>
+    <strong>RD$ {{ total_gastos|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Total egresos</span>
+    <strong class="rojo">RD$ {{ total_general|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Empleados activos</span>
+    <strong>{{ empleados_activos }}</strong>
+  </div>
+</div>
+
+<div class="mod-cards-grid">
+  <a href="{% url 'finanzas:empleados_lista' %}" class="mod-report-card">
+    <h3>Empleados</h3>
+    <p>Personal del negocio y su salario de referencia.</p>
+  </a>
+  <a href="{% url 'finanzas:nomina_lista' %}" class="mod-report-card">
+    <h3>Nómina</h3>
+    <p>Pagos registrados a cada empleado.</p>
+  </a>
+  <a href="{% url 'finanzas:gastos_lista' %}" class="mod-report-card">
+    <h3>Gastos</h3>
+    <p>Gastos adicionales del negocio, por categoría y fecha.</p>
+  </a>
+</div>
+{% endblock %}

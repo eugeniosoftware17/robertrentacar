@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -45,6 +47,14 @@ class Vehiculo(models.Model):
         default=Transmision.AUTOMATICO,
     )
     tarifa_diaria = models.DecimalField('Tarifa diaria (RD$)', max_digits=10, decimal_places=2)
+    precio_compra = models.DecimalField(
+        'Precio de compra (RD$)',
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        help_text='Lo que costó adquirir el vehículo. Se usa para calcular la rentabilidad.',
+    )
+    fecha_compra = models.DateField('Fecha de compra', blank=True, null=True)
     descripcion_web = models.TextField('Descripción (web)', blank=True)
     visible_en_web = models.BooleanField('Visible en sitio web', default=False)
     destacado_web = models.BooleanField('Destacado en inicio', default=False)

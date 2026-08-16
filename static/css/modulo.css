@@ -17,6 +17,8 @@
 .mod-link { color: var(--accent); text-decoration: none; font-size: 12.5px; font-weight: 600; margin-left: 10px; }
 .mod-link:hover { text-decoration: underline; }
 .mod-link.rojo { color: var(--color-red); }
+.mod-tabla td.verde { color: #1f7a55; font-weight: 600; }
+.mod-tabla td.rojo { color: #a33a3e; font-weight: 600; }
 .mod-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
 .mod-badge.verde { background: #e3f2eb; color: #1f7a55; }
 .mod-badge.azul { background: #d9eeee; color: #0b5a60; }

@@ -17,9 +17,19 @@
       <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
+    <input type="date" name="desde" value="{{ desde }}" class="mod-input" />
+    <input type="date" name="hasta" value="{{ hasta }}" class="mod-input" />
     <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
   </form>
   <a href="{% url 'mantenimiento:crear' %}" class="mod-btn mod-btn-prim">+ Nuevo servicio</a>
+</div>
+
+<div class="rep-resumen">
+  <div class="rep-card">
+    <span>Gasto en el periodo filtrado</span>
+    <strong>RD$ {{ costo_total|floatformat:0 }}</strong>
+    <small>{{ total }} registro{{ total|pluralize:"s" }}</small>
+  </div>
 </div>
 
 <div class="mod-card">

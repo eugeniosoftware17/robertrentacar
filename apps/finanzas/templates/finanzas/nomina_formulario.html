@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ page_title }}</div>
+      <div class="mod-card-hint">{{ page_subtitle }}</div>
+    </div>
+  </div>
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="mod-errores">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.name == 'notas' %}mod-field-full{% endif %}">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <a href="{% url 'finanzas:nomina_lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

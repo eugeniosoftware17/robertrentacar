@@ -1,5 +1,7 @@
+from decimal import Decimal
+
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 
@@ -12,6 +14,8 @@ from .models import Mantenimiento
 def lista(request):
     busqueda = request.GET.get('q', '').strip()
     estado = request.GET.get('estado', '')
+    desde = request.GET.get('desde', '')
+    hasta = request.GET.get('hasta', '')
     registros = Mantenimiento.objects.select_related('vehiculo')
 
     if busqueda:
@@ -24,6 +28,13 @@ def lista(request):
 
     if estado:
         registros = registros.filter(estado=estado)
+
+    if desde:
+        registros = registros.filter(fecha__gte=desde)
+    if hasta:
+        registros = registros.filter(fecha__lte=hasta)
+
+    costo_total = registros.aggregate(t=Sum('costo'))['t'] or Decimal('0.00')
 
     page_obj = paginar_queryset(request, registros)
     query_string = request.GET.copy()
@@ -38,8 +49,11 @@ def lista(request):
         'query_string': query_string,
         'busqueda': busqueda,
         'estado_filtro': estado,
+        'desde': desde,
+        'hasta': hasta,
         'estados': Mantenimiento.Estado.choices,
         'total': registros.count(),
+        'costo_total': costo_total,
     })
 
 

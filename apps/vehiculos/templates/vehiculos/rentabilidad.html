@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Rentabilidad — {{ vehiculo.nombre_corto }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="date" name="desde" value="{{ desde }}" class="mod-input" />
+    <input type="date" name="hasta" value="{{ hasta }}" class="mod-input" />
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'vehiculos:lista' %}" class="mod-btn mod-btn-sec">Volver</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">{{ vehiculo.nombre_corto }}</div>
+      <div class="mod-card-hint">
+        {{ vehiculo.placa }}
+        {% if vehiculo.fecha_compra %} · Comprado el {{ vehiculo.fecha_compra|date:"d/m/Y" }}{% endif %}
+        {% if desde or hasta %} · Del {{ desde|default:"inicio" }} al {{ hasta|default:"hoy" }}{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="rep-resumen">
+  <div class="rep-card">
+    <span>Ingresos por rentas</span>
+    <strong class="verde">RD$ {{ resumen.ingresos|floatformat:0 }}</strong>
+    <small>{{ resumen.reservas_cantidad }} reserva{{ resumen.reservas_cantidad|pluralize:"s" }}</small>
+  </div>
+  <div class="rep-card">
+    <span>Gasto en mantenimiento</span>
+    <strong>RD$ {{ resumen.gasto_mantenimiento|floatformat:0 }}</strong>
+    <small>{{ resumen.mantenimientos_cantidad }} servicio{{ resumen.mantenimientos_cantidad|pluralize:"s" }}</small>
+  </div>
+  <div class="rep-card">
+    <span>Otros gastos</span>
+    <strong>RD$ {{ resumen.gasto_adicional|floatformat:0 }}</strong>
+  </div>
+  <div class="rep-card">
+    <span>Ganancia operativa</span>
+    <strong class="{% if resumen.ganancia_operativa >= 0 %}verde{% else %}rojo{% endif %}">
+      RD$ {{ resumen.ganancia_operativa|floatformat:0 }}
+    </strong>
+    <small>Ingresos − mantenimiento − otros gastos</small>
+  </div>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Retorno de la inversión</div>
+      <div class="mod-card-hint">Comparado con el precio de compra</div>
+    </div>
+  </div>
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <tbody>
+        <tr>
+          <td>Precio de compra</td>
+          <td>RD$ {{ resumen.precio_compra|floatformat:0 }}</td>
+        </tr>
+        <tr>
+          <td>Ganancia neta (operativa − compra)</td>
+          <td class="{% if resumen.ganancia_neta >= 0 %}verde{% else %}rojo{% endif %}">
+            RD$ {{ resumen.ganancia_neta|floatformat:0 }}
+          </td>
+        </tr>
+        {% if resumen.porcentaje_recuperado is not None %}
+        <tr>
+          <td>Inversión recuperada</td>
+          <td>{{ resumen.porcentaje_recuperado|floatformat:1 }}%</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+  {% if not vehiculo.precio_compra %}
+  <div class="mod-vacio">
+    <p>Registra el precio de compra en la ficha del vehículo para ver el retorno de inversión.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

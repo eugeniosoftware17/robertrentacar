@@ -63,6 +63,7 @@
             {% endif %}
           </td>
           <td class="mod-acciones">
+            <a href="{% url 'vehiculos:rentabilidad' vehiculo.pk %}" class="mod-link">Rentabilidad</a>
             <a href="{% url 'vehiculos:editar' vehiculo.pk %}" class="mod-link">Editar</a>
             <a href="{% url 'vehiculos:eliminar' vehiculo.pk %}" class="mod-link rojo">Eliminar</a>
           </td>

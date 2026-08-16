@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Gastos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="date" name="desde" value="{{ desde }}" class="mod-input" />
+    <input type="date" name="hasta" value="{{ hasta }}" class="mod-input" />
+    <select name="categoria" class="mod-input mod-select">
+      <option value="">Todas las categorías</option>
+      {% for value, label in categorias %}
+      <option value="{{ value }}" {% if categoria_filtro == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'finanzas:gasto_crear' %}" class="mod-btn mod-btn-prim">+ Nuevo gasto</a>
+</div>
+
+<div class="rep-resumen">
+  <div class="rep-card">
+    <span>Total del periodo</span>
+    <strong>RD$ {{ total|floatformat:0 }}</strong>
+    <small>{{ cantidad }} gasto{{ cantidad|pluralize:"s" }}</small>
+  </div>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Gastos</div>
+      <div class="mod-card-hint">Del {{ desde }} al {{ hasta }}</div>
+    </div>
+  </div>
+
+  {% if gastos %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Categoría</th>
+          <th>Vehículo</th>
+          <th>Fecha</th>
+          <th>Monto</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for gasto in gastos %}
+        <tr>
+          <td>{{ gasto.concepto }}</td>
+          <td><span class="mod-badge azul">{{ gasto.get_categoria_display }}</span></td>
+          <td>{{ gasto.vehiculo.nombre_corto|default:"—" }}</td>
+          <td>{{ gasto.fecha|date:"d/m/Y" }}</td>
+          <td>RD$ {{ gasto.monto|floatformat:0 }}</td>
+          <td class="mod-acciones">
+            <a href="{% url 'finanzas:gasto_editar' gasto.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'finanzas:gasto_eliminar' gasto.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio"><p>No hay gastos en el periodo.</p></div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

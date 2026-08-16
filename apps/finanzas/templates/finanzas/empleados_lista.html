@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Empleados{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <form class="mod-buscar" method="get">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar empleado o puesto..." class="mod-input" />
+    <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
+  </form>
+  <a href="{% url 'finanzas:empleado_crear' %}" class="mod-btn mod-btn-prim">+ Nuevo empleado</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Empleados</div>
+      <div class="mod-card-hint">{{ total }} registro{{ total|pluralize:"s" }}</div>
+    </div>
+  </div>
+
+  {% if empleados %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Puesto</th>
+          <th>Salario base</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for empleado in empleados %}
+        <tr>
+          <td>
+            <div class="mod-nombre">{{ empleado.nombre_completo }}</div>
+            <div class="mod-sub">{{ empleado.telefono }}</div>
+          </td>
+          <td>{{ empleado.puesto|default:"—" }}</td>
+          <td>RD$ {{ empleado.salario_base|floatformat:0 }}</td>
+          <td>
+            {% if empleado.activo %}
+            <span class="mod-badge verde">Activo</span>
+            {% else %}
+            <span class="mod-badge">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="mod-acciones">
+            <a href="{% url 'finanzas:empleado_editar' empleado.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'finanzas:empleado_eliminar' empleado.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio"><p>No hay empleados registrados.</p></div>
+  {% endif %}
+  {% include "partials/pagination.html" %}
+</div>
+{% endblock %}

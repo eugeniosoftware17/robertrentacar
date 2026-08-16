@@ -20,6 +20,7 @@ urlpatterns = [
         path('mantenimiento/', include('apps.mantenimiento.urls')),
         path('pagos/', include('apps.pagos.urls')),
         path('reportes/', include('apps.reportes.urls')),
+        path('finanzas/', include('apps.finanzas.urls')),
         path('configuracion/', include('apps.configuracion.urls')),
         path('sitio/', include('apps.sitio.panel_urls')),
     ])),

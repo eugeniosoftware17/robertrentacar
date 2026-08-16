@@ -13,6 +13,7 @@ MODULOS = {
     'pagos': 'Pagos',
     'reportes': 'Reportes',
     'sitio_web': 'Sitio web',
+    'finanzas': 'Finanzas',
     'configuracion': 'Configuración',
 }
 
@@ -43,6 +44,7 @@ def rutas_modulo():
         (f'{base}pagos/', 'pagos'),
         (f'{base}reportes/', 'reportes'),
         (f'{base}sitio/', 'sitio_web'),
+        (f'{base}finanzas/', 'finanzas'),
         (f'{base}configuracion/', 'configuracion'),
     )
 
