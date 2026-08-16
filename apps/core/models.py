@@ -27,7 +27,7 @@ class AccesoModulo(models.Model):
             ('modulo_reportes', 'Acceder a Reportes'),
             ('modulo_configuracion', 'Acceder a Configuración'),
             ('modulo_sitio_web', 'Acceder al Sitio web'),
-            ('modulo_finanzas', 'Acceder a Finanzas'),
+            ('modulo_finanzas', 'Acceder a Nómina y gastos'),
         ]
 
     def __str__(self):

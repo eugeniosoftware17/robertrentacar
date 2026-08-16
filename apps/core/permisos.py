@@ -13,7 +13,7 @@ MODULOS = {
     'pagos': 'Pagos',
     'reportes': 'Reportes',
     'sitio_web': 'Sitio web',
-    'finanzas': 'Finanzas',
+    'finanzas': 'Nómina y gastos',
     'configuracion': 'Configuración',
 }
 

@@ -29,8 +29,8 @@ def index(request):
     total_gastos = gastos_periodo.aggregate(t=Sum('monto'))['t'] or Decimal('0.00')
 
     return render(request, 'finanzas/index.html', {
-        'page_title': 'Finanzas',
-        'page_subtitle': 'Nómina y gastos del negocio',
+        'page_title': 'Nómina y gastos',
+        'page_subtitle': 'Pagos al personal y otros gastos del negocio',
         'desde': desde,
         'hasta': hasta,
         'total_nomina': total_nomina,
@@ -119,14 +119,22 @@ def empleado_eliminar(request, pk):
 # ——— Nómina ———
 
 def nomina_lista(request):
-    desde_default, hasta_default = _rango_mes_actual()
+    empleado_id = request.GET.get('empleado', '')
+    hasta_default = timezone.localdate().isoformat()
+    if empleado_id and 'desde' not in request.GET:
+        # Al ver los pagos de un empleado puntual mostramos su historial completo,
+        # no solo el mes en curso.
+        desde_default = ''
+    else:
+        desde_default, _ = _rango_mes_actual()
     desde = request.GET.get('desde') or desde_default
     hasta = request.GET.get('hasta') or hasta_default
-    empleado_id = request.GET.get('empleado', '')
 
-    pagos = PagoNomina.objects.select_related('empleado').filter(
-        fecha_pago__gte=desde, fecha_pago__lte=hasta,
-    )
+    pagos = PagoNomina.objects.select_related('empleado').all()
+    if desde:
+        pagos = pagos.filter(fecha_pago__gte=desde)
+    if hasta:
+        pagos = pagos.filter(fecha_pago__lte=hasta)
     if empleado_id:
         pagos = pagos.filter(empleado_id=empleado_id)
 
@@ -155,7 +163,11 @@ def nomina_crear(request):
             messages.success(request, f'Pago registrado para {pago.empleado.nombre_completo}.')
             return redirect('finanzas:nomina_lista')
     else:
-        form = PagoNominaForm(initial={'fecha_pago': timezone.localdate()})
+        initial = {'fecha_pago': timezone.localdate()}
+        empleado_id = request.GET.get('empleado')
+        if empleado_id:
+            initial['empleado'] = empleado_id
+        form = PagoNominaForm(initial=initial)
 
     return render(request, 'finanzas/nomina_formulario.html', {
         'page_title': 'Nuevo pago de nómina',
@@ -235,7 +247,11 @@ def gasto_crear(request):
             messages.success(request, 'Gasto registrado.')
             return redirect('finanzas:gastos_lista')
     else:
-        form = GastoForm(initial={'fecha': timezone.localdate()})
+        initial = {'fecha': timezone.localdate()}
+        vehiculo_id = request.GET.get('vehiculo')
+        if vehiculo_id:
+            initial['vehiculo'] = vehiculo_id
+        form = GastoForm(initial=initial)
 
     return render(request, 'finanzas/gasto_formulario.html', {
         'page_title': 'Nuevo gasto',

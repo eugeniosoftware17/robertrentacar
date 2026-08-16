@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Finanzas{% endblock %}
+{% block title %}Nómina y gastos{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
@@ -36,17 +36,29 @@
 </div>
 
 <div class="mod-cards-grid">
-  <a href="{% url 'finanzas:empleados_lista' %}" class="mod-report-card">
+  <div class="mod-report-card mod-report-card-accion">
     <h3>Empleados</h3>
     <p>Personal del negocio y su salario de referencia.</p>
-  </a>
-  <a href="{% url 'finanzas:nomina_lista' %}" class="mod-report-card">
+    <div class="mod-report-card-btns">
+      <a href="{% url 'finanzas:empleado_crear' %}" class="mod-btn mod-btn-prim">+ Nuevo empleado</a>
+      <a href="{% url 'finanzas:empleados_lista' %}" class="mod-btn mod-btn-sec">Ver lista</a>
+    </div>
+  </div>
+  <div class="mod-report-card mod-report-card-accion">
     <h3>Nómina</h3>
-    <p>Pagos registrados a cada empleado.</p>
-  </a>
-  <a href="{% url 'finanzas:gastos_lista' %}" class="mod-report-card">
+    <p>Registra un pago real a un empleado (salario, bono, comisión...).</p>
+    <div class="mod-report-card-btns">
+      <a href="{% url 'finanzas:nomina_crear' %}" class="mod-btn mod-btn-prim">+ Pagar a un empleado</a>
+      <a href="{% url 'finanzas:nomina_lista' %}" class="mod-btn mod-btn-sec">Ver historial</a>
+    </div>
+  </div>
+  <div class="mod-report-card mod-report-card-accion">
     <h3>Gastos</h3>
-    <p>Gastos adicionales del negocio, por categoría y fecha.</p>
-  </a>
+    <p>Otros gastos del negocio: combustible, publicidad, oficina...</p>
+    <div class="mod-report-card-btns">
+      <a href="{% url 'finanzas:gasto_crear' %}" class="mod-btn mod-btn-prim">+ Registrar gasto</a>
+      <a href="{% url 'finanzas:gastos_lista' %}" class="mod-btn mod-btn-sec">Ver historial</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

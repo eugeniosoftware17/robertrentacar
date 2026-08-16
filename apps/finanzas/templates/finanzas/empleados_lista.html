@@ -53,6 +53,8 @@
             {% endif %}
           </td>
           <td class="mod-acciones">
+            <a href="{% url 'finanzas:nomina_crear' %}?empleado={{ empleado.pk }}" class="mod-link">Pagar</a>
+            <a href="{% url 'finanzas:nomina_lista' %}?empleado={{ empleado.pk }}" class="mod-link">Ver pagos</a>
             <a href="{% url 'finanzas:empleado_editar' empleado.pk %}" class="mod-link">Editar</a>
             <a href="{% url 'finanzas:empleado_eliminar' empleado.pk %}" class="mod-link rojo">Eliminar</a>
           </td>

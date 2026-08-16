@@ -97,4 +97,7 @@
 .mod-report-card:hover { border-color: var(--accent); }
 .mod-report-card h3 { font-size: 15px; margin-bottom: 6px; }
 .mod-report-card p { font-size: 12px; color: var(--text-3); }
+.mod-report-card-accion { display: flex; flex-direction: column; }
+.mod-report-card-accion p { flex: 1; margin-bottom: 14px; }
+.mod-report-card-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 @media (max-width: 760px) { .mod-grid { grid-template-columns: 1fr; } .mod-buscar { flex-direction: column; } .mod-select { max-width: none; } }
