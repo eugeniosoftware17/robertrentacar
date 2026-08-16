@@ -5,6 +5,7 @@
 {% block og_title %}{{ sitio.home_titulo }} — {{ empresa.nombre }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
+{% block robots %}{% if es_vista_previa %}noindex, nofollow{% else %}index, follow{% endif %}{% endblock %}
 
 {% block structured_data %}
 <script type="application/ld+json">
@@ -27,6 +28,9 @@
 {% endblock %}
 
 {% block content %}
+{% if es_vista_previa %}
+{% include "sitio/partials/vista_previa_banner.html" %}
+{% endif %}
 {% include "sitio/partials/home_hero.html" %}
 
 {% if sitio.home_mostrar_categorias %}

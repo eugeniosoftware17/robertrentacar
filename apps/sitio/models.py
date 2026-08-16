@@ -11,6 +11,21 @@ class ConfiguracionSitio(models.Model):
         COMPACTO = 'compacto', 'Compacto — hero más pequeño'
         SPLIT = 'split', 'Dividido — imagen a un lado'
 
+    class FondoPosicion(models.TextChoices):
+        ARRIBA_IZQUIERDA = 'left top', 'Arriba izquierda'
+        ARRIBA = 'top', 'Arriba centro'
+        ARRIBA_DERECHA = 'right top', 'Arriba derecha'
+        IZQUIERDA = 'left', 'Centro izquierda'
+        CENTRO = 'center', 'Centro'
+        DERECHA = 'right', 'Centro derecha'
+        ABAJO_IZQUIERDA = 'left bottom', 'Abajo izquierda'
+        ABAJO = 'bottom', 'Abajo centro'
+        ABAJO_DERECHA = 'right bottom', 'Abajo derecha'
+
+    class FondoTamano(models.TextChoices):
+        CUBRIR = 'cover', 'Cubrir — llena el espacio (puede recortar bordes)'
+        AJUSTAR = 'contain', 'Ajustar — se ve completa (puede dejar franjas)'
+
     home_titulo = models.CharField('Título del inicio', max_length=160, default='Alquiler de vehículos')
     home_subtitulo = models.CharField('Subtítulo del inicio', max_length=240, blank=True)
     home_texto = models.TextField('Texto del inicio', blank=True)
@@ -32,12 +47,37 @@ class ConfiguracionSitio(models.Model):
         default=60,
         help_text='0 = sin oscurecer, 100 = muy oscuro. Mejora la lectura del texto.',
     )
+    home_fondo_posicion = models.CharField(
+        'Posición de la foto',
+        max_length=20,
+        choices=FondoPosicion.choices,
+        default=FondoPosicion.CENTRO,
+        help_text='Qué parte de la imagen se mantiene visible en pantallas angostas.',
+    )
+    home_fondo_tamano = models.CharField(
+        'Tamaño de la foto',
+        max_length=10,
+        choices=FondoTamano.choices,
+        default=FondoTamano.CUBRIR,
+    )
     home_mostrar_panel = models.BooleanField('Panel «¿Por qué reservar?»', default=True)
     home_mostrar_categorias = models.BooleanField('Sección categorías', default=True)
     home_mostrar_destacados = models.BooleanField('Vehículos destacados', default=True)
     home_mostrar_cta = models.BooleanField('Llamada a la acción final', default=True)
     home_mostrar_contador = models.BooleanField('Contador de vehículos', default=True)
     home_mostrar_redes_hero = models.BooleanField('Redes sociales en el hero', default=True)
+    logo = models.ImageField(
+        'Logo del sitio',
+        upload_to='sitio/logo/',
+        blank=True,
+        null=True,
+        help_text='PNG con fondo transparente recomendado. Altura ideal: 40–56 px.',
+    )
+    mostrar_nombre_junto_logo = models.BooleanField(
+        'Mostrar nombre junto al logo',
+        default=True,
+        help_text='Si desactivas, solo se verá la imagen del logo en el encabezado.',
+    )
     whatsapp = models.CharField(
         'WhatsApp (número)',
         max_length=30,
@@ -164,6 +204,10 @@ class ConfiguracionSitio(models.Model):
     @property
     def home_tiene_fondo(self):
         return bool(self.home_fondo_imagen)
+
+    @property
+    def tiene_logo(self):
+        return bool(self.logo)
 
 
 class PaginaInformativa(models.Model):

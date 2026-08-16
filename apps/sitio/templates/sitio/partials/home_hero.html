@@ -2,7 +2,7 @@
 <section
   class="sitio-hero sitio-hero--home sitio-hero--{{ sitio.home_diseno }}"
   {% if sitio.home_tiene_fondo and sitio.home_diseno != 'split' %}
-  style="--hero-overlay: {{ sitio.home_fondo_opacidad }};"
+  style="--hero-overlay: {{ sitio.home_fondo_opacidad }}; --hero-bg-position: {{ sitio.home_fondo_posicion }}; --hero-bg-size: {{ sitio.home_fondo_tamano }};"
   {% endif %}
 >
   {% if sitio.home_tiene_fondo and sitio.home_diseno != 'split' %}

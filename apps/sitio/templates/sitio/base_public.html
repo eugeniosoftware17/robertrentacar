@@ -27,8 +27,14 @@
   <header class="sitio-header">
     <div class="sitio-container sitio-header-inner">
       <a class="sitio-logo" href="{% url 'sitio:home' %}">
+        {% if sitio.tiene_logo %}
+        <img src="{{ sitio.logo.url }}" alt="{{ empresa.nombre }}" class="sitio-logo-img" />
+        {% else %}
         <span class="sitio-logo-mark">RC</span>
-        <span>{{ empresa.nombre }}</span>
+        {% endif %}
+        {% if sitio.mostrar_nombre_junto_logo or not sitio.tiene_logo %}
+        <span class="sitio-logo-text">{{ empresa.nombre }}</span>
+        {% endif %}
       </a>
       <button type="button" class="sitio-nav-toggle" id="navToggle" aria-label="Menú">☰</button>
       <nav class="sitio-nav" id="sitioNav" aria-label="Principal">
@@ -37,7 +43,6 @@
         {% for p in menu_paginas %}
         <a href="{% url 'sitio:pagina' p.slug %}">{{ p.titulo }}</a>
         {% endfor %}
-        <a class="sitio-nav-staff" href="{% url 'cuentas:login' %}">Acceso empleados</a>
       </nav>
     </div>
   </header>

@@ -1,6 +1,7 @@
 {% extends "sitio/base_public.html" %}
 
 {% block title %}{{ pagina.titulo }} — {{ empresa.nombre }}{% endblock %}
+{% block robots %}{% if es_vista_previa %}noindex, nofollow{% else %}index, follow{% endif %}{% endblock %}
 
 {% block extra_css %}
 {% if pagina.css_extra %}
@@ -9,6 +10,9 @@
 {% endblock %}
 
 {% block content %}
+{% if es_vista_previa %}
+{% include "sitio/partials/vista_previa_banner.html" %}
+{% endif %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-prosa">
     <h1>{{ pagina.titulo }}</h1>
