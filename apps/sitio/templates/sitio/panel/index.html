@@ -6,13 +6,89 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
 <style>
-  .sitio-panel-seccion { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+  .sitio-panel-card { max-width: 1040px; }
+  .sitio-resumen {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    box-shadow: var(--sh-2);
+  }
+  .sitio-resumen-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent) 6%);
+    color: var(--text-2);
+  }
+  .sitio-resumen-chip.ok {
+    border-color: color-mix(in srgb, #1f7a55 35%, var(--line));
+    background: #e3f2eb;
+    color: #1f7a55;
+  }
+  .sitio-resumen-chip.pend {
+    border-color: color-mix(in srgb, #96702a 35%, var(--line));
+    background: #f8f0de;
+    color: #96702a;
+  }
+  .sitio-resumen-link {
+    margin-left: auto;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .sitio-resumen-link:hover { text-decoration: underline; }
+  .sitio-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    padding: 0.75rem 1rem 0;
+    border-bottom: 1px solid var(--line);
+    background: color-mix(in srgb, var(--surface) 96%, var(--accent) 4%);
+  }
+  .sitio-tab {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-3);
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 0.55rem 0.85rem;
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    transition: color .15s, background .15s, border-color .15s;
+  }
+  .sitio-tab:hover {
+    color: var(--text);
+    background: color-mix(in srgb, var(--surface) 90%, var(--accent) 10%);
+  }
+  .sitio-tab.is-active {
+    color: var(--accent);
+    background: var(--surface);
+    border-color: var(--line);
+    border-bottom-color: var(--surface);
+    margin-bottom: -1px;
+  }
+  .sitio-tab-panel { display: none; padding: 1.25rem 1rem 0.5rem; }
+  .sitio-tab-panel.is-active { display: block; }
+  .sitio-panel-seccion { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
   .sitio-panel-seccion:first-child { margin-top: 0; padding-top: 0; border-top: none; }
   .sitio-panel-seccion-titulo { font-size: 14px; font-weight: 700; margin-bottom: 0.25rem; }
   .sitio-panel-seccion-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; }
   .sitio-panel-red-row { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem 1rem; align-items: end; }
   .sitio-panel-red-row .mod-field-check { margin-bottom: 0.35rem; }
-  @media (max-width: 640px) { .sitio-panel-red-row { grid-template-columns: 1fr; } }
   .mod-code {
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     font-size: 12px;
@@ -33,10 +109,7 @@
     gap: 0.65rem;
     margin-bottom: 1rem;
   }
-  .sitio-panel-diseno-opt {
-    display: block;
-    cursor: pointer;
-  }
+  .sitio-panel-diseno-opt { display: block; cursor: pointer; }
   .sitio-panel-diseno-opt input { position: absolute; opacity: 0; pointer-events: none; }
   .sitio-panel-diseno-card {
     border: 2px solid var(--line);
@@ -65,198 +138,381 @@
   .sitio-panel-diseno-preview--split::before { content: ''; background: rgba(255,255,255,.25); }
   .sitio-panel-diseno-preview--split::after { content: ''; background: rgba(255,255,255,.5); }
   .sitio-panel-diseno-preview--compacto { height: 28px; }
+  .sitio-panel-pos-grid { display: grid; grid-template-columns: repeat(3, 44px); gap: 0.4rem; }
+  .sitio-panel-pos-opt { display: block; cursor: pointer; }
+  .sitio-panel-pos-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .sitio-panel-pos-card {
+    display: block;
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: linear-gradient(135deg, #084248, #127a82);
+  }
+  .sitio-panel-pos-opt input:checked + .sitio-panel-pos-card {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent);
+  }
   .sitio-panel-fondo-preview {
     max-width: 280px;
     border-radius: 10px;
     border: 1px solid var(--line);
     margin-top: 0.5rem;
   }
+  .sitio-panel-logo-preview {
+    max-width: 220px;
+    max-height: 72px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    background: #f4f4f4;
+    padding: 0.5rem;
+  }
   .sitio-panel-toggles {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 0.35rem 1rem;
   }
+  .sitio-paginas-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .sitio-paginas-head p { font-size: 13px; color: var(--text-3); margin: 0; }
+  .sitio-flota-nota {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+    border: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .sitio-form-actions.is-hidden { display: none; }
+  @media (max-width: 640px) {
+    .sitio-panel-red-row { grid-template-columns: 1fr; }
+    .sitio-resumen-link { margin-left: 0; width: 100%; text-align: right; }
+    .sitio-tabs { gap: 0.25rem; padding-bottom: 0.5rem; }
+    .sitio-tab { border-radius: 8px; font-size: 12px; padding: 0.5rem 0.65rem; }
+    .sitio-tab.is-active { margin-bottom: 0; border-radius: 8px; }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="mod-toolbar">
-  <a href="/" target="_blank" class="mod-btn mod-btn-sec">Abrir sitio público ↗</a>
-  <a href="{% url 'sitio_web:panel_pagina_crear' %}" class="mod-btn mod-btn-prim">+ Nueva página</a>
+<div class="sitio-resumen" aria-label="Estado del sitio">
+  <span class="sitio-resumen-chip {% if resumen.logo_ok %}ok{% else %}pend{% endif %}">
+    Logo {% if resumen.logo_ok %}✓{% else %}pendiente{% endif %}
+  </span>
+  <span class="sitio-resumen-chip {% if resumen.whatsapp_ok %}ok{% else %}pend{% endif %}">
+    WhatsApp {% if resumen.whatsapp_ok %}✓{% else %}pendiente{% endif %}
+  </span>
+  <span class="sitio-resumen-chip ok">
+    {{ resumen.paginas_publicadas }}/{{ resumen.paginas_total }} páginas publicadas
+  </span>
+  <span class="sitio-resumen-chip ok">
+    {{ resumen.vehiculos_web }} vehículo{{ resumen.vehiculos_web|pluralize:"s" }} en web
+  </span>
+  <span class="sitio-resumen-chip {% if resumen.auto_confirmar %}ok{% endif %}">
+    Reservas {% if resumen.auto_confirmar %}auto-confirmadas{% else %}manual{% endif %}
+  </span>
+  <a href="/" target="_blank" rel="noopener" class="sitio-resumen-link">Abrir sitio público ↗</a>
 </div>
 
-<div class="mod-card mod-form-card">
+<div class="mod-card sitio-panel-card">
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Configuración del sitio web</div>
-      <div class="mod-card-hint">Textos, redes sociales, WhatsApp y reglas de reserva</div>
+      <div class="mod-card-hint">Organiza el contenido público por secciones</div>
     </div>
   </div>
-  <form method="post" class="mod-form" enctype="multipart/form-data">
+
+  <div class="sitio-tabs" role="tablist" aria-label="Secciones del sitio">
+    <button type="button" class="sitio-tab" role="tab" data-tab="inicio" aria-selected="false">Inicio</button>
+    <button type="button" class="sitio-tab" role="tab" data-tab="marca" aria-selected="false">Marca</button>
+    <button type="button" class="sitio-tab" role="tab" data-tab="contacto" aria-selected="false">Contacto</button>
+    <button type="button" class="sitio-tab" role="tab" data-tab="reservas" aria-selected="false">Reservas</button>
+    <button type="button" class="sitio-tab" role="tab" data-tab="paginas" aria-selected="false">Páginas</button>
+    {% if usuario_rol == 'Administrador' %}
+    <button type="button" class="sitio-tab" role="tab" data-tab="avanzado" aria-selected="false">Avanzado</button>
+    {% endif %}
+  </div>
+
+  <form method="post" class="mod-form" enctype="multipart/form-data" id="sitioConfigForm">
     {% csrf_token %}
-    <input type="hidden" name="guardar_sitio" value="1" />
+    <input type="hidden" name="pestana_activa" id="pestanaActiva" value="{{ pestana_activa }}" />
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Textos del inicio</div>
-      <div class="sitio-panel-seccion-hint">Título, subtítulo y párrafo principal</div>
-      <div class="mod-grid">
-        <div class="mod-field mod-field-full">{{ form.home_titulo.label_tag }}{{ form.home_titulo }}</div>
-        <div class="mod-field mod-field-full">{{ form.home_subtitulo.label_tag }}{{ form.home_subtitulo }}</div>
-        <div class="mod-field mod-field-full">{{ form.home_texto.label_tag }}{{ form.home_texto }}</div>
-        <div class="mod-field mod-field-full">{{ form.horario.label_tag }}{{ form.horario }}</div>
-        <div class="mod-field mod-field-full">{{ form.meta_descripcion.label_tag }}{{ form.meta_descripcion }}<span class="mod-hint">{{ form.meta_descripcion.help_text }}</span></div>
-      </div>
-    </div>
+    {% if form.non_field_errors %}
+    <div class="mod-errores">{{ form.non_field_errors }}</div>
+    {% endif %}
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Diseño e imagen de fondo</div>
-      <div class="sitio-panel-seccion-hint">Elige un estilo y sube una foto para el hero (opcional)</div>
-      <div class="sitio-panel-diseno-grid">
-        {% for value, label in form.fields.home_diseno.choices %}
-        <label class="sitio-panel-diseno-opt">
-          <input type="radio" name="home_diseno" value="{{ value }}" {% if form.instance.home_diseno == value %}checked{% endif %} />
-          <span class="sitio-panel-diseno-card">
-            <span class="sitio-panel-diseno-preview sitio-panel-diseno-preview--{{ value }}"></span>
-            {{ label }}
-          </span>
-        </label>
-        {% endfor %}
-      </div>
-      <div class="mod-grid">
-        <div class="mod-field">
-          {{ form.home_fondo_imagen.label_tag }}
-          {{ form.home_fondo_imagen }}
-          <span class="mod-hint">{{ form.home_fondo_imagen.help_text }}</span>
-          {% if form.instance.home_fondo_imagen %}
-          <img src="{{ form.instance.home_fondo_imagen.url }}" alt="" class="sitio-panel-fondo-preview" />
-          <div class="mod-field-check" style="margin-top:0.5rem;">{{ form.quitar_home_fondo }}{{ form.quitar_home_fondo.label_tag }}</div>
-          {% endif %}
-        </div>
-        <div class="mod-field">
-          {{ form.home_fondo_opacidad.label_tag }}
-          {{ form.home_fondo_opacidad }}
-          <span class="mod-hint">{{ form.home_fondo_opacidad.help_text }}</span>
+    <div class="sitio-tab-panel" data-tab="inicio" role="tabpanel">
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Textos del inicio</div>
+        <div class="sitio-panel-seccion-hint">Título, subtítulo y párrafo principal de la página de inicio</div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-full">{{ form.home_titulo.label_tag }}{{ form.home_titulo }}</div>
+          <div class="mod-field mod-field-full">{{ form.home_subtitulo.label_tag }}{{ form.home_subtitulo }}</div>
+          <div class="mod-field mod-field-full">{{ form.home_texto.label_tag }}{{ form.home_texto }}</div>
+          <div class="mod-field mod-field-full">{{ form.meta_descripcion.label_tag }}{{ form.meta_descripcion }}<span class="mod-hint">{{ form.meta_descripcion.help_text }}</span></div>
         </div>
       </div>
-    </div>
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Secciones visibles en el inicio</div>
-      <div class="sitio-panel-seccion-hint">Activa o desactiva bloques de la página principal</div>
-      <div class="sitio-panel-toggles">
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_panel }}{{ form.home_mostrar_panel.label_tag }}</div>
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_categorias }}{{ form.home_mostrar_categorias.label_tag }}</div>
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_destacados }}{{ form.home_mostrar_destacados.label_tag }}</div>
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_cta }}{{ form.home_mostrar_cta.label_tag }}</div>
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_contador }}{{ form.home_mostrar_contador.label_tag }}</div>
-        <div class="mod-field mod-field-check">{{ form.home_mostrar_redes_hero }}{{ form.home_mostrar_redes_hero.label_tag }}</div>
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Diseño e imagen de fondo</div>
+        <div class="sitio-panel-seccion-hint">Estilo del hero y foto de fondo opcional</div>
+        <div class="sitio-panel-diseno-grid">
+          {% for value, label in form.fields.home_diseno.choices %}
+          <label class="sitio-panel-diseno-opt">
+            <input type="radio" name="home_diseno" value="{{ value }}" {% if form.instance.home_diseno == value %}checked{% endif %} />
+            <span class="sitio-panel-diseno-card">
+              <span class="sitio-panel-diseno-preview sitio-panel-diseno-preview--{{ value }}"></span>
+              {{ label }}
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        <div class="mod-grid">
+          <div class="mod-field">
+            {{ form.home_fondo_imagen.label_tag }}
+            {{ form.home_fondo_imagen }}
+            <span class="mod-hint">{{ form.home_fondo_imagen.help_text }}</span>
+            {% if form.instance.home_fondo_imagen %}
+            <img src="{{ form.instance.home_fondo_imagen.url }}" alt="" class="sitio-panel-fondo-preview" />
+            <div class="mod-field-check" style="margin-top:0.5rem;">{{ form.quitar_home_fondo }}{{ form.quitar_home_fondo.label_tag }}</div>
+            {% endif %}
+          </div>
+          <div class="mod-field">
+            {{ form.home_fondo_opacidad.label_tag }}
+            {{ form.home_fondo_opacidad }}
+            <span class="mod-hint">{{ form.home_fondo_opacidad.help_text }}</span>
+          </div>
+          <div class="mod-field">
+            {{ form.home_fondo_tamano.label_tag }}
+            {{ form.home_fondo_tamano }}
+            <span class="mod-hint">Cómo encaja la foto dentro del espacio del hero.</span>
+          </div>
+          <div class="mod-field mod-field-full">
+            {{ form.home_fondo_posicion.label_tag }}
+            <span class="mod-hint">{{ form.home_fondo_posicion.help_text }}</span>
+            <div class="sitio-panel-pos-grid">
+              {% for radio in form.home_fondo_posicion %}
+              <label class="sitio-panel-pos-opt">
+                {{ radio.tag }}
+                <span class="sitio-panel-pos-card"></span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">WhatsApp</div>
-      <div class="sitio-panel-seccion-hint">Número, mensaje automático y botón flotante en la web</div>
-      <div class="mod-grid">
-        <div class="mod-field">{{ form.whatsapp.label_tag }}{{ form.whatsapp }}<span class="mod-hint">{{ form.whatsapp.help_text }}</span></div>
-        <div class="mod-field mod-field-check">{{ form.mostrar_whatsapp }}{{ form.mostrar_whatsapp.label_tag }}</div>
-        <div class="mod-field mod-field-full">{{ form.whatsapp_mensaje.label_tag }}{{ form.whatsapp_mensaje }}<span class="mod-hint">{{ form.whatsapp_mensaje.help_text }}</span></div>
-        <div class="mod-field mod-field-check">{{ form.whatsapp_flotante }}{{ form.whatsapp_flotante.label_tag }}<span class="mod-hint">{{ form.whatsapp_flotante.help_text }}</span></div>
-      </div>
-    </div>
-
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Redes sociales</div>
-      <div class="sitio-panel-seccion-hint">Pega el enlace y marca cuáles quieres mostrar en la web</div>
-      <div class="mod-grid">
-        <div class="mod-field sitio-panel-red-row mod-field-full">
-          <div>{{ form.instagram.label_tag }}{{ form.instagram }}</div>
-          <div class="mod-field-check">{{ form.mostrar_instagram }}{{ form.mostrar_instagram.label_tag }}</div>
-        </div>
-        <div class="mod-field sitio-panel-red-row mod-field-full">
-          <div>{{ form.facebook.label_tag }}{{ form.facebook }}</div>
-          <div class="mod-field-check">{{ form.mostrar_facebook }}{{ form.mostrar_facebook.label_tag }}</div>
-        </div>
-        <div class="mod-field sitio-panel-red-row mod-field-full">
-          <div>{{ form.tiktok.label_tag }}{{ form.tiktok }}</div>
-          <div class="mod-field-check">{{ form.mostrar_tiktok }}{{ form.mostrar_tiktok.label_tag }}</div>
-        </div>
-        <div class="mod-field sitio-panel-red-row mod-field-full">
-          <div>{{ form.youtube.label_tag }}{{ form.youtube }}</div>
-          <div class="mod-field-check">{{ form.mostrar_youtube }}{{ form.mostrar_youtube.label_tag }}</div>
-        </div>
-        <div class="mod-field sitio-panel-red-row mod-field-full">
-          <div>{{ form.twitter.label_tag }}{{ form.twitter }}</div>
-          <div class="mod-field-check">{{ form.mostrar_twitter }}{{ form.mostrar_twitter.label_tag }}</div>
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Secciones visibles</div>
+        <div class="sitio-panel-seccion-hint">Activa o desactiva bloques de la página principal</div>
+        <div class="sitio-panel-toggles">
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_panel }}{{ form.home_mostrar_panel.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_categorias }}{{ form.home_mostrar_categorias.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_destacados }}{{ form.home_mostrar_destacados.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_cta }}{{ form.home_mostrar_cta.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_contador }}{{ form.home_mostrar_contador.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.home_mostrar_redes_hero }}{{ form.home_mostrar_redes_hero.label_tag }}</div>
         </div>
       </div>
     </div>
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Reserva online</div>
-      <div class="mod-grid">
-        <div class="mod-field mod-field-check">{{ form.reserva_auto_confirmar }}{{ form.reserva_auto_confirmar.label_tag }}<span class="mod-hint">{{ form.reserva_auto_confirmar.help_text }}</span></div>
-        <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
-        <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
-        <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
+    <div class="sitio-tab-panel" data-tab="marca" role="tabpanel">
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Logo del sitio</div>
+        <div class="sitio-panel-seccion-hint">Imagen del encabezado en todas las páginas públicas</div>
+        <div class="mod-grid">
+          <div class="mod-field">
+            {{ form.logo.label_tag }}
+            {{ form.logo }}
+            <span class="mod-hint">{{ form.logo.help_text }}</span>
+            {% if form.instance.logo %}
+            <img src="{{ form.instance.logo.url }}" alt="" class="sitio-panel-fondo-preview sitio-panel-logo-preview" />
+            <div class="mod-field-check" style="margin-top:0.5rem;">{{ form.quitar_logo }}{{ form.quitar_logo.label_tag }}</div>
+            {% endif %}
+          </div>
+          <div class="mod-field mod-field-check">{{ form.mostrar_nombre_junto_logo }}{{ form.mostrar_nombre_junto_logo.label_tag }}<span class="mod-hint">{{ form.mostrar_nombre_junto_logo.help_text }}</span></div>
+        </div>
       </div>
     </div>
 
-    <div class="sitio-panel-seccion">
-      <div class="sitio-panel-seccion-titulo">Código personalizado (avanzado)</div>
-      <div class="sitio-panel-alerta">
-        Solo para administradores. HTML, CSS o JS incorrecto puede afectar el sitio público. Prueba en una página antes de usar código global.
+    <div class="sitio-tab-panel" data-tab="contacto" role="tabpanel">
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">WhatsApp</div>
+        <div class="sitio-panel-seccion-hint">Número, mensaje automático y botón flotante</div>
+        <div class="mod-grid">
+          <div class="mod-field">{{ form.whatsapp.label_tag }}{{ form.whatsapp }}<span class="mod-hint">{{ form.whatsapp.help_text }}</span></div>
+          <div class="mod-field mod-field-check">{{ form.mostrar_whatsapp }}{{ form.mostrar_whatsapp.label_tag }}</div>
+          <div class="mod-field mod-field-full">{{ form.whatsapp_mensaje.label_tag }}{{ form.whatsapp_mensaje }}<span class="mod-hint">{{ form.whatsapp_mensaje.help_text }}</span></div>
+          <div class="mod-field mod-field-check">{{ form.whatsapp_flotante }}{{ form.whatsapp_flotante.label_tag }}<span class="mod-hint">{{ form.whatsapp_flotante.help_text }}</span></div>
+        </div>
       </div>
-      <div class="mod-grid">
-        <div class="mod-field mod-field-full">{{ form.home_html_extra.label_tag }}{{ form.home_html_extra }}<span class="mod-hint">{{ form.home_html_extra.help_text }}</span></div>
-        <div class="mod-field mod-field-full">{{ form.css_global.label_tag }}{{ form.css_global }}<span class="mod-hint">{{ form.css_global.help_text }}</span></div>
-        <div class="mod-field mod-field-full">{{ form.js_global.label_tag }}{{ form.js_global }}<span class="mod-hint">{{ form.js_global.help_text }}</span></div>
+
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Horario</div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-full">{{ form.horario.label_tag }}{{ form.horario }}</div>
+        </div>
+      </div>
+
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Redes sociales</div>
+        <div class="sitio-panel-seccion-hint">Pega el enlace y marca cuáles quieres mostrar en la web</div>
+        <div class="mod-grid">
+          <div class="mod-field sitio-panel-red-row mod-field-full">
+            <div>{{ form.instagram.label_tag }}{{ form.instagram }}</div>
+            <div class="mod-field-check">{{ form.mostrar_instagram }}{{ form.mostrar_instagram.label_tag }}</div>
+          </div>
+          <div class="mod-field sitio-panel-red-row mod-field-full">
+            <div>{{ form.facebook.label_tag }}{{ form.facebook }}</div>
+            <div class="mod-field-check">{{ form.mostrar_facebook }}{{ form.mostrar_facebook.label_tag }}</div>
+          </div>
+          <div class="mod-field sitio-panel-red-row mod-field-full">
+            <div>{{ form.tiktok.label_tag }}{{ form.tiktok }}</div>
+            <div class="mod-field-check">{{ form.mostrar_tiktok }}{{ form.mostrar_tiktok.label_tag }}</div>
+          </div>
+          <div class="mod-field sitio-panel-red-row mod-field-full">
+            <div>{{ form.youtube.label_tag }}{{ form.youtube }}</div>
+            <div class="mod-field-check">{{ form.mostrar_youtube }}{{ form.mostrar_youtube.label_tag }}</div>
+          </div>
+          <div class="mod-field sitio-panel-red-row mod-field-full">
+            <div>{{ form.twitter.label_tag }}{{ form.twitter }}</div>
+            <div class="mod-field-check">{{ form.mostrar_twitter }}{{ form.mostrar_twitter.label_tag }}</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="mod-form-actions">
-      <button type="submit" class="mod-btn mod-btn-prim">Guardar</button>
+    <div class="sitio-tab-panel" data-tab="reservas" role="tabpanel">
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Reserva online</div>
+        <div class="sitio-panel-seccion-hint">Reglas cuando un cliente reserva desde la web pública</div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-check">{{ form.reserva_auto_confirmar }}{{ form.reserva_auto_confirmar.label_tag }}<span class="mod-hint">{{ form.reserva_auto_confirmar.help_text }}</span></div>
+          <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
+          <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
+          <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if usuario_rol == 'Administrador' %}
+    <div class="sitio-tab-panel" data-tab="avanzado" role="tabpanel">
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Código personalizado</div>
+        <div class="sitio-panel-alerta">
+          Solo para administradores. HTML, CSS o JS incorrecto puede afectar el sitio público. Prueba en una página antes de usar código global.
+        </div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-full">{{ form.home_html_extra.label_tag }}{{ form.home_html_extra }}<span class="mod-hint">{{ form.home_html_extra.help_text }}</span></div>
+          <div class="mod-field mod-field-full">{{ form.css_global.label_tag }}{{ form.css_global }}<span class="mod-hint">{{ form.css_global.help_text }}</span></div>
+          <div class="mod-field mod-field-full">{{ form.js_global.label_tag }}{{ form.js_global }}<span class="mod-hint">{{ form.js_global.help_text }}</span></div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="mod-form-actions sitio-form-actions" id="sitioFormActions">
+      <button type="submit" name="vista_previa_home" value="1" class="mod-btn mod-btn-sec" formtarget="_blank">Vista previa ↗</button>
+      <button type="submit" name="guardar_sitio" value="1" class="mod-btn mod-btn-prim">Guardar</button>
     </div>
   </form>
-</div>
 
-<div class="mod-card" style="margin-top: 1.5rem;">
-  <div class="mod-card-head">
-    <div>
-      <div class="mod-card-titulo">Páginas informativas</div>
-      <div class="mod-card-hint">Nosotros, contacto, servicios…</div>
+  <div class="sitio-tab-panel" data-tab="paginas" role="tabpanel" id="sitioPaginasPanel">
+    <div class="sitio-paginas-head">
+      <p>Nosotros, contacto, servicios y otras páginas del menú público.</p>
+      <a href="{% url 'sitio_web:panel_pagina_crear' %}" class="mod-btn mod-btn-prim">+ Nueva página</a>
+    </div>
+    {% if paginas %}
+    <div class="mod-tabla-wrap">
+      <table class="mod-tabla">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>URL</th>
+            <th>Menú</th>
+            <th>Publicada</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in paginas %}
+          <tr>
+            <td>{{ p.titulo }}</td>
+            <td>/pagina/{{ p.slug }}/</td>
+            <td>{% if p.en_menu %}Sí{% else %}No{% endif %}</td>
+            <td>{% if p.publicada %}Sí{% else %}No{% endif %}</td>
+            <td class="mod-acciones">
+              <a class="mod-link" href="{% url 'sitio:pagina' p.slug %}" target="_blank" rel="noopener">Ver ↗</a>
+              <a class="mod-link" href="{% url 'sitio_web:panel_pagina_editar' p.pk %}">Editar</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="mod-vacio">No hay páginas. Crea una o ejecuta <code>python manage.py sembrar_sitio</code>.</p>
+    {% endif %}
+    <div class="sitio-flota-nota">
+      <strong>Vehículos en la web:</strong> edita cada vehículo en
+      <a href="{% url 'vehiculos:lista' %}">Flota → Vehículos</a>
+      y marca «Visible en sitio web», transmisión y «Destacado en inicio».
     </div>
   </div>
-  {% if paginas %}
-  <div class="mod-tabla-wrap">
-    <table class="mod-tabla">
-      <thead>
-        <tr>
-          <th>Título</th>
-          <th>URL</th>
-          <th>Menú</th>
-          <th>Publicada</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in paginas %}
-        <tr>
-          <td>{{ p.titulo }}</td>
-          <td>/pagina/{{ p.slug }}/</td>
-          <td>{% if p.en_menu %}Sí{% else %}No{% endif %}</td>
-          <td>{% if p.publicada %}Sí{% else %}No{% endif %}</td>
-          <td><a href="{% url 'sitio_web:panel_pagina_editar' p.pk %}">Editar</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
-  <p style="padding: 1rem 1.5rem;">No hay páginas. Crea una o ejecuta <code>python manage.py sembrar_sitio</code>.</p>
-  {% endif %}
 </div>
+{% endblock %}
 
-<div class="mod-card" style="margin-top: 1.5rem; padding: 1rem 1.5rem;">
-  <p><strong>Vehículos en la web:</strong> edita cada vehículo en <a href="{% url 'vehiculos:lista' %}">Flota → Vehículos</a> y marca «Visible en sitio web», transmisión y «Destacado en inicio».</p>
-</div>
+{% block extra_js %}
+<script>
+(function () {
+  var tabs = document.querySelectorAll('.sitio-tab');
+  var panels = document.querySelectorAll('.sitio-tab-panel');
+  var formActions = document.getElementById('sitioFormActions');
+  var pestanaInput = document.getElementById('pestanaActiva');
+  var initial = '{{ pestana_activa|escapejs }}';
+
+  function activate(tabId) {
+    if (!tabId) tabId = 'inicio';
+    tabs.forEach(function (btn) {
+      var active = btn.dataset.tab === tabId;
+      btn.classList.toggle('is-active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    panels.forEach(function (panel) {
+      panel.classList.toggle('is-active', panel.dataset.tab === tabId);
+    });
+    if (formActions) {
+      formActions.classList.toggle('is-hidden', tabId === 'paginas');
+    }
+    if (pestanaInput) {
+      pestanaInput.value = tabId;
+    }
+    if (history.replaceState) {
+      var url = new URL(window.location.href);
+      if (tabId === 'inicio') {
+        url.searchParams.delete('tab');
+      } else {
+        url.searchParams.set('tab', tabId);
+      }
+      history.replaceState(null, '', url.pathname + url.search);
+    }
+  }
+
+  tabs.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      activate(btn.dataset.tab);
+    });
+  });
+
+  activate(initial);
+})();
+</script>
 {% endblock %}

@@ -9,15 +9,20 @@
     <h1>Reservar {{ vehiculo.nombre_corto }}</h1>
     <p class="sitio-meta">{{ vehiculo.get_categoria_display }} · RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}/día</p>
 
+    {% if error_limite %}
+    <div class="sitio-form-error">{{ error_limite }}</div>
+    {% endif %}
+
     <form method="post" class="sitio-form">
       {% csrf_token %}
       {{ form.vehiculo }}
+      <div class="sitio-hp-wrap" aria-hidden="true">{{ form.empresa_web }}</div>
       {% if form.non_field_errors %}
       <div class="sitio-form-error">{{ form.non_field_errors }}</div>
       {% endif %}
       <div class="sitio-form-grid">
         {% for field in form %}
-          {% if field.name != 'vehiculo' %}
+          {% if field.name != 'vehiculo' and field.name != 'empresa_web' %}
           <div class="sitio-field {% if field.name == 'notas' %}sitio-field--full{% endif %}">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field }}

@@ -25,6 +25,11 @@ class ReservaWebForm(forms.Form):
     licencia_numero = forms.CharField(max_length=30, widget=forms.TextInput(attrs={'class': 'sitio-input'}))
     licencia_vence = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'sitio-input'}))
     notas = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'sitio-input', 'rows': 3}))
+    # Honeypot: campo invisible para personas, atractivo para bots. Si llega lleno, es spam.
+    empresa_web = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'sitio-hp', 'tabindex': '-1', 'autocomplete': 'off'}),
+    )
 
     def __init__(self, *args, vehiculo=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,6 +37,12 @@ class ReservaWebForm(forms.Form):
         if vehiculo:
             self.fields['vehiculo'].initial = vehiculo
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(pk=vehiculo.pk)
+
+    def clean_empresa_web(self):
+        valor = self.cleaned_data.get('empresa_web')
+        if valor:
+            raise ValidationError('No se pudo procesar la solicitud.')
+        return valor
 
     def clean_vehiculo(self):
         vehiculo = self.cleaned_data.get('vehiculo') or self.vehiculo_fijo
@@ -71,14 +82,16 @@ class ReservaWebForm(forms.Form):
         data = self.cleaned_data
         vehiculo = data['vehiculo']
         documento = data['documento'].strip()
+        telefono = data['telefono'].strip()
+        email = (data.get('email') or '').strip()
 
-        cliente, _ = Cliente.objects.update_or_create(
+        cliente, creado = Cliente.objects.get_or_create(
             documento=documento,
             defaults={
                 'nombre': data['nombre'].strip(),
                 'apellido': data['apellido'].strip(),
-                'telefono': data['telefono'].strip(),
-                'email': (data.get('email') or '').strip(),
+                'telefono': telefono,
+                'email': email,
                 'licencia_numero': data['licencia_numero'].strip(),
                 'licencia_vence': data['licencia_vence'],
                 'activo': True,
@@ -98,6 +111,16 @@ class ReservaWebForm(forms.Form):
         else:
             notas = '[Web] Reserva desde sitio público'
 
+        if not creado:
+            # No pisamos los datos de un cliente ya existente (podría no ser
+            # la misma persona que llenó el formulario). Si los datos de
+            # contacto llegaron distintos, lo dejamos anotado para el staff.
+            if (telefono and telefono != cliente.telefono) or (email and email != cliente.email):
+                notas += (
+                    f' | Contacto informado en el formulario: tel. {telefono or "—"}, '
+                    f'email {email or "—"} (verificar antes de actualizar el cliente).'
+                )
+
         reserva = Reserva(
             cliente=cliente,
             vehiculo=vehiculo,
@@ -116,19 +139,35 @@ class ReservaWebForm(forms.Form):
 
 
 class ConfiguracionSitioForm(forms.ModelForm):
+    CAMPOS_SOLO_ADMIN = ('home_html_extra', 'css_global', 'js_global')
+
     quitar_home_fondo = forms.BooleanField(
         required=False,
         label='Quitar imagen de fondo actual',
     )
+    quitar_logo = forms.BooleanField(
+        required=False,
+        label='Quitar logo actual',
+    )
+
+    def __init__(self, *args, restringir_avanzado=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if restringir_avanzado:
+            for campo in self.CAMPOS_SOLO_ADMIN:
+                self.fields.pop(campo, None)
 
     class Meta:
         model = ConfiguracionSitio
         fields = [
+            'logo',
+            'mostrar_nombre_junto_logo',
             'home_titulo',
             'home_subtitulo',
             'home_texto',
             'home_diseno',
             'home_fondo_imagen',
+            'home_fondo_posicion',
+            'home_fondo_tamano',
             'home_fondo_opacidad',
             'home_mostrar_panel',
             'home_mostrar_categorias',
@@ -161,11 +200,15 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'js_global',
         ]
         widgets = {
+            'logo': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
+            'mostrar_nombre_junto_logo': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_titulo': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_subtitulo': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_texto': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 4}),
             'home_diseno': forms.Select(attrs={'class': 'mod-input'}),
             'home_fondo_imagen': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
+            'home_fondo_posicion': forms.RadioSelect,
+            'home_fondo_tamano': forms.Select(attrs={'class': 'mod-input'}),
             'home_fondo_opacidad': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0, 'max': 100}),
             'home_mostrar_panel': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_categorias': forms.CheckboxInput(attrs={'class': 'mod-check'}),
@@ -206,6 +249,14 @@ class ConfiguracionSitioForm(forms.ModelForm):
 
 
 class PaginaInformativaForm(forms.ModelForm):
+    CAMPOS_SOLO_ADMIN = ('css_extra', 'js_extra')
+
+    def __init__(self, *args, restringir_avanzado=False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if restringir_avanzado:
+            for campo in self.CAMPOS_SOLO_ADMIN:
+                self.fields.pop(campo, None)
+
     class Meta:
         model = PaginaInformativa
         fields = ['slug', 'titulo', 'contenido', 'css_extra', 'js_extra', 'publicada', 'en_menu', 'orden']

@@ -1,10 +1,28 @@
 from datetime import date, timedelta
 
+from django.core.cache import cache
 from django.utils import timezone
 
 from apps.mantenimiento.models import Mantenimiento
 from apps.reservas.models import Reserva
 from apps.vehiculos.models import Vehiculo
+
+RESERVA_LIMITE_INTENTOS = 5
+RESERVA_LIMITE_VENTANA_SEGUNDOS = 15 * 60
+
+
+def ip_cliente(request):
+    return request.META.get('REMOTE_ADDR', 'desconocida')
+
+
+def demasiados_intentos_reserva(request):
+    """Freno anti-spam simple por IP: máx. RESERVA_LIMITE_INTENTOS envíos cada 15 min."""
+    clave = f'reserva_intentos_{ip_cliente(request)}'
+    intentos = cache.get(clave, 0)
+    if intentos >= RESERVA_LIMITE_INTENTOS:
+        return True
+    cache.set(clave, intentos + 1, RESERVA_LIMITE_VENTANA_SEGUNDOS)
+    return False
 
 
 def vehiculos_publicos():

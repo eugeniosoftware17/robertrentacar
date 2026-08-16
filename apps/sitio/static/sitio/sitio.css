@@ -315,6 +315,21 @@
   display: grid;
   place-items: center;
   font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.sitio-logo-img {
+  display: block;
+  max-height: 48px;
+  max-width: min(200px, 42vw);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.sitio-logo-text {
+  line-height: 1.2;
 }
 
 .sitio-nav {
@@ -331,11 +346,6 @@
 }
 
 .sitio-nav a:hover { color: var(--sitio-brand); }
-
-.sitio-nav-staff {
-  font-size: 0.85rem !important;
-  opacity: 0.85;
-}
 
 .sitio-nav-toggle {
   display: none;
@@ -367,8 +377,8 @@
 }
 
 .sitio-hero-bg {
-  background-size: cover;
-  background-position: center;
+  background-size: var(--hero-bg-size, cover);
+  background-position: var(--hero-bg-position, center);
   background-repeat: no-repeat;
 }
 
@@ -1566,4 +1576,89 @@
     width: 52px;
     height: 52px;
   }
+
+  .sitio-preview-bar-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .sitio-preview-bar-actions {
+    justify-content: stretch;
+  }
+
+  .sitio-preview-bar-btn {
+    flex: 1;
+    text-align: center;
+  }
+}
+
+.sitio-preview-bar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #1a1a2e;
+  color: #fff;
+  border-bottom: 3px solid #f59e0b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.sitio-preview-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  flex-wrap: wrap;
+}
+
+.sitio-preview-bar-text {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.sitio-preview-bar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sitio-preview-bar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.sitio-preview-bar-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.sitio-preview-bar-btn--prim {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #1a1a2e;
+}
+
+.sitio-preview-bar-btn--prim:hover {
+  background: #fbbf24;
+  border-color: #fbbf24;
+  color: #1a1a2e;
+}
+
+.sitio-hp-wrap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }

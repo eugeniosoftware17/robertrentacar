@@ -1,16 +1,23 @@
 import json
+import os
 from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_not_required
 from django.contrib.sitemaps import Sitemap
+from django.core.files.storage import default_storage
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET
 
+HOME_PREVIEW_SESSION_KEY = 'sitio_home_preview'
+PAGINA_PREVIEW_SESSION_KEY = 'sitio_pagina_preview'
+SITIO_PREVIEW_IMAGENES = ('home_fondo_imagen', 'logo')
+
 from apps.configuracion.models import ConfiguracionEmpresa
+from apps.core.permisos import es_admin
 from apps.core.utils import paginar_queryset
 from apps.vehiculos.models import Vehiculo
 
@@ -19,6 +26,7 @@ from .models import ConfiguracionSitio, PaginaInformativa
 from .seo import meta_descripcion_flota, meta_descripcion_home, meta_descripcion_vehiculo
 from .services import (
     bloques_mantenimiento_dia,
+    demasiados_intentos_reserva,
     fechas_ocupadas,
     filtrar_por_disponibilidad,
     vehiculo_reservable,
@@ -38,9 +46,10 @@ def _contexto_publico(request):
     }
 
 
-@login_not_required
-def home(request):
+def _contexto_home(request, sitio=None):
     ctx = _contexto_publico(request)
+    if sitio is not None:
+        ctx['sitio'] = sitio
     publicos = vehiculos_publicos()
     ctx['destacados'] = publicos.filter(destacado_web=True)[:6]
     if not ctx['destacados']:
@@ -48,7 +57,114 @@ def home(request):
     ctx['total_vehiculos'] = publicos.count()
     ctx['categorias_flota'] = Vehiculo.Categoria.choices
     ctx['meta_description'] = meta_descripcion_home(ctx['empresa'], ctx['sitio'])
-    return render(request, 'sitio/home.html', ctx)
+    return ctx
+
+
+def _serializar_home_preview(form, request, config):
+    sitio = form.save(commit=False)
+    if form.cleaned_data.get('quitar_home_fondo'):
+        sitio.home_fondo_imagen = None
+    elif not request.FILES.get('home_fondo_imagen') and config.home_fondo_imagen:
+        sitio.home_fondo_imagen = config.home_fondo_imagen
+
+    if request.FILES.get('home_fondo_imagen'):
+        uploaded = request.FILES['home_fondo_imagen']
+        ext = os.path.splitext(uploaded.name)[1].lower() or '.jpg'
+        path = default_storage.save(
+            f'sitio/preview/{request.user.pk}/fondo{ext}',
+            uploaded,
+        )
+        sitio.home_fondo_imagen.name = path
+
+    if form.cleaned_data.get('quitar_logo'):
+        sitio.logo = None
+    elif not request.FILES.get('logo') and config.logo:
+        sitio.logo = config.logo
+
+    if request.FILES.get('logo'):
+        uploaded = request.FILES['logo']
+        ext = os.path.splitext(uploaded.name)[1].lower() or '.png'
+        path = default_storage.save(
+            f'sitio/preview/{request.user.pk}/logo{ext}',
+            uploaded,
+        )
+        sitio.logo.name = path
+
+    data = {}
+    for field in sitio._meta.fields:
+        if field.name == 'id':
+            continue
+        value = getattr(sitio, field.name)
+        if field.name in SITIO_PREVIEW_IMAGENES:
+            data[field.name] = value.name if value else ''
+        elif isinstance(value, bool):
+            data[field.name] = value
+        elif value is None:
+            data[field.name] = ''
+        else:
+            data[field.name] = value
+    return data
+
+
+def _sitio_desde_preview(data):
+    sitio = ConfiguracionSitio.obtener()
+    for field in sitio._meta.fields:
+        if field.name in ('id', *SITIO_PREVIEW_IMAGENES):
+            continue
+        if field.name not in data:
+            continue
+        setattr(sitio, field.name, field.to_python(data[field.name]))
+
+    for img_field in SITIO_PREVIEW_IMAGENES:
+        path = data.get(img_field) or ''
+        if path:
+            getattr(sitio, img_field).name = path
+        else:
+            setattr(sitio, img_field, None)
+    return sitio
+
+
+def _serializar_pagina_preview(form, pk=None):
+    pagina = form.save(commit=False)
+    return {
+        'pk': pk,
+        'slug': pagina.slug,
+        'titulo': pagina.titulo,
+        'contenido': pagina.contenido,
+        'css_extra': pagina.css_extra or '',
+        'js_extra': pagina.js_extra or '',
+        'publicada': pagina.publicada,
+        'en_menu': pagina.en_menu,
+        'orden': pagina.orden,
+    }
+
+
+def _pagina_desde_preview(data):
+    pk = data.get('pk')
+    if pk:
+        pagina = PaginaInformativa.objects.filter(pk=pk).first() or PaginaInformativa()
+    else:
+        pagina = PaginaInformativa()
+
+    for field in PaginaInformativa._meta.fields:
+        if field.name == 'id':
+            continue
+        if field.name not in data:
+            continue
+        setattr(pagina, field.name, field.to_python(data[field.name]))
+    return pagina
+
+
+def _url_panel_pagina_preview(preview):
+    pk = preview.get('pk')
+    if pk:
+        return reverse('sitio_web:panel_pagina_editar', kwargs={'pk': pk})
+    return reverse('sitio_web:panel_pagina_crear')
+
+
+@login_not_required
+def home(request):
+    return render(request, 'sitio/home.html', _contexto_home(request))
 
 
 @login_not_required
@@ -172,6 +288,13 @@ def reservar(request, slug):
     }
 
     if request.method == 'POST':
+        if demasiados_intentos_reserva(request):
+            ctx.update({
+                'form': ReservaWebForm(vehiculo=vehiculo, initial=initial),
+                'vehiculo': vehiculo,
+                'error_limite': 'Demasiadas solicitudes. Intenta de nuevo en unos minutos o escríbenos por WhatsApp.',
+            })
+            return render(request, 'sitio/reservar.html', ctx, status=429)
         form = ReservaWebForm(request.POST, vehiculo=vehiculo)
         if form.is_valid():
             reserva = form.guardar_reserva()
@@ -192,22 +315,87 @@ def reservar(request, slug):
 
 # ——— Panel ———
 
+CAMPOS_PESTANA_SITIO = {
+    'marca': {'logo', 'quitar_logo', 'mostrar_nombre_junto_logo'},
+    'inicio': {
+        'home_titulo', 'home_subtitulo', 'home_texto', 'horario', 'meta_descripcion',
+        'home_diseno', 'home_fondo_imagen', 'quitar_home_fondo', 'home_fondo_opacidad',
+        'home_fondo_tamano', 'home_fondo_posicion', 'home_mostrar_panel',
+        'home_mostrar_categorias', 'home_mostrar_destacados', 'home_mostrar_cta',
+        'home_mostrar_contador', 'home_mostrar_redes_hero',
+    },
+    'contacto': {
+        'whatsapp', 'whatsapp_mensaje', 'whatsapp_flotante', 'mostrar_whatsapp',
+        'instagram', 'mostrar_instagram', 'facebook', 'mostrar_facebook',
+        'tiktok', 'mostrar_tiktok', 'youtube', 'mostrar_youtube',
+        'twitter', 'mostrar_twitter',
+    },
+    'reservas': {
+        'reserva_auto_confirmar', 'anticipacion_horas', 'bloquear_mantenimiento',
+        'mensaje_reserva_exito',
+    },
+    'avanzado': {'home_html_extra', 'css_global', 'js_global'},
+}
+
+
+def _pestana_con_errores(form):
+    for field in form.errors:
+        for pestana, campos in CAMPOS_PESTANA_SITIO.items():
+            if field in campos:
+                return pestana
+    return 'inicio'
+
+
+def _resumen_sitio(config, paginas):
+    publicadas = paginas.filter(publicada=True).count()
+    return {
+        'logo_ok': bool(config.logo),
+        'whatsapp_ok': config.whatsapp_activo,
+        'paginas_publicadas': publicadas,
+        'paginas_total': paginas.count(),
+        'vehiculos_web': vehiculos_publicos().count(),
+        'auto_confirmar': config.reserva_auto_confirmar,
+    }
+
+
 def panel_index(request):
     config = ConfiguracionSitio.obtener()
     paginas = PaginaInformativa.objects.all()
+    pestana_activa = 'inicio'
+    restringir_avanzado = not es_admin(request.user)
 
-    if request.method == 'POST' and 'guardar_sitio' in request.POST:
-        form = ConfiguracionSitioForm(request.POST, request.FILES, instance=config)
-        if form.is_valid():
+    if request.method == 'POST':
+        form = ConfiguracionSitioForm(
+            request.POST, request.FILES, instance=config, restringir_avanzado=restringir_avanzado,
+        )
+        pestana_activa = request.POST.get('pestana_activa', 'inicio')
+        if 'vista_previa_home' in request.POST:
+            if form.is_valid():
+                request.session[HOME_PREVIEW_SESSION_KEY] = _serializar_home_preview(
+                    form, request, config,
+                )
+                request.session.modified = True
+                return redirect('sitio_web:panel_vista_previa_home')
+            pestana_activa = _pestana_con_errores(form)
+        elif 'guardar_sitio' in request.POST and form.is_valid():
             sitio = form.save(commit=False)
             if form.cleaned_data.get('quitar_home_fondo') and config.home_fondo_imagen:
                 config.home_fondo_imagen.delete(save=False)
                 sitio.home_fondo_imagen = None
+            if form.cleaned_data.get('quitar_logo') and config.logo:
+                config.logo.delete(save=False)
+                sitio.logo = None
             sitio.save()
+            request.session.pop(HOME_PREVIEW_SESSION_KEY, None)
             messages.success(request, 'Configuración del sitio guardada.')
-            return redirect('sitio_web:panel_index')
+            return redirect(f'{reverse("sitio_web:panel_index")}?tab={pestana_activa}')
+        elif 'guardar_sitio' in request.POST:
+            pestana_activa = _pestana_con_errores(form)
     else:
-        form = ConfiguracionSitioForm(instance=config)
+        form = ConfiguracionSitioForm(instance=config, restringir_avanzado=restringir_avanzado)
+        pestana_activa = request.GET.get('tab', 'inicio')
+        if pestana_activa not in (*CAMPOS_PESTANA_SITIO.keys(), 'paginas'):
+            pestana_activa = 'inicio'
 
     return render(request, 'sitio/panel/index.html', {
         'page_title': 'Sitio web',
@@ -215,18 +403,41 @@ def panel_index(request):
         'form': form,
         'paginas': paginas,
         'url_publica': '/',
+        'resumen': _resumen_sitio(config, paginas),
+        'pestana_activa': pestana_activa,
     })
 
 
+def panel_vista_previa_home(request):
+    preview = request.session.get(HOME_PREVIEW_SESSION_KEY)
+    if not preview:
+        messages.info(request, 'Configura el inicio y pulsa «Vista previa» para ver los cambios.')
+        return redirect('sitio_web:panel_index')
+
+    ctx = _contexto_home(request, sitio=_sitio_desde_preview(preview))
+    ctx.update({
+        'es_vista_previa': True,
+        'url_panel_sitio': reverse('sitio_web:panel_index'),
+    })
+    return render(request, 'sitio/home.html', ctx)
+
+
 def panel_pagina_crear(request):
+    restringir_avanzado = not es_admin(request.user)
     if request.method == 'POST':
-        form = PaginaInformativaForm(request.POST)
-        if form.is_valid():
+        form = PaginaInformativaForm(request.POST, restringir_avanzado=restringir_avanzado)
+        if 'vista_previa_pagina' in request.POST:
+            if form.is_valid():
+                request.session[PAGINA_PREVIEW_SESSION_KEY] = _serializar_pagina_preview(form)
+                request.session.modified = True
+                return redirect('sitio_web:panel_vista_previa_pagina')
+        elif 'guardar_pagina' in request.POST and form.is_valid():
             form.save()
+            request.session.pop(PAGINA_PREVIEW_SESSION_KEY, None)
             messages.success(request, 'Página creada.')
             return redirect('sitio_web:panel_index')
     else:
-        form = PaginaInformativaForm()
+        form = PaginaInformativaForm(restringir_avanzado=restringir_avanzado)
 
     return render(request, 'sitio/panel/pagina_form.html', {
         'page_title': 'Nueva página',
@@ -237,14 +448,21 @@ def panel_pagina_crear(request):
 
 def panel_pagina_editar(request, pk):
     pagina_obj = get_object_or_404(PaginaInformativa, pk=pk)
+    restringir_avanzado = not es_admin(request.user)
     if request.method == 'POST':
-        form = PaginaInformativaForm(request.POST, instance=pagina_obj)
-        if form.is_valid():
+        form = PaginaInformativaForm(request.POST, instance=pagina_obj, restringir_avanzado=restringir_avanzado)
+        if 'vista_previa_pagina' in request.POST:
+            if form.is_valid():
+                request.session[PAGINA_PREVIEW_SESSION_KEY] = _serializar_pagina_preview(form, pk=pk)
+                request.session.modified = True
+                return redirect('sitio_web:panel_vista_previa_pagina')
+        elif 'guardar_pagina' in request.POST and form.is_valid():
             form.save()
+            request.session.pop(PAGINA_PREVIEW_SESSION_KEY, None)
             messages.success(request, 'Página actualizada.')
             return redirect('sitio_web:panel_index')
     else:
-        form = PaginaInformativaForm(instance=pagina_obj)
+        form = PaginaInformativaForm(instance=pagina_obj, restringir_avanzado=restringir_avanzado)
 
     return render(request, 'sitio/panel/pagina_form.html', {
         'page_title': 'Editar página',
@@ -252,6 +470,21 @@ def panel_pagina_editar(request, pk):
         'accion': 'editar',
         'pagina': pagina_obj,
     })
+
+
+def panel_vista_previa_pagina(request):
+    preview = request.session.get(PAGINA_PREVIEW_SESSION_KEY)
+    if not preview:
+        messages.info(request, 'Edita la página y pulsa «Vista previa» para ver los cambios.')
+        return redirect('sitio_web:panel_index')
+
+    ctx = _contexto_publico(request)
+    ctx.update({
+        'pagina': _pagina_desde_preview(preview),
+        'es_vista_previa': True,
+        'url_panel_sitio': _url_panel_pagina_preview(preview),
+    })
+    return render(request, 'sitio/pagina.html', ctx)
 
 
 class VehiculoPublicoSitemap(Sitemap):
