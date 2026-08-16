@@ -139,7 +139,19 @@ def dashboard(request):
     )
 
     alertas = []
-    for vehiculo in vehiculos_activos.filter(estado=Vehiculo.Estado.MANTENIMIENTO)[:3]:
+    for vehiculo in vehiculos_activos.filter(seguro_vence__isnull=False, seguro_vence__lt=hoy):
+        dias_vencido = (hoy - vehiculo.seguro_vence).days
+        alertas.append({
+            'nombre': vehiculo.nombre_corto,
+            'detalle': f'Seguro vencido hace {dias_vencido} día{"s" if dias_vencido != 1 else ""}',
+            'tipo': 'Urgente',
+            'clase': 'rojo',
+            'icono': '📄',
+            'fondo': '#f9e9e9',
+            'prioridad': 0,
+        })
+
+    for vehiculo in vehiculos_activos.filter(estado=Vehiculo.Estado.MANTENIMIENTO):
         alertas.append({
             'nombre': vehiculo.nombre_corto,
             'detalle': 'En mantenimiento',
@@ -147,13 +159,29 @@ def dashboard(request):
             'clase': 'rojo',
             'icono': '⚠️',
             'fondo': '#f9e9e9',
+            'prioridad': 0,
+        })
+
+    for vehiculo in vehiculos_activos.filter(
+        seguro_vence__isnull=False,
+        seguro_vence__lte=hoy + timedelta(days=30),
+        seguro_vence__gte=hoy,
+    ):
+        alertas.append({
+            'nombre': vehiculo.nombre_corto,
+            'detalle': f'Seguro vence el {vehiculo.seguro_vence.strftime("%d de %B")}',
+            'tipo': 'Aviso',
+            'clase': 'azul',
+            'icono': '📄',
+            'fondo': '#d9eeee',
+            'prioridad': 1,
         })
 
     for vehiculo in vehiculos_activos.filter(
         prox_mantenimiento__isnull=False,
         prox_mantenimiento__lte=hoy + timedelta(days=7),
         prox_mantenimiento__gte=hoy,
-    ).exclude(estado=Vehiculo.Estado.MANTENIMIENTO)[:3]:
+    ).exclude(estado=Vehiculo.Estado.MANTENIMIENTO):
         dias = (vehiculo.prox_mantenimiento - hoy).days
         alertas.append({
             'nombre': vehiculo.nombre_corto,
@@ -162,21 +190,10 @@ def dashboard(request):
             'clase': 'amarillo',
             'icono': '🔧',
             'fondo': '#f8f0de',
+            'prioridad': 2,
         })
 
-    for vehiculo in vehiculos_activos.filter(
-        seguro_vence__isnull=False,
-        seguro_vence__lte=hoy + timedelta(days=30),
-        seguro_vence__gte=hoy,
-    )[:3]:
-        alertas.append({
-            'nombre': vehiculo.nombre_corto,
-            'detalle': f'Seguro vence el {vehiculo.seguro_vence.strftime("%d de %B")}',
-            'tipo': 'Aviso',
-            'clase': 'azul',
-            'icono': '📄',
-            'fondo': '#d9eeee',
-        })
+    alertas.sort(key=lambda a: a['prioridad'])
 
     hace_6_meses = hoy.replace(day=1) - timedelta(days=150)
     pagos_agrupados = (
@@ -226,6 +243,6 @@ def dashboard(request):
         'variacion_caja': variacion_caja,
         'proximos_movimientos': proximos_movimientos,
         'top_vehiculos': top_vehiculos,
-        'alertas': alertas[:3],
+        'alertas': alertas[:6],
         'grafica_datos': grafica_datos,
     })
