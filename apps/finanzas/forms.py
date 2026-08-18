@@ -1,8 +1,16 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.db.models import Q
 
 from apps.vehiculos.models import Vehiculo
 
 from .models import Empleado, Gasto, PagoNomina
+
+
+def _validar_monto_positivo(monto, campo='monto'):
+    if monto is not None and monto <= 0:
+        raise ValidationError('El monto debe ser mayor que cero.')
+    return monto
 
 
 class EmpleadoForm(forms.ModelForm):
@@ -24,6 +32,12 @@ class EmpleadoForm(forms.ModelForm):
             'notas': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
         }
 
+    def clean_salario_base(self):
+        salario = self.cleaned_data.get('salario_base')
+        if salario is not None and salario < 0:
+            raise ValidationError('El salario base no puede ser negativo.')
+        return salario
+
 
 class PagoNominaForm(forms.ModelForm):
     class Meta:
@@ -40,7 +54,15 @@ class PagoNominaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['empleado'].queryset = Empleado.objects.filter(activo=True)
+        qs = Empleado.objects.filter(activo=True)
+        if self.instance.pk and self.instance.empleado_id:
+            qs = Empleado.objects.filter(
+                Q(activo=True) | Q(pk=self.instance.empleado_id)
+            )
+        self.fields['empleado'].queryset = qs.distinct().order_by('-activo', 'apellido', 'nombre')
+
+    def clean_monto(self):
+        return _validar_monto_positivo(self.cleaned_data.get('monto'))
 
 
 class GastoForm(forms.ModelForm):
@@ -60,3 +82,6 @@ class GastoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['vehiculo'].queryset = Vehiculo.objects.filter(activo=True)
         self.fields['vehiculo'].required = False
+
+    def clean_monto(self):
+        return _validar_monto_positivo(self.cleaned_data.get('monto'))

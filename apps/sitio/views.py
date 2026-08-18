@@ -22,6 +22,7 @@ from apps.core.utils import paginar_queryset
 from apps.vehiculos.models import Vehiculo
 
 from .forms import ConfiguracionSitioForm, PaginaInformativaForm, ReservaWebForm
+from .i18n import COOKIE_IDIOMA, idioma_actual
 from .models import ConfiguracionSitio, PaginaInformativa
 from .seo import meta_descripcion_flota, meta_descripcion_home, meta_descripcion_vehiculo
 from .services import (
@@ -43,6 +44,7 @@ def _contexto_publico(request):
         'empresa': empresa,
         'sitio': sitio,
         'menu_paginas': paginas,
+        'idioma': idioma_actual(request),
     }
 
 
@@ -56,7 +58,7 @@ def _contexto_home(request, sitio=None):
         ctx['destacados'] = publicos[:6]
     ctx['total_vehiculos'] = publicos.count()
     ctx['categorias_flota'] = Vehiculo.Categoria.choices
-    ctx['meta_description'] = meta_descripcion_home(ctx['empresa'], ctx['sitio'])
+    ctx['meta_description'] = meta_descripcion_home(ctx['empresa'], ctx['sitio'], ctx['idioma'])
     return ctx
 
 
@@ -205,7 +207,7 @@ def flota(request):
         'fecha_fin': fecha_fin,
         'categorias': Vehiculo.Categoria.choices,
         'transmisiones': Vehiculo.Transmision.choices,
-        'meta_description': meta_descripcion_flota(ctx['empresa']),
+        'meta_description': meta_descripcion_flota(ctx['empresa'], ctx['idioma']),
     })
     return render(request, 'sitio/flota.html', ctx)
 
@@ -228,7 +230,7 @@ def vehiculo_detalle(request, slug):
         'relacionados': vehiculos_relacionados(vehiculo),
         'tarifa_semanal': tarifa * 7,
         'tarifa_mensual': tarifa * 30,
-        'meta_description': meta_descripcion_vehiculo(vehiculo, ctx['empresa']),
+        'meta_description': meta_descripcion_vehiculo(vehiculo, ctx['empresa'], ctx['idioma']),
         'wa_msg': (
             f'Hola, me interesa alquilar el {vehiculo.nombre_corto} '
             f'(Ref. {vehiculo.placa}). ¿Está disponible?'
@@ -290,16 +292,20 @@ def reservar(request, slug):
     if request.method == 'POST':
         if demasiados_intentos_reserva(request):
             ctx.update({
-                'form': ReservaWebForm(vehiculo=vehiculo, initial=initial),
+                'form': ReservaWebForm(vehiculo=vehiculo, initial=initial, idioma=ctx['idioma']),
                 'vehiculo': vehiculo,
                 'error_limite': 'Demasiadas solicitudes. Intenta de nuevo en unos minutos o escríbenos por WhatsApp.',
             })
             return render(request, 'sitio/reservar.html', ctx, status=429)
-        form = ReservaWebForm(request.POST, vehiculo=vehiculo)
+        form = ReservaWebForm(request.POST, vehiculo=vehiculo, idioma=ctx['idioma'])
         if form.is_valid():
             reserva = form.guardar_reserva()
+            config_sitio = ConfiguracionSitio.obtener()
             ctx['reserva'] = reserva
-            ctx['mensaje'] = ConfiguracionSitio.obtener().mensaje_reserva_exito
+            if ctx['idioma'] == 'en' and config_sitio.mensaje_reserva_exito_en:
+                ctx['mensaje'] = config_sitio.mensaje_reserva_exito_en
+            else:
+                ctx['mensaje'] = config_sitio.mensaje_reserva_exito
             ctx['wa_msg'] = (
                 f'Hola, acabo de hacer la reserva #{reserva.pk} del {reserva.vehiculo.nombre_corto} '
                 f'({reserva.fecha_inicio.strftime("%d/%m/%Y")} — '
@@ -307,7 +313,7 @@ def reservar(request, slug):
             )
             return render(request, 'sitio/reserva_exito.html', ctx)
     else:
-        form = ReservaWebForm(vehiculo=vehiculo, initial=initial)
+        form = ReservaWebForm(vehiculo=vehiculo, initial=initial, idioma=ctx['idioma'])
 
     ctx.update({'form': form, 'vehiculo': vehiculo})
     return render(request, 'sitio/reservar.html', ctx)
@@ -318,11 +324,14 @@ def reservar(request, slug):
 CAMPOS_PESTANA_SITIO = {
     'marca': {'logo', 'quitar_logo', 'mostrar_nombre_junto_logo'},
     'inicio': {
-        'home_titulo', 'home_subtitulo', 'home_texto', 'horario', 'meta_descripcion',
+        'home_titulo', 'home_titulo_en', 'home_subtitulo', 'home_subtitulo_en',
+        'home_texto', 'home_texto_en', 'horario', 'meta_descripcion', 'meta_descripcion_en',
         'home_diseno', 'home_fondo_imagen', 'quitar_home_fondo', 'home_fondo_opacidad',
         'home_fondo_tamano', 'home_fondo_posicion', 'home_mostrar_panel',
         'home_mostrar_categorias', 'home_mostrar_destacados', 'home_mostrar_cta',
         'home_mostrar_contador', 'home_mostrar_redes_hero',
+        'servicio_24h', 'entrega_aeropuertos', 'mostrar_resenas',
+        'resena_calificacion', 'resena_cantidad',
     },
     'contacto': {
         'whatsapp', 'whatsapp_mensaje', 'whatsapp_flotante', 'mostrar_whatsapp',
@@ -332,7 +341,7 @@ CAMPOS_PESTANA_SITIO = {
     },
     'reservas': {
         'reserva_auto_confirmar', 'anticipacion_horas', 'bloquear_mantenimiento',
-        'mensaje_reserva_exito',
+        'mensaje_reserva_exito', 'mensaje_reserva_exito_en',
     },
     'avanzado': {'home_html_extra', 'css_global', 'js_global'},
 }
@@ -543,3 +552,12 @@ def robots_txt(request):
         f'Sitemap: {request.build_absolute_uri(reverse("sitio:sitemap"))}',
     ]
     return HttpResponse('\n'.join(lines), content_type='text/plain')
+
+
+@login_not_required
+def cambiar_idioma(request, codigo):
+    destino = request.META.get('HTTP_REFERER') or reverse('sitio:home')
+    respuesta = redirect(destino)
+    if codigo in ('es', 'en'):
+        respuesta.set_cookie(COOKIE_IDIOMA, codigo, max_age=60 * 60 * 24 * 365)
+    return respuesta

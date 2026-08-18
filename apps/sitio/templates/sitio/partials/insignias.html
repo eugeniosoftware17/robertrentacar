@@ -1,0 +1,16 @@
+{% load sitio_extras %}
+{% if sitio.servicio_24h or sitio.entrega_aeropuertos or sitio.mostrar_resenas %}
+<div class="sitio-insignias">
+  <div class="sitio-container sitio-insignias-fila">
+    {% if sitio.mostrar_resenas %}
+    <span class="sitio-insignia">⭐ {{ sitio.resena_calificacion }} <span class="sitio-insignia-sub">({{ sitio.resena_cantidad }} {% t 'badge_resenas' %})</span></span>
+    {% endif %}
+    {% if sitio.servicio_24h %}
+    <span class="sitio-insignia">🕐 {% t 'badge_24h' %}</span>
+    {% endif %}
+    {% if sitio.entrega_aeropuertos %}
+    <span class="sitio-insignia">🛫 {% t 'badge_aeropuertos' %}</span>
+    {% endif %}
+  </div>
+</div>
+{% endif %}

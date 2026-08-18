@@ -1,9 +1,9 @@
 {% extends "sitio/base_public.html" %}
 {% load static sitio_extras %}
 
-{% block title %}Alquiler {{ vehiculo.nombre_corto }} — RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}/día | {{ empresa.nombre }}{% endblock %}
+{% block title %}{% if idioma_actual == 'en' %}Rent{% else %}Alquiler{% endif %} {{ vehiculo.nombre_corto }} — RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %} | {{ empresa.nombre }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block og_title %}Alquiler {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
+{% block og_title %}{% if idioma_actual == 'en' %}Rent{% else %}Alquiler{% endif %} {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
 {% block canonical %}{{ request.scheme }}://{{ request.get_host }}{{ vehiculo.get_absolute_url }}{% endblock %}
 {% block og_type %}product{% endblock %}
@@ -21,7 +21,7 @@
   "@type": "Product",
   "name": "{{ vehiculo.nombre_corto|escapejs }}",
   "description": "{{ meta_description|escapejs }}",
-  "sku": "{{ vehiculo.placa|escapejs }}",
+  "sku": "VEH-{{ vehiculo.pk|stringformat:'04d' }}",
   "brand": { "@type": "Brand", "name": "{{ vehiculo.marca|escapejs }}" },
   "offers": {
     "@type": "Offer",
@@ -37,7 +37,7 @@
 {% block content %}
 <section class="sitio-section sitio-section--top sitio-section--detalle">
   <div class="sitio-container sitio-container--wide">
-    <a href="{% url 'sitio:flota' %}" class="sitio-volver">← Volver a la flota</a>
+    <a href="{% url 'sitio:flota' %}" class="sitio-volver">{% t 'veh_volver_flota' %}</a>
 
     <div class="sitio-detalle">
       <div class="sitio-detalle-col-principal">
@@ -58,76 +58,76 @@
           {% endif %}
         </div>
         {% else %}
-        <div class="sitio-card-img sitio-card-img--empty sitio-detalle-placeholder">Sin foto</div>
+        <div class="sitio-card-img sitio-card-img--empty sitio-detalle-placeholder">{% t 'flota_sin_foto' %}</div>
         {% endif %}
         {% endwith %}
 
         <header class="sitio-detalle-header sitio-detalle-header--movil">
           <h1 class="sitio-detalle-titulo">{{ vehiculo.nombre_corto }}</h1>
-          <p class="sitio-detalle-ref">Ref. {{ vehiculo.placa }} · VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
+          <p class="sitio-detalle-ref">Ref. VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
         </header>
 
-        {% if vehiculo.descripcion_web %}
+        {% campo vehiculo 'descripcion_web' as descripcion %}
+        {% if descripcion %}
         <div class="sitio-bloque">
-          <h2 class="sitio-bloque-titulo">Descripción</h2>
-          <p class="sitio-text sitio-text--bloque">{{ vehiculo.descripcion_web }}</p>
+          <h2 class="sitio-bloque-titulo">{% t 'veh_descripcion' %}</h2>
+          <p class="sitio-text sitio-text--bloque">{{ descripcion }}</p>
         </div>
         {% endif %}
 
         <div class="sitio-ficha">
           <div class="sitio-ficha-head">
-            <h2>Ficha técnica</h2>
-            <span class="sitio-ficha-ref">Ref. {{ vehiculo.placa }}</span>
+            <h2>{% t 'veh_ficha_tecnica' %}</h2>
+            <span class="sitio-ficha-ref">Ref. VEH-{{ vehiculo.pk|stringformat:"04d" }}</span>
           </div>
           <table class="sitio-ficha-tabla">
             <tbody>
-              <tr><th scope="row">Marca</th><td>{{ vehiculo.marca }}</td></tr>
-              <tr><th scope="row">Modelo</th><td>{{ vehiculo.modelo }}</td></tr>
-              <tr><th scope="row">Año</th><td>{{ vehiculo.anio }}</td></tr>
-              <tr><th scope="row">Placa / Ref.</th><td>{{ vehiculo.placa }}</td></tr>
-              <tr><th scope="row">Código</th><td>VEH-{{ vehiculo.pk|stringformat:"04d" }}</td></tr>
-              <tr><th scope="row">Categoría</th><td>{{ vehiculo.get_categoria_display }}</td></tr>
-              <tr><th scope="row">Transmisión</th><td>{{ vehiculo.get_transmision_display }}</td></tr>
-              <tr><th scope="row">Color</th><td>{{ vehiculo.color|default:"—" }}</td></tr>
-              <tr><th scope="row">Kilometraje</th><td>{{ vehiculo.kilometraje|floatformat:0 }} km</td></tr>
-              <tr><th scope="row">Estado</th><td><span class="sitio-ficha-estado">Disponible</span></td></tr>
-              <tr class="sitio-ficha-sep"><th scope="row">Tarifa diaria</th><td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td></tr>
-              <tr><th scope="row">Estimado 7 días</th><td>RD$ {{ tarifa_semanal|floatformat:0 }}</td></tr>
-              <tr><th scope="row">Estimado 30 días</th><td>RD$ {{ tarifa_mensual|floatformat:0 }}</td></tr>
+              <tr><th scope="row">{% t 'veh_marca' %}</th><td>{{ vehiculo.marca }}</td></tr>
+              <tr><th scope="row">{% t 'veh_modelo' %}</th><td>{{ vehiculo.modelo }}</td></tr>
+              <tr><th scope="row">{% t 'veh_anio' %}</th><td>{{ vehiculo.anio }}</td></tr>
+              <tr><th scope="row">{% t 'veh_codigo' %}</th><td>VEH-{{ vehiculo.pk|stringformat:"04d" }}</td></tr>
+              <tr><th scope="row">{% t 'veh_categoria' %}</th><td>{% t_categoria vehiculo.categoria %}</td></tr>
+              <tr><th scope="row">{% t 'veh_transmision' %}</th><td>{% t_transmision vehiculo.transmision %}</td></tr>
+              <tr><th scope="row">{% t 'veh_color' %}</th><td>{{ vehiculo.color|default:"—" }}</td></tr>
+              <tr><th scope="row">{% t 'veh_kilometraje' %}</th><td>{{ vehiculo.kilometraje|floatformat:0 }} km</td></tr>
+              <tr><th scope="row">{% t 'veh_estado' %}</th><td><span class="sitio-ficha-estado">{% t 'veh_disponible' %}</span></td></tr>
+              <tr class="sitio-ficha-sep"><th scope="row">{% t 'veh_tarifa_diaria' %}</th><td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td></tr>
+              <tr><th scope="row">{% t 'veh_estimado_7' %}</th><td>RD$ {{ tarifa_semanal|floatformat:0 }}</td></tr>
+              <tr><th scope="row">{% t 'veh_estimado_30' %}</th><td>RD$ {{ tarifa_mensual|floatformat:0 }}</td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="sitio-info-grid">
           <div class="sitio-bloque">
-            <h2 class="sitio-bloque-titulo">Condiciones de alquiler</h2>
+            <h2 class="sitio-bloque-titulo">{% t 'veh_condiciones_titulo' %}</h2>
             <ul class="sitio-lista-info">
-              <li>Reserva con mínimo {{ sitio.anticipacion_horas }} horas de anticipación</li>
-              <li>{% if sitio.reserva_auto_confirmar %}Confirmación automática al reservar{% else %}Confirmación por teléfono o WhatsApp tras la solicitud{% endif %}</li>
-              {% if sitio.horario %}<li>Horario: {{ sitio.horario }}</li>{% endif %}
-              <li>Documento de identidad y licencia vigente requeridos</li>
+              <li>{% t 'veh_condicion_anticipacion' h=sitio.anticipacion_horas %}</li>
+              <li>{% if sitio.reserva_auto_confirmar %}{% t 'veh_condicion_confirmacion_auto' %}{% else %}{% t 'veh_condicion_confirmacion_manual' %}{% endif %}</li>
+              {% if sitio.horario %}<li>{% t 'veh_condicion_horario' %}: {{ sitio.horario }}</li>{% endif %}
+              <li>{% t 'veh_condicion_documentos' %}</li>
             </ul>
           </div>
           <div class="sitio-bloque">
-            <h2 class="sitio-bloque-titulo">Incluye</h2>
+            <h2 class="sitio-bloque-titulo">{% t 'veh_incluye_titulo' %}</h2>
             <ul class="sitio-lista-info">
-              <li>Vehículo en condiciones de circulación</li>
-              <li>Documentación al día</li>
-              <li>Asistencia de {{ empresa.nombre }}</li>
+              <li>{% t 'veh_incluye_1' %}</li>
+              <li>{% t 'veh_incluye_2' %}</li>
+              <li>{% t 'veh_incluye_3' %} {{ empresa.nombre }}</li>
             </ul>
           </div>
         </div>
 
         {% if empresa.direccion or empresa.telefono or sitio.whatsapp_activo or sitio.tiene_redes %}
         <div class="sitio-bloque sitio-bloque--contacto">
-          <h2 class="sitio-bloque-titulo">Contacto</h2>
+          <h2 class="sitio-bloque-titulo">{% t 'veh_contacto_titulo' %}</h2>
           <dl class="sitio-contacto-dl">
-            {% if empresa.direccion %}<div><dt>Dirección</dt><dd>{{ empresa.direccion }}</dd></div>{% endif %}
-            {% if empresa.telefono %}<div><dt>Teléfono</dt><dd>{{ empresa.telefono }}</dd></div>{% endif %}
+            {% if empresa.direccion %}<div><dt>{% t 'veh_direccion' %}</dt><dd>{{ empresa.direccion }}</dd></div>{% endif %}
+            {% if empresa.telefono %}<div><dt>{% t 'veh_telefono' %}</dt><dd>{{ empresa.telefono }}</dd></div>{% endif %}
             {% if sitio.whatsapp_activo %}<div><dt>WhatsApp</dt><dd>{{ sitio.whatsapp }}</dd></div>{% endif %}
           </dl>
           {% if sitio.whatsapp_activo %}
-          <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--sm sitio-btn--wa" target="_blank" rel="noopener">Consultar por WhatsApp</a>
+          <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--sm sitio-btn--wa" target="_blank" rel="noopener">{% t 'veh_consultar_whatsapp' %}</a>
           {% endif %}
           {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--bloque" %}
         </div>
@@ -139,7 +139,7 @@
           <div class="sitio-reserva-panel">
             <header class="sitio-detalle-header sitio-detalle-header--desktop">
               <h1 class="sitio-detalle-titulo">{{ vehiculo.nombre_corto }}</h1>
-              <p class="sitio-detalle-ref">Ref. {{ vehiculo.placa }} · VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
+              <p class="sitio-detalle-ref">Ref. VEH-{{ vehiculo.pk|stringformat:"04d" }}</p>
             </header>
 
             <div class="sitio-precio-box">

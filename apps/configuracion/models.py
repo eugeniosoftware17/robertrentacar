@@ -6,6 +6,12 @@ class ConfiguracionEmpresa(models.Model):
     telefono = models.CharField('Teléfono', max_length=30, blank=True)
     email = models.EmailField('Correo', blank=True)
     direccion = models.CharField('Dirección', max_length=200, blank=True)
+    ciudad = models.CharField(
+        'Ciudad',
+        max_length=80,
+        default='Santiago',
+        help_text='Se usa en el SEO del sitio para posicionar en búsquedas de esta ciudad.',
+    )
     rnc = models.CharField('RNC', max_length=20, blank=True)
     notas_contrato = models.TextField('Cláusulas del contrato', blank=True)
 

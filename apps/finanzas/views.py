@@ -10,33 +10,57 @@ from apps.core.utils import paginar_queryset
 
 from .forms import EmpleadoForm, GastoForm, PagoNominaForm
 from .models import Empleado, Gasto, PagoNomina
+from .utils import normalizar_rango, rango_mes_actual
 
 
-def _rango_mes_actual():
-    hoy = timezone.localdate()
-    return hoy.replace(day=1).isoformat(), hoy.isoformat()
+def _aplicar_filtro_fecha(qs, campo_desde, campo_hasta, desde, hasta):
+    if desde:
+        qs = qs.filter(**{f'{campo_desde}__gte': desde})
+    if hasta:
+        qs = qs.filter(**{f'{campo_hasta}__lte': hasta})
+    return qs
+
+
+def _mensaje_rango_invertido(request, invertido):
+    if invertido:
+        messages.info(request, 'Las fechas estaban al revés; se corrigió el rango automáticamente.')
 
 
 def index(request):
-    desde_default, hasta_default = _rango_mes_actual()
-    desde = request.GET.get('desde') or desde_default
-    hasta = request.GET.get('hasta') or hasta_default
+    inicio_mes, hoy = rango_mes_actual()
+    rango = normalizar_rango(
+        request.GET.get('desde'),
+        request.GET.get('hasta'),
+        desde_def=inicio_mes,
+        hasta_def=hoy,
+    )
+    _mensaje_rango_invertido(request, rango['invertido'])
 
-    nomina_periodo = PagoNomina.objects.filter(fecha_pago__gte=desde, fecha_pago__lte=hasta)
-    gastos_periodo = Gasto.objects.filter(fecha__gte=desde, fecha__lte=hasta)
+    nomina_periodo = _aplicar_filtro_fecha(
+        PagoNomina.objects.all(), 'fecha_pago', 'fecha_pago', rango['desde'], rango['hasta'],
+    )
+    gastos_periodo = _aplicar_filtro_fecha(
+        Gasto.objects.all(), 'fecha', 'fecha', rango['desde'], rango['hasta'],
+    )
 
     total_nomina = nomina_periodo.aggregate(t=Sum('monto'))['t'] or Decimal('0.00')
     total_gastos = gastos_periodo.aggregate(t=Sum('monto'))['t'] or Decimal('0.00')
+    gastos_vehiculo = gastos_periodo.filter(vehiculo__isnull=False).aggregate(t=Sum('monto'))['t'] or Decimal('0.00')
+    gastos_generales = total_gastos - gastos_vehiculo
 
     return render(request, 'finanzas/index.html', {
         'page_title': 'Nómina y gastos',
         'page_subtitle': 'Pagos al personal y otros gastos del negocio',
-        'desde': desde,
-        'hasta': hasta,
+        'desde': rango['desde_iso'],
+        'hasta': rango['hasta_iso'],
         'total_nomina': total_nomina,
         'total_gastos': total_gastos,
+        'gastos_vehiculo': gastos_vehiculo,
+        'gastos_generales': gastos_generales,
         'total_general': total_nomina + total_gastos,
         'empleados_activos': Empleado.objects.filter(activo=True).count(),
+        'pagos_periodo': nomina_periodo.count(),
+        'gastos_cantidad': gastos_periodo.count(),
     })
 
 
@@ -120,21 +144,22 @@ def empleado_eliminar(request, pk):
 
 def nomina_lista(request):
     empleado_id = request.GET.get('empleado', '')
-    hasta_default = timezone.localdate().isoformat()
+    inicio_mes, hoy = rango_mes_actual()
+
     if empleado_id and 'desde' not in request.GET:
-        # Al ver los pagos de un empleado puntual mostramos su historial completo,
-        # no solo el mes en curso.
-        desde_default = ''
+        # Historial completo de un empleado concreto.
+        rango = normalizar_rango('', request.GET.get('hasta'), hasta_def=hoy)
     else:
-        desde_default, _ = _rango_mes_actual()
-    desde = request.GET.get('desde') or desde_default
-    hasta = request.GET.get('hasta') or hasta_default
+        rango = normalizar_rango(
+            request.GET.get('desde'),
+            request.GET.get('hasta'),
+            desde_def=inicio_mes,
+            hasta_def=hoy,
+        )
+    _mensaje_rango_invertido(request, rango['invertido'])
 
     pagos = PagoNomina.objects.select_related('empleado').all()
-    if desde:
-        pagos = pagos.filter(fecha_pago__gte=desde)
-    if hasta:
-        pagos = pagos.filter(fecha_pago__lte=hasta)
+    pagos = _aplicar_filtro_fecha(pagos, 'fecha_pago', 'fecha_pago', rango['desde'], rango['hasta'])
     if empleado_id:
         pagos = pagos.filter(empleado_id=empleado_id)
 
@@ -146,10 +171,11 @@ def nomina_lista(request):
         'page_subtitle': 'Pagos registrados al personal',
         'pagos': page_obj,
         'page_obj': page_obj,
-        'desde': desde,
-        'hasta': hasta,
+        'desde': rango['desde_iso'],
+        'hasta': rango['hasta_iso'],
+        'historial_completo': bool(empleado_id and not rango['desde']),
         'empleado_filtro': empleado_id,
-        'empleados': Empleado.objects.filter(activo=True),
+        'empleados': Empleado.objects.order_by('-activo', 'apellido', 'nombre'),
         'total': total,
         'cantidad': pagos.count(),
     })
@@ -213,12 +239,18 @@ def nomina_eliminar(request, pk):
 # ——— Gastos ———
 
 def gastos_lista(request):
-    desde_default, hasta_default = _rango_mes_actual()
-    desde = request.GET.get('desde') or desde_default
-    hasta = request.GET.get('hasta') or hasta_default
+    inicio_mes, hoy = rango_mes_actual()
+    rango = normalizar_rango(
+        request.GET.get('desde'),
+        request.GET.get('hasta'),
+        desde_def=inicio_mes,
+        hasta_def=hoy,
+    )
+    _mensaje_rango_invertido(request, rango['invertido'])
     categoria = request.GET.get('categoria', '')
 
-    gastos = Gasto.objects.select_related('vehiculo').filter(fecha__gte=desde, fecha__lte=hasta)
+    gastos = Gasto.objects.select_related('vehiculo').all()
+    gastos = _aplicar_filtro_fecha(gastos, 'fecha', 'fecha', rango['desde'], rango['hasta'])
     if categoria:
         gastos = gastos.filter(categoria=categoria)
 
@@ -230,8 +262,8 @@ def gastos_lista(request):
         'page_subtitle': 'Gastos adicionales del negocio',
         'gastos': page_obj,
         'page_obj': page_obj,
-        'desde': desde,
-        'hasta': hasta,
+        'desde': rango['desde_iso'],
+        'hasta': rango['hasta_iso'],
         'categoria_filtro': categoria,
         'categorias': Gasto.Categoria.choices,
         'total': total,

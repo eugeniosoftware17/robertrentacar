@@ -262,6 +262,29 @@
       </div>
 
       <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">English version</div>
+        <div class="sitio-panel-seccion-hint">Se muestra a los visitantes que eligen "EN". Si dejas algo vacío, se usa el texto en español.</div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-full">{{ form.home_titulo_en.label_tag }}{{ form.home_titulo_en }}</div>
+          <div class="mod-field mod-field-full">{{ form.home_subtitulo_en.label_tag }}{{ form.home_subtitulo_en }}</div>
+          <div class="mod-field mod-field-full">{{ form.home_texto_en.label_tag }}{{ form.home_texto_en }}</div>
+          <div class="mod-field mod-field-full">{{ form.meta_descripcion_en.label_tag }}{{ form.meta_descripcion_en }}</div>
+        </div>
+      </div>
+
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Insignias de confianza</div>
+        <div class="sitio-panel-seccion-hint">Se muestran debajo del encabezado del inicio</div>
+        <div class="mod-grid">
+          <div class="mod-field mod-field-check">{{ form.servicio_24h }}{{ form.servicio_24h.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.entrega_aeropuertos }}{{ form.entrega_aeropuertos.label_tag }}</div>
+          <div class="mod-field mod-field-check">{{ form.mostrar_resenas }}{{ form.mostrar_resenas.label_tag }}</div>
+          <div class="mod-field">{{ form.resena_calificacion.label_tag }}{{ form.resena_calificacion }}</div>
+          <div class="mod-field">{{ form.resena_cantidad.label_tag }}{{ form.resena_cantidad }}</div>
+        </div>
+      </div>
+
+      <div class="sitio-panel-seccion">
         <div class="sitio-panel-seccion-titulo">Diseño e imagen de fondo</div>
         <div class="sitio-panel-seccion-hint">Estilo del hero y foto de fondo opcional</div>
         <div class="sitio-panel-diseno-grid">
@@ -399,6 +422,7 @@
           <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
           <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
           <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
+          <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito_en.label_tag }}{{ form.mensaje_reserva_exito_en }}</div>
         </div>
       </div>
     </div>

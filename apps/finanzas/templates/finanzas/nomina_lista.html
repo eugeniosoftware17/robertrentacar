@@ -35,7 +35,15 @@
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Pagos de nómina</div>
-      <div class="mod-card-hint">Del {{ desde }} al {{ hasta }}</div>
+      <div class="mod-card-hint">
+        {% if historial_completo %}
+        Historial completo del empleado{% if hasta %} (hasta {{ hasta }}){% endif %}
+        {% elif desde and hasta %}
+        Del {{ desde }} al {{ hasta }}
+        {% else %}
+        Todos los pagos registrados
+        {% endif %}
+      </div>
     </div>
   </div>
 

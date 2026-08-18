@@ -11,6 +11,7 @@ from apps.reservas.models import Reserva
 from apps.vehiculos.models import Vehiculo
 
 from .forms import ConfiguracionSitioForm, PaginaInformativaForm, ReservaWebForm
+from .i18n import texto, texto_categoria
 from .models import ConfiguracionSitio, PaginaInformativa
 from .services import tiene_conflicto_reserva, vehiculo_reservable
 
@@ -115,6 +116,8 @@ class CampoAvanzadoSoloAdminTests(TestCase):
                 'home_fondo_posicion': ConfiguracionSitio.FondoPosicion.CENTRO,
                 'home_fondo_tamano': ConfiguracionSitio.FondoTamano.CUBRIR,
                 'anticipacion_horas': 24,
+                'resena_calificacion': '5.0',
+                'resena_cantidad': 0,
                 'css_global': 'body { color: red; } /* inyectado */',
                 'js_global': 'alert(document.cookie)',
                 'home_html_extra': '<script>robar()</script>',
@@ -142,6 +145,8 @@ class CampoAvanzadoSoloAdminTests(TestCase):
                 'home_fondo_posicion': ConfiguracionSitio.FondoPosicion.CENTRO,
                 'home_fondo_tamano': ConfiguracionSitio.FondoTamano.CUBRIR,
                 'anticipacion_horas': 24,
+                'resena_calificacion': '5.0',
+                'resena_cantidad': 0,
                 'css_global': 'body { color: blue; }',
             },
             instance=config,
@@ -238,3 +243,52 @@ class ReservaWebRateLimitTests(TestCase):
 
         respuesta = self.client.post(self.url, datos)
         self.assertEqual(respuesta.status_code, 429)
+
+
+class IdiomaPublicoTests(TestCase):
+    """El sitio publico debe poder verse en espanol (por defecto) o ingles."""
+
+    def setUp(self):
+        self.hoy = timezone.localdate()
+        self.vehiculo = crear_vehiculo(placa='LANG0001', activo=True, visible_en_web=True)
+
+    def test_texto_cae_a_espanol_si_no_hay_traduccion(self):
+        self.assertEqual(texto('nav_inicio', 'es'), 'Inicio')
+        self.assertEqual(texto('nav_inicio', 'en'), 'Home')
+        self.assertEqual(texto('clave_inexistente', 'en'), 'clave_inexistente')
+
+    def test_texto_categoria_traduce_por_valor(self):
+        self.assertEqual(texto_categoria('suv', 'es'), 'SUV')
+        self.assertEqual(texto_categoria('pickup', 'en'), 'Pickup')
+
+    def test_home_usa_espanol_por_defecto(self):
+        respuesta = self.client.get(reverse('sitio:home'))
+        self.assertContains(respuesta, 'Inicio')
+        self.assertNotContains(respuesta, '>Home<')
+
+    def test_cambiar_idioma_pone_cookie_y_traduce_el_sitio(self):
+        respuesta = self.client.get(reverse('sitio:cambiar_idioma', args=['en']))
+        self.assertEqual(respuesta.cookies['idioma'].value, 'en')
+
+        respuesta = self.client.get(reverse('sitio:flota'))
+        self.assertContains(respuesta, 'Filter')
+        self.assertContains(respuesta, 'Home')
+
+    def test_pagina_usa_titulo_en_ingles_si_esta_definido(self):
+        pagina = PaginaInformativa.objects.create(
+            slug='nosotros', titulo='Nosotros', titulo_en='About us',
+            contenido='<p>Hola</p>', contenido_en='<p>Hello</p>',
+        )
+        self.client.cookies['idioma'] = 'en'
+        respuesta = self.client.get(reverse('sitio:pagina', args=[pagina.slug]))
+        self.assertContains(respuesta, 'About us')
+        self.assertContains(respuesta, 'Hello')
+
+    def test_pagina_sin_texto_en_ingles_cae_a_espanol(self):
+        pagina = PaginaInformativa.objects.create(
+            slug='contacto', titulo='Contacto', contenido='<p>Llamanos</p>',
+        )
+        self.client.cookies['idioma'] = 'en'
+        respuesta = self.client.get(reverse('sitio:pagina', args=[pagina.slug]))
+        self.assertContains(respuesta, 'Contacto')
+        self.assertContains(respuesta, 'Llamanos')

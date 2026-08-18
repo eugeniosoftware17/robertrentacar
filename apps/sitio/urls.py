@@ -14,4 +14,5 @@ urlpatterns = [
     path('reservar/<slug:slug>/', views.reservar, name='reservar'),
     path('sitemap.xml', views.sitemap_xml, name='sitemap'),
     path('robots.txt', views.robots_txt, name='robots'),
+    path('idioma/<str:codigo>/', views.cambiar_idioma, name='cambiar_idioma'),
 ]

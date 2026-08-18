@@ -6,6 +6,7 @@ from apps.clientes.models import Cliente
 from apps.reservas.models import Reserva
 from apps.vehiculos.models import Vehiculo
 
+from .i18n import IDIOMA_DEFECTO, texto
 from .models import ConfiguracionSitio, PaginaInformativa
 from .services import tiene_conflicto_reserva, validar_anticipacion, vehiculo_reservable
 
@@ -31,12 +32,30 @@ class ReservaWebForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'sitio-hp', 'tabindex': '-1', 'autocomplete': 'off'}),
     )
 
-    def __init__(self, *args, vehiculo=None, **kwargs):
+    CAMPO_A_CLAVE_TEXTO = {
+        'vehiculo': 'res_campo_vehiculo',
+        'fecha_inicio': 'res_campo_fecha_inicio',
+        'fecha_fin': 'res_campo_fecha_fin',
+        'nombre': 'res_campo_nombre',
+        'apellido': 'res_campo_apellido',
+        'documento': 'res_campo_documento',
+        'telefono': 'res_campo_telefono',
+        'email': 'res_campo_email',
+        'licencia_numero': 'res_campo_licencia_numero',
+        'licencia_vence': 'res_campo_licencia_vence',
+        'notas': 'res_campo_notas',
+    }
+
+    def __init__(self, *args, vehiculo=None, idioma=IDIOMA_DEFECTO, **kwargs):
         super().__init__(*args, **kwargs)
         self.vehiculo_fijo = vehiculo
         if vehiculo:
             self.fields['vehiculo'].initial = vehiculo
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(pk=vehiculo.pk)
+        if idioma == 'en':
+            for campo, clave in self.CAMPO_A_CLAVE_TEXTO.items():
+                if campo in self.fields:
+                    self.fields[campo].label = texto(clave, idioma)
 
     def clean_empresa_web(self):
         valor = self.cleaned_data.get('empresa_web')
@@ -162,8 +181,11 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'logo',
             'mostrar_nombre_junto_logo',
             'home_titulo',
+            'home_titulo_en',
             'home_subtitulo',
+            'home_subtitulo_en',
             'home_texto',
+            'home_texto_en',
             'home_diseno',
             'home_fondo_imagen',
             'home_fondo_posicion',
@@ -175,6 +197,11 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'home_mostrar_cta',
             'home_mostrar_contador',
             'home_mostrar_redes_hero',
+            'servicio_24h',
+            'entrega_aeropuertos',
+            'mostrar_resenas',
+            'resena_calificacion',
+            'resena_cantidad',
             'whatsapp',
             'whatsapp_mensaje',
             'whatsapp_flotante',
@@ -194,7 +221,9 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'anticipacion_horas',
             'bloquear_mantenimiento',
             'mensaje_reserva_exito',
+            'mensaje_reserva_exito_en',
             'meta_descripcion',
+            'meta_descripcion_en',
             'home_html_extra',
             'css_global',
             'js_global',
@@ -203,8 +232,11 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'logo': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
             'mostrar_nombre_junto_logo': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_titulo': forms.TextInput(attrs={'class': 'mod-input'}),
+            'home_titulo_en': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_subtitulo': forms.TextInput(attrs={'class': 'mod-input'}),
+            'home_subtitulo_en': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_texto': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 4}),
+            'home_texto_en': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 4}),
             'home_diseno': forms.Select(attrs={'class': 'mod-input'}),
             'home_fondo_imagen': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
             'home_fondo_posicion': forms.RadioSelect,
@@ -216,6 +248,11 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'home_mostrar_cta': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_contador': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_redes_hero': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'servicio_24h': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'entrega_aeropuertos': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'mostrar_resenas': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'resena_calificacion': forms.NumberInput(attrs={'class': 'mod-input', 'step': '0.1', 'min': 0, 'max': 5}),
+            'resena_cantidad': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),
             'whatsapp': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': '+1 809 555 1234'}),
             'whatsapp_mensaje': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 2}),
             'horario': forms.TextInput(attrs={'class': 'mod-input'}),
@@ -226,7 +263,9 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'twitter': forms.URLInput(attrs={'class': 'mod-input', 'placeholder': 'https://x.com/...'}),
             'anticipacion_horas': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),
             'mensaje_reserva_exito': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
+            'mensaje_reserva_exito_en': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
             'meta_descripcion': forms.TextInput(attrs={'class': 'mod-input', 'maxlength': 160}),
+            'meta_descripcion_en': forms.TextInput(attrs={'class': 'mod-input', 'maxlength': 160}),
             'home_html_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 6}),
             'css_global': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
             'js_global': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
@@ -259,11 +298,16 @@ class PaginaInformativaForm(forms.ModelForm):
 
     class Meta:
         model = PaginaInformativa
-        fields = ['slug', 'titulo', 'contenido', 'css_extra', 'js_extra', 'publicada', 'en_menu', 'orden']
+        fields = [
+            'slug', 'titulo', 'titulo_en', 'contenido', 'contenido_en',
+            'css_extra', 'js_extra', 'publicada', 'en_menu', 'orden',
+        ]
         widgets = {
             'slug': forms.TextInput(attrs={'class': 'mod-input'}),
             'titulo': forms.TextInput(attrs={'class': 'mod-input'}),
+            'titulo_en': forms.TextInput(attrs={'class': 'mod-input'}),
             'contenido': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 14}),
+            'contenido_en': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 14}),
             'css_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
             'js_extra': forms.Textarea(attrs={'class': 'mod-input mod-textarea mod-code', 'rows': 8}),
             'orden': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),

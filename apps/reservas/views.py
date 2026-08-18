@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from apps.configuracion.models import ConfiguracionEmpresa
 from apps.core.utils import paginar_queryset
@@ -314,6 +315,7 @@ def devolucion(request, pk):
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.devolucion_registrada = True
+            reserva.devolucion_registrada_en = timezone.now()
             reserva.estado = Reserva.Estado.COMPLETADA
             reserva.save()
             reserva.vehiculo.kilometraje = reserva.km_devolucion

@@ -1,33 +1,34 @@
 {% extends "sitio/base_public.html" %}
+{% load sitio_extras %}
 
-{% block title %}Alquiler de vehículos — Flota | {{ empresa.nombre }}{% endblock %}
+{% block title %}{% if idioma_actual == 'en' %}Vehicle rental{% if empresa.ciudad %} in {{ empresa.ciudad }}{% endif %}{% else %}Alquiler de vehículos{% if empresa.ciudad %} en {{ empresa.ciudad }}{% endif %}{% endif %} — {% t 'nav_vehiculos' %} | {{ empresa.nombre }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
-{% block og_title %}Flota de vehículos — {{ empresa.nombre }}{% endblock %}
+{% block og_title %}{% t 'nav_vehiculos' %} — {{ empresa.nombre }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
 
 {% block content %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container">
-    <h1>Alquiler de vehículos — nuestra flota</h1>
-    <p class="sitio-lead">Filtra por categoría, transmisión o disponibilidad.</p>
+    <h1>{% t 'flota_titulo' %}</h1>
+    <p class="sitio-lead">{% t 'flota_lead' %}</p>
 
     <form method="get" class="sitio-filtros">
       <select name="categoria" class="sitio-input">
-        <option value="">Todas las categorías</option>
+        <option value="">{% t 'flota_todas_categorias' %}</option>
         {% for value, label in categorias %}
-        <option value="{{ value }}" {% if categoria_filtro == value %}selected{% endif %}>{{ label }}</option>
+        <option value="{{ value }}" {% if categoria_filtro == value %}selected{% endif %}>{% t_categoria value %}</option>
         {% endfor %}
       </select>
       <select name="transmision" class="sitio-input">
-        <option value="">Transmisión</option>
+        <option value="">{% t 'flota_transmision' %}</option>
         {% for value, label in transmisiones %}
-        <option value="{{ value }}" {% if transmision_filtro == value %}selected{% endif %}>{{ label }}</option>
+        <option value="{{ value }}" {% if transmision_filtro == value %}selected{% endif %}>{% t_transmision value %}</option>
         {% endfor %}
       </select>
-      <input type="date" name="desde" value="{{ fecha_inicio }}" class="sitio-input" placeholder="Desde" />
-      <input type="date" name="hasta" value="{{ fecha_fin }}" class="sitio-input" placeholder="Hasta" />
-      <button type="submit" class="sitio-btn sitio-btn-prim">Filtrar</button>
-      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-sec">Limpiar</a>
+      <input type="date" name="desde" value="{{ fecha_inicio }}" class="sitio-input" placeholder="{% t 'res_campo_fecha_inicio' %}" />
+      <input type="date" name="hasta" value="{{ fecha_fin }}" class="sitio-input" placeholder="{% t 'res_campo_fecha_fin' %}" />
+      <button type="submit" class="sitio-btn sitio-btn-prim">{% t 'flota_filtrar' %}</button>
+      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-sec">{% t 'flota_limpiar' %}</a>
     </form>
 
     {% if vehiculos %}
@@ -39,19 +40,19 @@
           {% if fotos %}
           <img src="{{ fotos.0.url }}" alt="Alquiler {{ v.nombre_corto }} — {{ empresa.nombre }}" class="sitio-card-img" loading="lazy" />
           {% else %}
-          <div class="sitio-card-img sitio-card-img--empty">Sin foto</div>
+          <div class="sitio-card-img sitio-card-img--empty">{% t 'flota_sin_foto' %}</div>
           {% endif %}
           {% endwith %}
           <div class="sitio-card-body">
-            <p class="sitio-card-ref">Ref. {{ v.placa }}</p>
+            <p class="sitio-card-ref">Ref. VEH-{{ v.pk|stringformat:"04d" }}</p>
             <h3>{{ v.nombre_corto }}</h3>
             <div class="sitio-card-tags">
-              <span>{{ v.get_categoria_display }}</span>
-              <span>{{ v.get_transmision_display }}</span>
+              <span>{% t_categoria v.categoria %}</span>
+              <span>{% t_transmision v.transmision %}</span>
               <span>{{ v.anio }}</span>
               {% if v.color %}<span>{{ v.color }}</span>{% endif %}
             </div>
-            <p class="sitio-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
+            <p class="sitio-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }} <span>{% t 'flota_dia' %}</span></p>
           </div>
         </a>
       </article>
@@ -61,16 +62,16 @@
     {% if page_obj.has_other_pages %}
     <nav class="sitio-pager">
       {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">← Anterior</a>
+      <a href="?page={{ page_obj.previous_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">{% t 'flota_anterior' %}</a>
       {% endif %}
-      <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+      <span>{% t 'flota_pagina_de' n=page_obj.number total=page_obj.paginator.num_pages %}</span>
       {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">Siguiente →</a>
+      <a href="?page={{ page_obj.next_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">{% t 'flota_siguiente' %}</a>
       {% endif %}
     </nav>
     {% endif %}
     {% else %}
-    <p class="sitio-empty">No hay vehículos con esos filtros. Prueba otras fechas o categorías.</p>
+    <p class="sitio-empty">{% t 'flota_vacio' %}</p>
     {% endif %}
   </div>
 </section>

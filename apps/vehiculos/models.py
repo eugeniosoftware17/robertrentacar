@@ -1,4 +1,5 @@
 from decimal import Decimal
+from types import SimpleNamespace
 
 from django.db import models
 from django.urls import reverse
@@ -56,6 +57,10 @@ class Vehiculo(models.Model):
     )
     fecha_compra = models.DateField('Fecha de compra', blank=True, null=True)
     descripcion_web = models.TextField('Descripción (web)', blank=True)
+    descripcion_web_en = models.TextField(
+        'Descripción (web, inglés)', blank=True,
+        help_text='Si la dejas vacía, se usa la descripción en español para los visitantes en inglés.',
+    )
     visible_en_web = models.BooleanField('Visible en sitio web', default=False)
     destacado_web = models.BooleanField('Destacado en inicio', default=False)
     orden_web = models.PositiveSmallIntegerField('Orden en web', default=0)
@@ -68,6 +73,12 @@ class Vehiculo(models.Model):
     color = models.CharField('Color', max_length=30, blank=True)
     kilometraje = models.PositiveIntegerField('Kilometraje', default=0)
     foto = models.ImageField('Foto', upload_to='vehiculos/', blank=True, null=True)
+    foto_url = models.URLField(
+        'Enlace de la foto',
+        max_length=500,
+        blank=True,
+        help_text='Alternativa a subir un archivo: pega el link de una imagen ya alojada en otro sitio.',
+    )
     seguro_vence = models.DateField('Vencimiento del seguro', blank=True, null=True)
     prox_mantenimiento = models.DateField('Próximo mantenimiento', blank=True, null=True)
     activo = models.BooleanField(default=True)
@@ -112,7 +123,13 @@ class Vehiculo(models.Model):
             return galeria
         if self.foto:
             return [self.foto]
+        if self.foto_url:
+            return [SimpleNamespace(url=self.foto_url)]
         return []
+
+    @property
+    def tiene_foto(self):
+        return bool(self.foto or self.foto_url)
 
 
 class VehiculoFoto(models.Model):

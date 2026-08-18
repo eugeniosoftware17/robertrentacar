@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.utils import timezone
 
@@ -111,3 +112,36 @@ class ResumenFinancieroTests(TestCase):
         self.vehiculo.save(update_fields=['precio_compra'])
         resumen = resumen_financiero(self.vehiculo)
         self.assertIsNone(resumen['porcentaje_recuperado'])
+
+
+class FotoUrlTests(TestCase):
+    def setUp(self):
+        self.vehiculo = Vehiculo.objects.create(
+            marca='Kia',
+            modelo='Rio',
+            anio=2021,
+            placa='FT00001',
+            tarifa_diaria=Decimal('1500.00'),
+        )
+
+    def test_sin_foto_ni_link_no_hay_fotos(self):
+        self.assertEqual(self.vehiculo.fotos_para_web(), [])
+        self.assertFalse(self.vehiculo.tiene_foto)
+
+    def test_usa_el_link_cuando_no_hay_archivo_subido(self):
+        self.vehiculo.foto_url = 'https://example.com/kia-rio.jpg'
+        self.vehiculo.save(update_fields=['foto_url'])
+
+        fotos = self.vehiculo.fotos_para_web()
+        self.assertEqual(len(fotos), 1)
+        self.assertEqual(fotos[0].url, 'https://example.com/kia-rio.jpg')
+        self.assertTrue(self.vehiculo.tiene_foto)
+
+    def test_el_archivo_subido_tiene_prioridad_sobre_el_link(self):
+        self.vehiculo.foto = SimpleUploadedFile('kia.jpg', b'contenido-falso', content_type='image/jpeg')
+        self.vehiculo.foto_url = 'https://example.com/otra.jpg'
+        self.vehiculo.save()
+
+        fotos = self.vehiculo.fotos_para_web()
+        self.assertEqual(len(fotos), 1)
+        self.assertIn('kia', fotos[0].url)

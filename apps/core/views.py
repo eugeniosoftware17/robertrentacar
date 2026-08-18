@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from apps.pagos.models import Pago
 from apps.reservas.models import Reserva
-from apps.reservas.services import actualizar_estados_reservas
+from apps.reservas.services import actualizar_estados_reservas, limpiar_videos_entrega_vencidos
 from apps.vehiculos.models import Vehiculo
 
 
@@ -21,6 +21,7 @@ def _neto_pagos(queryset):
 
 def dashboard(request):
     actualizar_estados_reservas()
+    limpiar_videos_entrega_vencidos()
 
     hoy = timezone.localdate()
     manana = hoy + timedelta(days=1)

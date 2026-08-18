@@ -1,6 +1,6 @@
-{% load static %}
+{% load static sitio_extras %}
 <!doctype html>
-<html lang="es-DO">
+<html lang="{% if idioma_actual == 'en' %}en{% else %}es-DO{% endif %}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,11 +38,15 @@
       </a>
       <button type="button" class="sitio-nav-toggle" id="navToggle" aria-label="Menú">☰</button>
       <nav class="sitio-nav" id="sitioNav" aria-label="Principal">
-        <a href="{% url 'sitio:home' %}">Inicio</a>
-        <a href="{% url 'sitio:flota' %}">Vehículos</a>
+        <a href="{% url 'sitio:home' %}">{% t 'nav_inicio' %}</a>
+        <a href="{% url 'sitio:flota' %}">{% t 'nav_vehiculos' %}</a>
         {% for p in menu_paginas %}
         <a href="{% url 'sitio:pagina' p.slug %}">{{ p.titulo }}</a>
         {% endfor %}
+        <span class="sitio-idioma-switch">
+          <a href="{% url 'sitio:cambiar_idioma' 'es' %}" class="{% if idioma_actual == 'es' %}sitio-idioma-activo{% endif %}">ES</a>
+          <a href="{% url 'sitio:cambiar_idioma' 'en' %}" class="{% if idioma_actual == 'en' %}sitio-idioma-activo{% endif %}">EN</a>
+        </span>
       </nav>
     </div>
   </header>
@@ -60,16 +64,21 @@
         {% if sitio.horario %}<p>{{ sitio.horario }}</p>{% endif %}
       </div>
       <div class="sitio-footer-links">
-        <a href="{% url 'sitio:flota' %}">Ver flota</a>
+        <a href="{% url 'sitio:flota' %}">{% t 'footer_ver_flota' %}</a>
       </div>
       {% if sitio.tiene_redes %}
       <div class="sitio-footer-redes">
-        <p class="sitio-footer-redes-titulo">Síguenos</p>
+        <p class="sitio-footer-redes-titulo">{% t 'footer_siguenos' %}</p>
         {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--footer" aria_label="Redes sociales" %}
       </div>
       {% endif %}
     </div>
-    <div class="sitio-container sitio-copy">© {{ empresa.nombre }}</div>
+    <div class="sitio-container sitio-copy">
+      <span>© {{ empresa.nombre }}</span>
+      {% if user.is_authenticated %}
+      <a href="{% url 'dashboard' %}" class="sitio-footer-login">{% t 'nav_ir_panel' %}</a>
+      {% endif %}
+    </div>
   </footer>
 
   {% include "sitio/partials/whatsapp_flotante.html" %}

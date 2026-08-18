@@ -97,3 +97,26 @@ class FinanzasPanelTests(TestCase):
         respuesta = self.client.post(reverse('finanzas:empleado_eliminar', args=[self.empleado.pk]))
         self.assertEqual(respuesta.status_code, 302)
         self.assertTrue(Empleado.objects.filter(pk=self.empleado.pk).exists())
+
+    def test_nomina_rechaza_monto_cero(self):
+        self.client.force_login(self.admin)
+        respuesta = self.client.post(reverse('finanzas:nomina_crear'), {
+            'empleado': self.empleado.pk,
+            'concepto': PagoNomina.Concepto.SALARIO,
+            'monto': '0',
+            'fecha_pago': self.hoy.isoformat(),
+            'metodo': PagoNomina.Metodo.EFECTIVO,
+            'notas': '',
+        })
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(PagoNomina.objects.count(), 0)
+
+    def test_index_intercambia_fechas_invertidas(self):
+        self.client.force_login(self.admin)
+        respuesta = self.client.get(reverse('finanzas:index'), {
+            'desde': self.hoy.isoformat(),
+            'hasta': self.hoy.replace(day=1).isoformat(),
+        })
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.context['desde'], self.hoy.replace(day=1).isoformat())
+        self.assertEqual(respuesta.context['hasta'], self.hoy.isoformat())

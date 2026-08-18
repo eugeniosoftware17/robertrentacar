@@ -1,6 +1,8 @@
-from django.db import models
+from decimal import Decimal
 from urllib.parse import quote
 import re
+
+from django.db import models
 
 
 class ConfiguracionSitio(models.Model):
@@ -27,8 +29,14 @@ class ConfiguracionSitio(models.Model):
         AJUSTAR = 'contain', 'Ajustar — se ve completa (puede dejar franjas)'
 
     home_titulo = models.CharField('Título del inicio', max_length=160, default='Alquiler de vehículos')
+    home_titulo_en = models.CharField(
+        'Título del inicio (inglés)', max_length=160, blank=True,
+        help_text='Si lo dejas vacío, se usa el texto en español para los visitantes en inglés.',
+    )
     home_subtitulo = models.CharField('Subtítulo del inicio', max_length=240, blank=True)
+    home_subtitulo_en = models.CharField('Subtítulo del inicio (inglés)', max_length=240, blank=True)
     home_texto = models.TextField('Texto del inicio', blank=True)
+    home_texto_en = models.TextField('Texto del inicio (inglés)', blank=True)
     home_diseno = models.CharField(
         'Diseño del inicio',
         max_length=20,
@@ -66,6 +74,13 @@ class ConfiguracionSitio(models.Model):
     home_mostrar_cta = models.BooleanField('Llamada a la acción final', default=True)
     home_mostrar_contador = models.BooleanField('Contador de vehículos', default=True)
     home_mostrar_redes_hero = models.BooleanField('Redes sociales en el hero', default=True)
+    servicio_24h = models.BooleanField('Atención 24 horas', default=False)
+    entrega_aeropuertos = models.BooleanField('Entrega en aeropuertos de RD', default=False)
+    mostrar_resenas = models.BooleanField('Mostrar calificación de reseñas', default=False)
+    resena_calificacion = models.DecimalField(
+        'Calificación (de 5)', max_digits=2, decimal_places=1, default=Decimal('5.0'),
+    )
+    resena_cantidad = models.PositiveIntegerField('Cantidad de reseñas', default=0)
     logo = models.ImageField(
         'Logo del sitio',
         upload_to='sitio/logo/',
@@ -126,11 +141,15 @@ class ConfiguracionSitio(models.Model):
         blank=True,
         default='Gracias. Hemos recibido tu solicitud. Te contactaremos pronto para confirmar.',
     )
+    mensaje_reserva_exito_en = models.TextField('Mensaje tras reservar (inglés)', blank=True)
     meta_descripcion = models.CharField(
         'Meta descripción (SEO inicio)',
         max_length=160,
         blank=True,
         help_text='Texto para Google (máx. 160 caracteres). Si está vacío se genera automáticamente.',
+    )
+    meta_descripcion_en = models.CharField(
+        'Meta descripción (SEO inicio, inglés)', max_length=160, blank=True,
     )
     home_html_extra = models.TextField(
         'HTML extra del inicio',
@@ -218,9 +237,18 @@ class PaginaInformativa(models.Model):
 
     slug = models.SlugField('Identificador', max_length=40, unique=True)
     titulo = models.CharField('Título', max_length=120)
+    titulo_en = models.CharField(
+        'Título (inglés)', max_length=120, blank=True,
+        help_text='Si lo dejas vacío, se usa el título en español para los visitantes en inglés.',
+    )
     contenido = models.TextField(
         'Contenido (HTML)',
         help_text='Puedes usar HTML: <h2>, <p>, <img>, <iframe>, listas, etc.',
+    )
+    contenido_en = models.TextField(
+        'Contenido (HTML, inglés)',
+        blank=True,
+        help_text='Si lo dejas vacío, se usa el contenido en español para los visitantes en inglés.',
     )
     css_extra = models.TextField(
         'CSS de la página',

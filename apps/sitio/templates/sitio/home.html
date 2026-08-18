@@ -1,8 +1,8 @@
 {% extends "sitio/base_public.html" %}
 {% load static sitio_extras %}
 
-{% block title %}Alquiler de carros — {{ sitio.home_titulo }} | {{ empresa.nombre }}{% endblock %}
-{% block og_title %}{{ sitio.home_titulo }} — {{ empresa.nombre }}{% endblock %}
+{% block title %}{% if idioma_actual == 'en' %}Car rental{% if empresa.ciudad %} in {{ empresa.ciudad }}{% endif %}{% else %}Alquiler de carros{% if empresa.ciudad %} en {{ empresa.ciudad }}{% endif %}{% endif %} — {% campo sitio 'home_titulo' %} | {{ empresa.nombre }}{% endblock %}
+{% block og_title %}{% campo sitio 'home_titulo' %} — {{ empresa.nombre }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
 {% block robots %}{% if es_vista_previa %}noindex, nofollow{% else %}index, follow{% endif %}{% endblock %}
@@ -15,14 +15,16 @@
   "name": "{{ empresa.nombre|escapejs }}",
   "url": "{{ request.build_absolute_uri|escapejs }}",
   {% if empresa.telefono %}"telephone": "{{ empresa.telefono|escapejs }}",{% endif %}
-  {% if empresa.direccion %}"address": {
+  {% if empresa.direccion or empresa.ciudad %}"address": {
     "@type": "PostalAddress",
-    "streetAddress": "{{ empresa.direccion|escapejs }}",
+    {% if empresa.direccion %}"streetAddress": "{{ empresa.direccion|escapejs }}",{% endif %}
+    {% if empresa.ciudad %}"addressLocality": "{{ empresa.ciudad|escapejs }}",{% endif %}
+    "addressRegion": "{{ empresa.ciudad|default:'República Dominicana'|escapejs }}",
     "addressCountry": "DO"
   },{% endif %}
   "priceRange": "RD$",
   "openingHours": "{{ sitio.horario|default:'Lun-Dom'|escapejs }}",
-  "areaServed": "República Dominicana"
+  "areaServed": "{{ empresa.ciudad|default:'República Dominicana'|escapejs }}"
 }
 </script>
 {% endblock %}
@@ -32,17 +34,18 @@
 {% include "sitio/partials/vista_previa_banner.html" %}
 {% endif %}
 {% include "sitio/partials/home_hero.html" %}
+{% include "sitio/partials/insignias.html" %}
 
 {% if sitio.home_mostrar_categorias %}
 <section class="sitio-section sitio-section--categorias">
   <div class="sitio-container">
-    <h2>Elige por categoría</h2>
-    <p class="sitio-lead sitio-lead--sm">Encuentra el vehículo ideal para tu viaje o negocio.</p>
+    <h2>{% t 'home_elige_categoria' %}</h2>
+    <p class="sitio-lead sitio-lead--sm">{% t 'home_elige_categoria_sub' %}</p>
     <div class="sitio-cat-grid">
       {% for value, label in categorias_flota %}
       <a href="{% url 'sitio:flota' %}?categoria={{ value }}" class="sitio-cat-card">
-        <span class="sitio-cat-nombre">{{ label }}</span>
-        <span class="sitio-cat-link">Ver {{ label }} →</span>
+        <span class="sitio-cat-nombre">{% t_categoria value %}</span>
+        <span class="sitio-cat-link">{% t 'home_ver' %} {% t_categoria value %} →</span>
       </a>
       {% endfor %}
     </div>
@@ -55,10 +58,10 @@
   <div class="sitio-container">
     <div class="sitio-section-head">
       <div>
-        <h2>Vehículos destacados</h2>
-        <p class="sitio-lead sitio-lead--sm">Los más solicitados de nuestra flota.</p>
+        <h2>{% t 'home_destacados_titulo' %}</h2>
+        <p class="sitio-lead sitio-lead--sm">{% t 'home_destacados_sub' %}</p>
       </div>
-      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-sec sitio-btn--sm">Ver toda la flota</a>
+      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-sec sitio-btn--sm">{% t 'home_ver_toda_flota' %}</a>
     </div>
     <div class="sitio-grid">
       {% for v in destacados %}
@@ -68,18 +71,18 @@
           {% if fotos %}
           <img src="{{ fotos.0.url }}" alt="Alquiler {{ v.nombre_corto }} — {{ empresa.nombre }}" class="sitio-card-img" loading="lazy" />
           {% else %}
-          <div class="sitio-card-img sitio-card-img--empty">Sin foto</div>
+          <div class="sitio-card-img sitio-card-img--empty">{% t 'flota_sin_foto' %}</div>
           {% endif %}
           {% endwith %}
           <div class="sitio-card-body">
-            <p class="sitio-card-ref">Ref. {{ v.placa }}</p>
+            <p class="sitio-card-ref">Ref. VEH-{{ v.pk|stringformat:"04d" }}</p>
             <h3>{{ v.nombre_corto }}</h3>
             <div class="sitio-card-tags">
-              <span>{{ v.get_categoria_display }}</span>
-              <span>{{ v.get_transmision_display }}</span>
+              <span>{% t_categoria v.categoria %}</span>
+              <span>{% t_transmision v.transmision %}</span>
               <span>{{ v.anio }}</span>
             </div>
-            <p class="sitio-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
+            <p class="sitio-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }} <span>{% t 'flota_dia' %}</span></p>
           </div>
         </a>
       </article>
@@ -101,11 +104,11 @@
 <section class="sitio-section sitio-section--cta">
   <div class="sitio-container sitio-cta-box">
     <div>
-      <h2>¿Listo para tu próximo viaje?</h2>
-      <p class="sitio-lead sitio-lead--sm">Consulta disponibilidad, compara vehículos y reserva el que necesitas hoy.</p>
+      <h2>{% t 'home_cta_titulo' %}</h2>
+      <p class="sitio-lead sitio-lead--sm">{% t 'home_cta_sub' %}</p>
     </div>
     <div class="sitio-cta-actions">
-      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim">Ver vehículos</a>
+      <a href="{% url 'sitio:flota' %}" class="sitio-btn sitio-btn-prim">{% t 'home_ver_vehiculos' %}</a>
       {% if sitio.whatsapp_activo %}
       <a href="{% whatsapp_url sitio %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">WhatsApp</a>
       {% endif %}

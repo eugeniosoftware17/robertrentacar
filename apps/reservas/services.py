@@ -1,8 +1,12 @@
+from datetime import timedelta
+
 from django.utils import timezone
 
 from apps.vehiculos.models import Vehiculo
 
 from .models import Reserva
+
+DIAS_GRACIA_VIDEO_ENTREGA = 30
 
 
 def actualizar_estados_reservas():
@@ -41,6 +45,28 @@ def actualizar_estados_reservas():
             pass
 
     return actualizadas
+
+
+def limpiar_videos_entrega_vencidos(dias_gracia=DIAS_GRACIA_VIDEO_ENTREGA):
+    """Borra el video de entrega de reservas devueltas hace más de `dias_gracia` días.
+
+    El video solo sirve como evidencia mientras el vehículo está en manos del
+    cliente o hay margen para un reclamo tras la devolución; pasado ese plazo
+    se elimina para no acumular archivos pesados indefinidamente.
+    """
+    limite = timezone.now() - timedelta(days=dias_gracia)
+    vencidas = Reserva.objects.filter(
+        devolucion_registrada=True,
+        devolucion_registrada_en__isnull=False,
+        devolucion_registrada_en__lte=limite,
+    ).exclude(video_entrega='')
+
+    borrados = 0
+    for reserva in vencidas:
+        if reserva.video_entrega:
+            reserva.video_entrega.delete(save=True)
+            borrados += 1
+    return borrados
 
 
 def actualizar_estado_vehiculo(vehiculo):

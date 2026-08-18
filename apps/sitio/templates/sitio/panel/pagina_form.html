@@ -59,6 +59,18 @@
       </div>
     </div>
 
+    <div class="sitio-panel-seccion">
+      <div class="sitio-panel-seccion-titulo">English version</div>
+      <div class="sitio-panel-seccion-hint">Se muestra a los visitantes que eligen "EN". Si dejas algo vacío, se usa el contenido en español.</div>
+      <div class="mod-grid">
+        <div class="mod-field">{{ form.titulo_en.label_tag }}{{ form.titulo_en }}</div>
+      </div>
+      <div class="mod-field mod-field-full">
+        {{ form.contenido_en.label_tag }}
+        {{ form.contenido_en }}
+      </div>
+    </div>
+
     {% if usuario_rol == 'Administrador' %}
     <div class="sitio-panel-seccion">
       <div class="sitio-panel-seccion-titulo">CSS y JavaScript (opcional)</div>

@@ -20,14 +20,27 @@
   <div class="rep-card">
     <span>Nómina del periodo</span>
     <strong>RD$ {{ total_nomina|floatformat:0 }}</strong>
+    <small>{{ pagos_periodo }} pago{{ pagos_periodo|pluralize:"s" }}</small>
   </div>
   <div class="rep-card">
     <span>Gastos del periodo</span>
     <strong>RD$ {{ total_gastos|floatformat:0 }}</strong>
+    <small>{{ gastos_cantidad }} registro{{ gastos_cantidad|pluralize:"s" }}</small>
+  </div>
+  <div class="rep-card">
+    <span>Gastos generales</span>
+    <strong>RD$ {{ gastos_generales|floatformat:0 }}</strong>
+    <small>Oficina, publicidad, etc.</small>
+  </div>
+  <div class="rep-card">
+    <span>Gastos por vehículo</span>
+    <strong>RD$ {{ gastos_vehiculo|floatformat:0 }}</strong>
+    <small>Sumados a rentabilidad del auto</small>
   </div>
   <div class="rep-card">
     <span>Total egresos</span>
     <strong class="rojo">RD$ {{ total_general|floatformat:0 }}</strong>
+    <small>Nómina + gastos (sin mantenimiento)</small>
   </div>
   <div class="rep-card">
     <span>Empleados activos</span>
@@ -49,7 +62,7 @@
     <p>Registra un pago real a un empleado (salario, bono, comisión...).</p>
     <div class="mod-report-card-btns">
       <a href="{% url 'finanzas:nomina_crear' %}" class="mod-btn mod-btn-prim">+ Pagar a un empleado</a>
-      <a href="{% url 'finanzas:nomina_lista' %}" class="mod-btn mod-btn-sec">Ver historial</a>
+      <a href="{% url 'finanzas:nomina_lista' %}?desde={{ desde }}&hasta={{ hasta }}" class="mod-btn mod-btn-sec">Ver historial</a>
     </div>
   </div>
   <div class="mod-report-card mod-report-card-accion">
@@ -57,7 +70,7 @@
     <p>Otros gastos del negocio: combustible, publicidad, oficina...</p>
     <div class="mod-report-card-btns">
       <a href="{% url 'finanzas:gasto_crear' %}" class="mod-btn mod-btn-prim">+ Registrar gasto</a>
-      <a href="{% url 'finanzas:gastos_lista' %}" class="mod-btn mod-btn-sec">Ver historial</a>
+      <a href="{% url 'finanzas:gastos_lista' %}?desde={{ desde }}&hasta={{ hasta }}" class="mod-btn mod-btn-sec">Ver historial</a>
     </div>
   </div>
 </div>

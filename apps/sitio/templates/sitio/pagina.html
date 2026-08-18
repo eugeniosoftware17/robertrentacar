@@ -1,6 +1,7 @@
 {% extends "sitio/base_public.html" %}
+{% load sitio_extras %}
 
-{% block title %}{{ pagina.titulo }} — {{ empresa.nombre }}{% endblock %}
+{% block title %}{% campo pagina 'titulo' %} — {{ empresa.nombre }}{% endblock %}
 {% block robots %}{% if es_vista_previa %}noindex, nofollow{% else %}index, follow{% endif %}{% endblock %}
 
 {% block extra_css %}
@@ -15,8 +16,10 @@
 {% endif %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-prosa">
-    <h1>{{ pagina.titulo }}</h1>
-    <div class="sitio-contenido sitio-contenido--html">{{ pagina.contenido|safe }}</div>
+    {% campo pagina 'titulo' as pagina_titulo %}
+    {% campo pagina 'contenido' as pagina_contenido %}
+    <h1>{{ pagina_titulo }}</h1>
+    <div class="sitio-contenido sitio-contenido--html">{{ pagina_contenido|safe }}</div>
   </div>
 </section>
 {% endblock %}

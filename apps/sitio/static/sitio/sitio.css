@@ -347,6 +347,28 @@
 
 .sitio-nav a:hover { color: var(--sitio-brand); }
 
+.sitio-idioma-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: 0.35rem;
+  padding-left: 0.85rem;
+  border-left: 1px solid #dde5e3;
+}
+
+.sitio-idioma-switch a {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  color: var(--sitio-muted);
+}
+
+.sitio-idioma-switch a.sitio-idioma-activo {
+  color: var(--sitio-brand-dark);
+  background: color-mix(in srgb, var(--sitio-brand) 10%, #fff);
+}
+
 .sitio-nav-toggle {
   display: none;
   border: 1px solid #ccc;
@@ -489,6 +511,31 @@
 .sitio-hero-stat strong {
   font-size: 1.1rem;
   color: var(--sitio-accent);
+}
+
+.sitio-insignias {
+  background: var(--sitio-surface);
+  border-bottom: 1px solid #e2eae8;
+}
+
+.sitio-insignias-fila {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem 1.5rem;
+  padding: 0.75rem 0;
+}
+
+.sitio-insignia {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sitio-text);
+  white-space: nowrap;
+}
+
+.sitio-insignia-sub {
+  font-weight: 500;
+  color: var(--sitio-muted);
 }
 
 .sitio-hero-panel {
@@ -1530,10 +1577,27 @@
 .sitio-footer a { color: #a8d4cf; }
 
 .sitio-copy {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
   border-top: 1px solid #2f4542;
   padding-top: 1rem;
   font-size: 0.8rem;
   opacity: 0.75;
+}
+
+.sitio-footer-login {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  text-decoration: none;
+  color: #a8d4cf;
+}
+
+.sitio-footer-login:hover {
+  opacity: 1;
+  text-decoration: underline;
 }
 
 @media (max-width: 960px) {

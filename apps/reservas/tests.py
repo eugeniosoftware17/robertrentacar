@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.utils import timezone
 
@@ -9,7 +10,7 @@ from apps.clientes.models import Cliente
 from apps.vehiculos.models import Vehiculo
 
 from .models import Reserva
-from .services import actualizar_estado_vehiculo
+from .services import actualizar_estado_vehiculo, limpiar_videos_entrega_vencidos
 
 
 def crear_cliente(documento='001-0000001-1', licencia_vence=None):
@@ -197,3 +198,64 @@ class ActualizarEstadoVehiculoTests(TestCase):
         actualizar_estado_vehiculo(self.vehiculo)
         self.vehiculo.refresh_from_db()
         self.assertEqual(self.vehiculo.estado, Vehiculo.Estado.DISPONIBLE)
+
+
+class LimpiarVideosEntregaVencidosTests(TestCase):
+    def setUp(self):
+        self.hoy = timezone.localdate()
+        self.cliente = crear_cliente()
+        self.vehiculo = crear_vehiculo()
+
+    def _crear_reserva_devuelta(self, hace_dias):
+        video = SimpleUploadedFile('entrega.mp4', b'contenido-falso', content_type='video/mp4')
+        reserva = Reserva.objects.create(
+            cliente=self.cliente,
+            vehiculo=self.vehiculo,
+            fecha_inicio=self.hoy - timedelta(days=hace_dias + 5),
+            fecha_fin=self.hoy - timedelta(days=hace_dias),
+            estado=Reserva.Estado.COMPLETADA,
+            entrega_registrada=True,
+            devolucion_registrada=True,
+            video_entrega=video,
+        )
+        Reserva.objects.filter(pk=reserva.pk).update(
+            devolucion_registrada_en=timezone.now() - timedelta(days=hace_dias),
+        )
+        return Reserva.objects.get(pk=reserva.pk)
+
+    def test_borra_video_de_devolucion_antigua(self):
+        reserva = self._crear_reserva_devuelta(hace_dias=31)
+        self.assertTrue(reserva.video_entrega)
+
+        borrados = limpiar_videos_entrega_vencidos(dias_gracia=30)
+
+        self.assertEqual(borrados, 1)
+        reserva.refresh_from_db()
+        self.assertFalse(reserva.video_entrega)
+
+    def test_no_borra_video_de_devolucion_reciente(self):
+        reserva = self._crear_reserva_devuelta(hace_dias=5)
+
+        borrados = limpiar_videos_entrega_vencidos(dias_gracia=30)
+
+        self.assertEqual(borrados, 0)
+        reserva.refresh_from_db()
+        self.assertTrue(reserva.video_entrega)
+
+    def test_no_toca_reservas_sin_devolucion_registrada(self):
+        video = SimpleUploadedFile('entrega.mp4', b'contenido-falso', content_type='video/mp4')
+        reserva = Reserva.objects.create(
+            cliente=self.cliente,
+            vehiculo=self.vehiculo,
+            fecha_inicio=self.hoy - timedelta(days=40),
+            fecha_fin=self.hoy - timedelta(days=35),
+            estado=Reserva.Estado.ACTIVA,
+            entrega_registrada=True,
+            video_entrega=video,
+        )
+
+        borrados = limpiar_videos_entrega_vencidos(dias_gracia=30)
+
+        self.assertEqual(borrados, 0)
+        reserva.refresh_from_db()
+        self.assertTrue(reserva.video_entrega)

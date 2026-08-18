@@ -9,12 +9,13 @@ from .models import ConfiguracionEmpresa
 class ConfiguracionForm(forms.ModelForm):
     class Meta:
         model = ConfiguracionEmpresa
-        fields = ['nombre', 'telefono', 'email', 'direccion', 'rnc', 'notas_contrato']
+        fields = ['nombre', 'telefono', 'email', 'direccion', 'ciudad', 'rnc', 'notas_contrato']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'mod-input'}),
             'telefono': forms.TextInput(attrs={'class': 'mod-input'}),
             'email': forms.EmailInput(attrs={'class': 'mod-input'}),
             'direccion': forms.TextInput(attrs={'class': 'mod-input'}),
+            'ciudad': forms.TextInput(attrs={'class': 'mod-input'}),
             'rnc': forms.TextInput(attrs={'class': 'mod-input'}),
             'notas_contrato': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 5}),
         }

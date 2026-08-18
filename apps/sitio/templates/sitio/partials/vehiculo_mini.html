@@ -1,3 +1,4 @@
+{% load sitio_extras %}
 <a href="{{ v.get_absolute_url }}" class="sitio-mini-card">
   {% with fotos=v.fotos_para_web %}
   {% if fotos %}
@@ -7,9 +8,9 @@
   {% endif %}
   {% endwith %}
   <span class="sitio-mini-card-body">
-    <span class="sitio-mini-card-ref">Ref. {{ v.placa }}</span>
+    <span class="sitio-mini-card-ref">Ref. VEH-{{ v.pk|stringformat:"04d" }}</span>
     <strong class="sitio-mini-card-nombre">{{ v.nombre_corto }}</strong>
-    <span class="sitio-mini-card-meta">{{ v.get_categoria_display }} · {{ v.anio }}</span>
-    <span class="sitio-mini-card-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }}/día</span>
+    <span class="sitio-mini-card-meta">{% t_categoria v.categoria %} · {{ v.anio }}</span>
+    <span class="sitio-mini-card-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</span>
   </span>
 </a>

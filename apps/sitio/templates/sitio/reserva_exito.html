@@ -7,14 +7,14 @@
 {% block content %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-exito">
-    <h1>¡Listo!</h1>
-    <p class="sitio-lead">Reserva #{{ reserva.pk }} registrada.</p>
+    <h1>{% t 'res_exito_listo' %}</h1>
+    <p class="sitio-lead">{% t 'res_exito_registrada' n=reserva.pk %}</p>
     <p>{{ mensaje }}</p>
     <p class="sitio-meta">{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }} · {{ reserva.vehiculo.nombre_corto }}</p>
     <div class="sitio-exito-acciones">
-      <a href="{% url 'sitio:home' %}" class="sitio-btn sitio-btn-prim">Volver al inicio</a>
+      <a href="{% url 'sitio:home' %}" class="sitio-btn sitio-btn-prim">{% t 'res_exito_volver_inicio' %}</a>
       {% if sitio.whatsapp_activo %}
-      <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">Confirmar por WhatsApp</a>
+      <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--wa" target="_blank" rel="noopener">{% t 'res_exito_confirmar_whatsapp' %}</a>
       {% endif %}
     </div>
   </div>

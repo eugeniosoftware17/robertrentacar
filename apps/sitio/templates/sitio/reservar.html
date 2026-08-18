@@ -1,13 +1,14 @@
 {% extends "sitio/base_public.html" %}
+{% load sitio_extras %}
 
-{% block title %}Reservar {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
+{% block title %}{% t 'res_titulo' %} {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
 
 {% block content %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-form-wrap">
-    <h1>Reservar {{ vehiculo.nombre_corto }}</h1>
-    <p class="sitio-meta">{{ vehiculo.get_categoria_display }} · RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}/día</p>
+    <h1>{% t 'res_titulo' %} {{ vehiculo.nombre_corto }}</h1>
+    <p class="sitio-meta">{% t_categoria vehiculo.categoria %} · RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</p>
 
     {% if error_limite %}
     <div class="sitio-form-error">{{ error_limite }}</div>
@@ -31,8 +32,8 @@
           {% endif %}
         {% endfor %}
       </div>
-      <button type="submit" class="sitio-btn sitio-btn-prim">Enviar reserva</button>
-      <a href="{{ vehiculo.get_absolute_url }}" class="sitio-btn sitio-btn-sec">Volver</a>
+      <button type="submit" class="sitio-btn sitio-btn-prim">{% t 'res_enviar' %}</button>
+      <a href="{{ vehiculo.get_absolute_url }}" class="sitio-btn sitio-btn-sec">{% t 'res_volver' %}</a>
     </form>
   </div>
 </section>

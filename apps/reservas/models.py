@@ -98,10 +98,20 @@ class Reserva(models.Model):
     notas_devolucion = models.TextField('Observaciones de devolución', blank=True)
     danos_entrega = models.TextField('Daños preexistentes', blank=True)
     danos_devolucion = models.TextField('Daños al devolver', blank=True)
-    foto_entrega = models.ImageField('Foto entrega', upload_to='reservas/entrega/', blank=True, null=True)
+    video_entrega = models.FileField(
+        'Video de entrega',
+        upload_to='reservas/entrega/videos/',
+        blank=True,
+        null=True,
+        help_text='Registro en video del estado del vehículo al entregarlo.',
+    )
     foto_devolucion = models.ImageField('Foto devolución', upload_to='reservas/devolucion/', blank=True, null=True)
     entrega_registrada = models.BooleanField('Entrega registrada', default=False)
     devolucion_registrada = models.BooleanField('Devolución registrada', default=False)
+    devolucion_registrada_en = models.DateTimeField(
+        'Devolución registrada el', blank=True, null=True,
+        help_text='Se usa para borrar el video de entrega unos días después de la devolución.',
+    )
 
     class Meta:
         ordering = ['-fecha_inicio', '-creado_en']

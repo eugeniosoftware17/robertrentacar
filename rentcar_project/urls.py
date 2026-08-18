@@ -9,7 +9,7 @@ _panel = settings.PANEL_PATH.strip('/') + '/'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cuentas/', include('apps.cuentas.urls')),
+    path('', include('apps.cuentas.urls')),
     path('', include('apps.sitio.urls')),
     path(_panel, include([
         path('', core_views.dashboard, name='dashboard'),

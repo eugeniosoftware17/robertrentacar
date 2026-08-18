@@ -27,8 +27,8 @@ MODULOS_EMPLEADO_DEFAULT = [
 ]
 
 RUTAS_PUBLICAS = (
-    '/cuentas/login/',
-    '/cuentas/logout/',
+    '/login/',
+    '/logout/',
 )
 
 
