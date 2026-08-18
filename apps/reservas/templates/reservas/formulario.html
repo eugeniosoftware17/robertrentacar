@@ -77,6 +77,14 @@
         <div><span>Devolución</span><strong>{{ reserva.km_devolucion|floatformat:0 }} km · {{ reserva.get_combustible_devolucion_display|default:"—" }}</strong></div>
         {% endif %}
       </div>
+      {% if reserva.video_entrega %}
+      <div class="reserva-video-entrega">
+        <div class="reserva-video-entrega-titulo">Video de entrega</div>
+        <video class="reserva-video-entrega-player" controls preload="metadata" src="{{ reserva.video_entrega.url }}">
+          Tu navegador no puede reproducir este video.
+        </video>
+      </div>
+      {% endif %}
       {% endif %}
 
       <div class="reserva-acciones-extra">

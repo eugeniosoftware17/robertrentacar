@@ -34,6 +34,9 @@
       <div class="mod-field {% if field.name != 'km_entrega' and field.name != 'combustible_entrega' %}mod-field-full{% endif %}">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {% if field.name == 'video_entrega' %}
+        <div class="mod-hint">Graba el estado del vehículo (exterior e interior). Formatos: MP4, WebM o MOV. Máximo 100 MB.</div>
+        {% endif %}
         {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
       </div>
       {% endfor %}

@@ -1,3 +1,5 @@
+import os
+
 from django import forms
 from django.core.exceptions import ValidationError
 
@@ -5,6 +7,35 @@ from apps.clientes.models import Cliente
 from apps.vehiculos.models import Vehiculo
 
 from .models import Reserva
+
+VIDEO_ENTREGA_EXTENSIONES = {'.mp4', '.webm', '.mov', '.m4v'}
+VIDEO_ENTREGA_MIMES = {
+    'video/mp4',
+    'video/webm',
+    'video/quicktime',
+    'video/x-m4v',
+}
+VIDEO_ENTREGA_MAX_BYTES = 100 * 1024 * 1024  # 100 MB
+
+
+def validar_video_entrega(archivo):
+    if not archivo:
+        return
+
+    ext = os.path.splitext(archivo.name)[1].lower()
+    if ext not in VIDEO_ENTREGA_EXTENSIONES:
+        raise ValidationError(
+            'Formato no permitido. Usa MP4, WebM o MOV.'
+        )
+
+    content_type = getattr(archivo, 'content_type', '') or ''
+    if content_type and content_type not in VIDEO_ENTREGA_MIMES:
+        raise ValidationError(
+            'El archivo debe ser un video (MP4, WebM o MOV).'
+        )
+
+    if archivo.size > VIDEO_ENTREGA_MAX_BYTES:
+        raise ValidationError('El video no puede superar 100 MB.')
 
 
 class ReservaForm(forms.ModelForm):
@@ -74,7 +105,7 @@ class EntregaForm(forms.ModelForm):
             'combustible_entrega',
             'danos_entrega',
             'notas_entrega',
-            'foto_entrega',
+            'video_entrega',
         ]
         widgets = {
             'km_entrega': forms.NumberInput(attrs={'class': 'mod-input', 'min': '0'}),
@@ -89,7 +120,10 @@ class EntregaForm(forms.ModelForm):
                 'rows': 2,
                 'placeholder': 'Observaciones generales…',
             }),
-            'foto_entrega': forms.FileInput(attrs={'class': 'mod-input', 'accept': 'image/*'}),
+            'video_entrega': forms.FileInput(attrs={
+                'class': 'mod-input',
+                'accept': 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v',
+            }),
         }
 
     def clean_km_entrega(self):
@@ -102,6 +136,11 @@ class EntregaForm(forms.ModelForm):
                 f'El km ({km:,}) no puede ser menor al registrado en flota ({vehiculo.kilometraje:,}).'
             )
         return km
+
+    def clean_video_entrega(self):
+        video = self.cleaned_data.get('video_entrega')
+        validar_video_entrega(video)
+        return video
 
 
 class DevolucionForm(forms.ModelForm):
