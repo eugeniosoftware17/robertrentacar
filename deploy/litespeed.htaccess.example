@@ -11,19 +11,24 @@ PassengerStartupFile passenger_wsgi.py
 LimitRequestBody 104857600
 
 # --- MEDIA (/media/) ---
-# WhiteNoise solo sirve /static/. LiteSpeed debe servir /media/ sin pasar por Passenger.
+# WhiteNoise solo sirve /static/. Para /media/, MEDIA_ROOT en settings.py apunta
+# a public/media/ (dentro del docroot), asi que los archivos subidos por Django
+# quedan como archivos reales en disco bajo public/ — sin symlinks.
 #
-# OPCION A (recomendada en cPanel): enlace simbolico dentro de public/
-#   cd /home/USUARIO/robertrentacar/public
-#   ln -s ../media media
-# LiteSpeed entrega los archivos como estaticos antes de activar Passenger.
+# IMPORTANTE: <Location>/<LocationMatch> con "PassengerEnabled off" NO es valido
+# dentro de .htaccess (solo en contexto de vhost/servidor) — Apache y LiteSpeed
+# lo ignoran silenciosamente. NO usar ese patron aqui.
 #
-# OPCION B: contexto estatico en LiteSpeed WebAdmin (ver litespeed-vhost-media.conf.example)
-
-# No reescribir archivos que existen en disco (incluye public/media/ si usaste el symlink)
+# En su lugar, la regla de abajo evita que Passenger intercepte cualquier
+# archivo que ya existe en disco (incluye public/media/**), sirviendolo directo:
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 </IfModule>
+
+# Si tu hosting da acceso a LiteSpeed WebAdmin (no es el caso en la mayoria de
+# planes compartidos tipo BanaHosting), un contexto Static para /media/ es aun
+# mas robusto porque evita Passenger por completo, incluso antes del .htaccess
+# (ver litespeed-vhost-media.conf.example).

@@ -112,11 +112,16 @@ STORAGES = {
 }
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_ROOT vive dentro de STATIC_ROOT (public/) a proposito: en produccion
+# public/ ES el document root de Passenger, asi que los archivos subidos quedan
+# como archivos reales en disco bajo el docroot y LiteSpeed/Passenger los sirve
+# directo, sin symlinks ni contextos especiales (ver deploy/).
+MEDIA_ROOT = STATIC_ROOT / 'media'
 
 # En desarrollo, Django sirve /media/ via rentcar_project.urls (solo DEBUG=True).
 # En produccion (LiteSpeed + Passenger + WhiteNoise), /static/ lo sirve WhiteNoise;
-# /media/ debe servirlo LiteSpeed directamente desde MEDIA_ROOT (ver deploy/).
+# /media/ lo sirve LiteSpeed directamente porque MEDIA_ROOT esta dentro del
+# docroot (public/media/), igual que cualquier otro archivo estatico (ver deploy/).
 
 # Videos de entrega/devolución (hasta 100 MB por archivo)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600

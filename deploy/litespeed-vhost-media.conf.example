@@ -3,7 +3,7 @@
 # Sirve /media/ desde MEDIA_ROOT sin cargar Django/Passenger (videos, fotos, logos).
 
 # URI:           /media/
-# Location:      /home/USUARIO/robertrentacar/media/
+# Location:      /home/USUARIO/robertrentacar/public/media/
 # Accessible:    Yes
 # Enable Rewrite: No
 # Extra Headers: (opcional) Cache-Control public, max-age=86400
@@ -12,12 +12,17 @@
 #
 # context /media/ {
 #   type                    static
-#   docRoot                 /home/USUARIO/robertrentacar/media
+#   docRoot                 /home/USUARIO/robertrentacar/public/media
 #   allowBrowse             0
 #   addDefaultCharset       off
 #   enableRewrites          0
 # }
 
 # Permisos en el servidor:
-#   chmod 755 /home/USUARIO/robertrentacar/media
+#   chmod 755 /home/USUARIO/robertrentacar/public/media
 #   El usuario del proceso LiteSpeed (nobody / lsadm / usuario del vhost) debe poder leer los archivos.
+#
+# Nota: la mayoria de planes compartidos (BanaHosting incluido) no dan acceso a
+# WebAdmin para crear contextos — en ese caso usar solo litespeed.htaccess.example
+# (MEDIA_ROOT dentro de public/ + la regla RewriteCond -f/-d ya cubre el caso sin
+# necesitar este contexto).
