@@ -1,0 +1,23 @@
+# LiteSpeed WebAdmin → Virtual Hosts → tu dominio → Context → Add
+# Tipo: Static
+# Sirve /media/ desde MEDIA_ROOT sin cargar Django/Passenger (videos, fotos, logos).
+
+# URI:           /media/
+# Location:      /home/USUARIO/robertrentacar/media/
+# Accessible:    Yes
+# Enable Rewrite: No
+# Extra Headers: (opcional) Cache-Control public, max-age=86400
+
+# En formato de contexto (referencia; la UI de WebAdmin es equivalente):
+#
+# context /media/ {
+#   type                    static
+#   docRoot                 /home/USUARIO/robertrentacar/media
+#   allowBrowse             0
+#   addDefaultCharset       off
+#   enableRewrites          0
+# }
+
+# Permisos en el servidor:
+#   chmod 755 /home/USUARIO/robertrentacar/media
+#   El usuario del proceso LiteSpeed (nobody / lsadm / usuario del vhost) debe poder leer los archivos.

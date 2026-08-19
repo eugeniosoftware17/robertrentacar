@@ -1,0 +1,29 @@
+# Copiar a public/.htaccess (document root = carpeta public/ tras collectstatic)
+# Ajusta las rutas absolutas a tu servidor (cPanel: File Manager → ruta completa del proyecto).
+
+PassengerEnabled On
+PassengerAppRoot /home/USUARIO/robertrentacar
+PassengerBaseURI /
+PassengerAppType wsgi
+PassengerStartupFile passenger_wsgi.py
+
+# Subidas grandes (videos de entrega, hasta 100 MB en Django)
+LimitRequestBody 104857600
+
+# --- MEDIA (/media/) ---
+# WhiteNoise solo sirve /static/. LiteSpeed debe servir /media/ sin pasar por Passenger.
+#
+# OPCION A (recomendada en cPanel): enlace simbolico dentro de public/
+#   cd /home/USUARIO/robertrentacar/public
+#   ln -s ../media media
+# LiteSpeed entrega los archivos como estaticos antes de activar Passenger.
+#
+# OPCION B: contexto estatico en LiteSpeed WebAdmin (ver litespeed-vhost-media.conf.example)
+
+# No reescribir archivos que existen en disco (incluye public/media/ si usaste el symlink)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+</IfModule>

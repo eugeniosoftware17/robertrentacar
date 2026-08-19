@@ -114,6 +114,10 @@ STORAGES = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# En desarrollo, Django sirve /media/ via rentcar_project.urls (solo DEBUG=True).
+# En produccion (LiteSpeed + Passenger + WhiteNoise), /static/ lo sirve WhiteNoise;
+# /media/ debe servirlo LiteSpeed directamente desde MEDIA_ROOT (ver deploy/).
+
 # Videos de entrega/devolución (hasta 100 MB por archivo)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
 FILE_UPLOAD_MAX_MEMORY_SIZE = 104857600

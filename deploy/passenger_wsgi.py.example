@@ -1,0 +1,13 @@
+# Renombrar/copiar a passenger_wsgi.py en la raiz del proyecto (junto a manage.py)
+# PassengerAppRoot debe apuntar a esa misma carpeta.
+
+import os
+import sys
+
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, PROJECT_ROOT)
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rentcar_project.settings')
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
