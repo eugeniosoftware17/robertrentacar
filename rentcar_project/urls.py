@@ -26,7 +26,4 @@ urlpatterns = [
     ])),
 ]
 
-# Desarrollo: runserver sirve subidas en /media/ (fotos, logos, videos de entrega).
-# Produccion: no usar esto; configurar LiteSpeed (deploy/litespeed.htaccess.example).
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

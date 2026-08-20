@@ -111,24 +111,10 @@ STORAGES = {
     },
 }
 
-# WhiteNoise indexa los archivos de STATIC_ROOT una sola vez al iniciar el
-# proceso (Passenger). Como MEDIA_ROOT vive dentro de STATIC_ROOT, sin esto
-# cualquier foto/video subido despues de ese arranque daria 404 hasta el
-# proximo reinicio de Passenger. autorefresh re-verifica el archivo puntual
-# en cada request (un stat() extra, no un rescan del arbol completo).
 WHITENOISE_AUTOREFRESH = True
 
-# MEDIA_URL comparte prefijo con STATIC_URL a proposito: MEDIA_ROOT vive
-# dentro de STATIC_ROOT (public/media/), asi que WhiteNoise —que ya sirve
-# /static/ desde la app Django, antes de LoginRequiredMiddleware— sirve
-# tambien /static/media/ sin necesidad de symlinks ni contextos especiales
-# de LiteSpeed en el hosting compartido (ver deploy/).
-MEDIA_URL = '/static/media/'
-MEDIA_ROOT = STATIC_ROOT / 'media'
-
-# En desarrollo, Django sirve MEDIA_URL via rentcar_project.urls (solo con
-# DEBUG=True). En produccion lo sirve WhiteNoise desde la propia app Django,
-# igual que STATIC_URL (ver deploy/).
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Videos de entrega/devolución (hasta 100 MB por archivo)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600
