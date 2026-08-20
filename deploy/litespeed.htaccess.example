@@ -10,25 +10,26 @@ PassengerStartupFile passenger_wsgi.py
 # Subidas grandes (videos de entrega, hasta 100 MB en Django)
 LimitRequestBody 104857600
 
-# --- MEDIA (/media/) ---
-# WhiteNoise solo sirve /static/. Para /media/, MEDIA_ROOT en settings.py apunta
-# a public/media/ (dentro del docroot), asi que los archivos subidos por Django
-# quedan como archivos reales en disco bajo public/ — sin symlinks.
+# --- MEDIA (/static/media/) ---
+# MEDIA_URL = '/static/media/' y MEDIA_ROOT = STATIC_ROOT/'media' (public/media/)
+# a proposito: WhiteNoise (dentro de la app Django, ver settings.py) ya sirve
+# todo /static/ correctamente, ANTES de LoginRequiredMiddleware — asi que
+# /static/media/** se sirve por el mismo camino probado, sin symlinks ni
+# contextos especiales de LiteSpeed. No hace falta configurar nada extra aqui
+# para media: cae a Passenger igual que cualquier /static/, y WhiteNoise lo
+# resuelve (con WHITENOISE_AUTOREFRESH=True para que los uploads nuevos no
+# necesiten reiniciar Passenger).
 #
 # IMPORTANTE: <Location>/<LocationMatch> con "PassengerEnabled off" NO es valido
 # dentro de .htaccess (solo en contexto de vhost/servidor) — Apache y LiteSpeed
 # lo ignoran silenciosamente. NO usar ese patron aqui.
 #
-# En su lugar, la regla de abajo evita que Passenger intercepte cualquier
-# archivo que ya existe en disco (incluye public/media/**), sirviendolo directo:
+# La regla de abajo es igual util de todos modos: evita que Passenger reprocese
+# cualquier archivo que YA existe en disco bajo public/ (assets con hash de
+# collectstatic, etc.), sirviendolo directo sin pasar por la app:
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 </IfModule>
-
-# Si tu hosting da acceso a LiteSpeed WebAdmin (no es el caso en la mayoria de
-# planes compartidos tipo BanaHosting), un contexto Static para /media/ es aun
-# mas robusto porque evita Passenger por completo, incluso antes del .htaccess
-# (ver litespeed-vhost-media.conf.example).

@@ -1,8 +1,15 @@
+# OPCIONAL. Desde que MEDIA_URL = '/static/media/' (settings.py), WhiteNoise ya
+# sirve media correctamente desde la propia app Django (mismo camino probado que
+# /static/), sin necesidad de este contexto. Usar esto solo como optimizacion —
+# si tu hosting SI da acceso a LiteSpeed WebAdmin (no es el caso en la mayoria de
+# planes compartidos, BanaHosting incluido) — para que archivos grandes (videos
+# de entrega/devolucion) se sirvan sin pasar por Passenger/Django en absoluto.
+
 # LiteSpeed WebAdmin → Virtual Hosts → tu dominio → Context → Add
 # Tipo: Static
-# Sirve /media/ desde MEDIA_ROOT sin cargar Django/Passenger (videos, fotos, logos).
+# Sirve /static/media/ desde MEDIA_ROOT sin cargar Django/Passenger.
 
-# URI:           /media/
+# URI:           /static/media/
 # Location:      /home/USUARIO/robertrentacar/public/media/
 # Accessible:    Yes
 # Enable Rewrite: No
@@ -10,7 +17,7 @@
 
 # En formato de contexto (referencia; la UI de WebAdmin es equivalente):
 #
-# context /media/ {
+# context /static/media/ {
 #   type                    static
 #   docRoot                 /home/USUARIO/robertrentacar/public/media
 #   allowBrowse             0
@@ -21,8 +28,3 @@
 # Permisos en el servidor:
 #   chmod 755 /home/USUARIO/robertrentacar/public/media
 #   El usuario del proceso LiteSpeed (nobody / lsadm / usuario del vhost) debe poder leer los archivos.
-#
-# Nota: la mayoria de planes compartidos (BanaHosting incluido) no dan acceso a
-# WebAdmin para crear contextos — en ese caso usar solo litespeed.htaccess.example
-# (MEDIA_ROOT dentro de public/ + la regla RewriteCond -f/-d ya cubre el caso sin
-# necesitar este contexto).
