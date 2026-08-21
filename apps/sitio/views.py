@@ -14,7 +14,7 @@ from django.views.decorators.http import require_GET
 
 HOME_PREVIEW_SESSION_KEY = 'sitio_home_preview'
 PAGINA_PREVIEW_SESSION_KEY = 'sitio_pagina_preview'
-SITIO_PREVIEW_IMAGENES = ('home_fondo_imagen', 'logo')
+SITIO_PREVIEW_IMAGENES = ('home_fondo_imagen', 'logo', 'favicon')
 
 from apps.configuracion.models import ConfiguracionEmpresa
 from apps.core.permisos import es_admin
@@ -43,6 +43,7 @@ def _contexto_publico(request):
     return {
         'empresa': empresa,
         'sitio': sitio,
+        'favicon_url': sitio.url_favicon(),
         'menu_paginas': paginas,
         'idioma': idioma_actual(request),
     }
@@ -91,6 +92,20 @@ def _serializar_home_preview(form, request, config):
             uploaded,
         )
         sitio.logo.name = path
+
+    if form.cleaned_data.get('quitar_favicon'):
+        sitio.favicon = None
+    elif not request.FILES.get('favicon') and config.favicon:
+        sitio.favicon = config.favicon
+
+    if request.FILES.get('favicon'):
+        uploaded = request.FILES['favicon']
+        ext = os.path.splitext(uploaded.name)[1].lower() or '.png'
+        path = default_storage.save(
+            f'sitio/preview/{request.user.pk}/favicon{ext}',
+            uploaded,
+        )
+        sitio.favicon.name = path
 
     data = {}
     for field in sitio._meta.fields:
@@ -322,7 +337,7 @@ def reservar(request, slug):
 # ——— Panel ———
 
 CAMPOS_PESTANA_SITIO = {
-    'marca': {'logo', 'quitar_logo', 'mostrar_nombre_junto_logo'},
+    'marca': {'logo', 'quitar_logo', 'favicon', 'quitar_favicon', 'mostrar_nombre_junto_logo'},
     'inicio': {
         'home_titulo', 'home_titulo_en', 'home_subtitulo', 'home_subtitulo_en',
         'home_texto', 'home_texto_en', 'horario', 'meta_descripcion', 'meta_descripcion_en',
@@ -359,6 +374,7 @@ def _resumen_sitio(config, paginas):
     publicadas = paginas.filter(publicada=True).count()
     return {
         'logo_ok': bool(config.logo),
+        'favicon_ok': bool(config.favicon),
         'whatsapp_ok': config.whatsapp_activo,
         'paginas_publicadas': publicadas,
         'paginas_total': paginas.count(),
@@ -394,6 +410,9 @@ def panel_index(request):
             if form.cleaned_data.get('quitar_logo') and config.logo:
                 config.logo.delete(save=False)
                 sitio.logo = None
+            if form.cleaned_data.get('quitar_favicon') and config.favicon:
+                config.favicon.delete(save=False)
+                sitio.favicon = None
             sitio.save()
             request.session.pop(HOME_PREVIEW_SESSION_KEY, None)
             messages.success(request, 'Configuración del sitio guardada.')

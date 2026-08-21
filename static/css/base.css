@@ -16,6 +16,7 @@
   bottom: 0;
   z-index: 60;
   transition: transform .25s ease;
+  overflow: hidden;
 }
 
 /* ── Logo / Marca ────────────────────────────────────────── */
@@ -158,6 +159,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  flex-shrink: 0;
+  margin-top: auto;
+}
+
+.sidebar-foot-user {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .avatar {
@@ -174,24 +184,28 @@
   font-size: 12.5px;
 }
 
-.sidebar-foot .who  { font-size: 12.5px; font-weight: 600; color: #fff; }
-.sidebar-foot .role { font-size: 10.5px; color: #6D84A8; }
+.sidebar-foot .who  { font-size: 12.5px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-foot .role { font-size: 10.5px; color: #6D84A8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Botón cerrar sesión */
-.side-x-form { margin-left: auto; }
+.side-x-form {
+  margin-left: auto;
+  flex-shrink: 0;
+}
 
 .side-x {
-  margin-left: auto;
   background: none;
   border: none;
   color: #6D84A8;
   display: flex;
-  padding: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border-radius: 6px;
-  text-decoration: none;
   cursor: pointer;
 }
-.side-x-form .side-x { margin-left: 0; }
 .side-x:hover { color: #fff; background: rgba(255, 255, 255, .08); }
 
 /* ── Responsive: ocultar en móvil ────────────────────────── */

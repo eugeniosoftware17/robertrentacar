@@ -168,6 +168,15 @@
     background: #f4f4f4;
     padding: 0.5rem;
   }
+  .sitio-panel-favicon-preview {
+    max-width: 64px;
+    max-height: 64px;
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    background: #f4f4f4;
+    padding: 0.35rem;
+  }
   .sitio-panel-toggles {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -206,6 +215,9 @@
 <div class="sitio-resumen" aria-label="Estado del sitio">
   <span class="sitio-resumen-chip {% if resumen.logo_ok %}ok{% else %}pend{% endif %}">
     Logo {% if resumen.logo_ok %}✓{% else %}pendiente{% endif %}
+  </span>
+  <span class="sitio-resumen-chip {% if resumen.favicon_ok %}ok{% else %}pend{% endif %}">
+    Favicon {% if resumen.favicon_ok %}✓{% else %}pendiente{% endif %}
   </span>
   <span class="sitio-resumen-chip {% if resumen.whatsapp_ok %}ok{% else %}pend{% endif %}">
     WhatsApp {% if resumen.whatsapp_ok %}✓{% else %}pendiente{% endif %}
@@ -362,6 +374,24 @@
             {% endif %}
           </div>
           <div class="mod-field mod-field-check">{{ form.mostrar_nombre_junto_logo }}{{ form.mostrar_nombre_junto_logo.label_tag }}<span class="mod-hint">{{ form.mostrar_nombre_junto_logo.help_text }}</span></div>
+        </div>
+      </div>
+
+      <div class="sitio-panel-seccion">
+        <div class="sitio-panel-seccion-titulo">Icono del navegador (favicon)</div>
+        <div class="sitio-panel-seccion-hint">Aparece en la pestaña del navegador, en el panel y en el sitio público</div>
+        <div class="mod-grid">
+          <div class="mod-field">
+            {{ form.favicon.label_tag }}
+            {{ form.favicon }}
+            <span class="mod-hint">{{ form.favicon.help_text }}</span>
+            {% if form.instance.favicon %}
+            <img src="{{ form.instance.favicon.url }}" alt="" class="sitio-panel-fondo-preview sitio-panel-favicon-preview" />
+            <div class="mod-field-check" style="margin-top:0.5rem;">{{ form.quitar_favicon }}{{ form.quitar_favicon.label_tag }}</div>
+            {% elif form.instance.logo %}
+            <span class="mod-hint">Sin favicon propio: se usa el logo como respaldo.</span>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>

@@ -4,7 +4,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Iniciar sesión — Rent Car</title>
+    <title>Iniciar sesión — {{ empresa_nombre|default:"Rent Car" }}</title>
+    {% include "partials/favicon.html" %}
     <link rel="stylesheet" href="{% static 'cuentas/login.css' %}" />
   </head>
   <body>
@@ -13,12 +14,14 @@
         <div class="login-brand">
           <div class="login-mark">RC</div>
           <div>
-            <h1>Rent Car</h1>
+            <h1>{{ empresa_nombre|default:"Rent Car" }}</h1>
             <p>Panel administrativo</p>
           </div>
         </div>
 
-        {% if form.errors %}
+        {% if request.GET.inactividad %}
+        <div class="login-error">Tu sesión se cerró por inactividad. Vuelve a iniciar sesión.</div>
+        {% elif form.errors %}
         <div class="login-error">Usuario o contraseña incorrectos.</div>
         {% endif %}
 

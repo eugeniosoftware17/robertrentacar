@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
 
 from apps.core.models import AccesoModulo
-from apps.core.permisos import GRUPO_ADMIN, GRUPO_EMPLEADO, MODULOS, MODULOS_EMPLEADO_DEFAULT
+from apps.core.permisos import GRUPO_ADMIN, GRUPO_EMPLEADO, MODULOS, MODULOS_EMPLEADO_DEFAULT, MODULOS_SOLO_ADMIN
 from apps.core.sync_permisos import sincronizar_permisos_grupos
 
 
@@ -24,6 +24,8 @@ class Command(BaseCommand):
             self.stdout.write(f'Grupo "{GRUPO_EMPLEADO}" ya existía.')
 
         for clave in MODULOS:
+            if clave in MODULOS_SOLO_ADMIN:
+                continue
             permitido = clave in MODULOS_EMPLEADO_DEFAULT
             _, creado = AccesoModulo.objects.get_or_create(
                 modulo=clave,

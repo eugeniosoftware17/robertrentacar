@@ -26,6 +26,39 @@ MODULOS_EMPLEADO_DEFAULT = [
     'pagos',
 ]
 
+# Solo administradores (nunca se delega al grupo Empleado).
+MODULOS_SOLO_ADMIN = [
+    'configuracion',
+]
+
+ORDEN_INICIO_PANEL = [
+    'dashboard',
+    'calendario',
+    'reservas',
+    'clientes',
+    'vehiculos',
+    'pagos',
+    'mantenimiento',
+    'reportes',
+    'finanzas',
+    'sitio_web',
+    'configuracion',
+]
+
+URLS_MODULO_PANEL = {
+    'dashboard': 'dashboard',
+    'calendario': 'calendario:index',
+    'vehiculos': 'vehiculos:lista',
+    'mantenimiento': 'mantenimiento:lista',
+    'reservas': 'reservas:lista',
+    'clientes': 'clientes:lista',
+    'pagos': 'pagos:lista',
+    'reportes': 'reportes:index',
+    'sitio_web': 'sitio_web:panel_index',
+    'finanzas': 'finanzas:index',
+    'configuracion': 'configuracion:index',
+}
+
 RUTAS_PUBLICAS = (
     '/login/',
     '/logout/',
@@ -78,13 +111,33 @@ def modulos_usuario(user):
     if es_admin(user):
         return list(MODULOS.keys())
     from .sync_permisos import modulos_desde_permisos
-    return modulos_desde_permisos(user)
+    return [
+        modulo for modulo in modulos_desde_permisos(user)
+        if modulo not in MODULOS_SOLO_ADMIN
+    ]
 
 
 def puede_acceder(user, modulo):
+    if modulo in MODULOS_SOLO_ADMIN and not es_admin(user):
+        return False
     if es_admin(user):
         return True
     return user.has_perm(permiso_completo(modulo))
+
+
+def url_inicio_panel(user):
+    from django.urls import NoReverseMatch, reverse
+
+    for modulo in ORDEN_INICIO_PANEL:
+        if modulo in modulos_usuario(user):
+            nombre = URLS_MODULO_PANEL.get(modulo)
+            if not nombre:
+                continue
+            try:
+                return reverse(nombre)
+            except NoReverseMatch:
+                continue
+    return reverse('cuentas:login')
 
 
 def modulo_desde_ruta(path):

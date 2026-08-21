@@ -88,6 +88,13 @@ class ConfiguracionSitio(models.Model):
         null=True,
         help_text='PNG con fondo transparente recomendado. Altura ideal: 40–56 px.',
     )
+    favicon = models.FileField(
+        'Icono del navegador (favicon)',
+        upload_to='sitio/favicon/',
+        blank=True,
+        null=True,
+        help_text='PNG, ICO o WebP cuadrado. Recomendado: 32×32 o 192×192 px.',
+    )
     mostrar_nombre_junto_logo = models.BooleanField(
         'Mostrar nombre junto al logo',
         default=True,
@@ -227,6 +234,17 @@ class ConfiguracionSitio(models.Model):
     @property
     def tiene_logo(self):
         return bool(self.logo)
+
+    @property
+    def tiene_favicon(self):
+        return bool(self.favicon)
+
+    def url_favicon(self):
+        if self.favicon:
+            return self.favicon.url
+        if self.logo:
+            return self.logo.url
+        return None
 
 
 class PaginaInformativa(models.Model):

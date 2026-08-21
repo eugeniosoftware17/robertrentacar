@@ -17,6 +17,7 @@
   {% block og_image %}{% endblock %}
   <meta name="twitter:card" content="summary_large_image" />
   {% block structured_data %}{% endblock %}
+  {% include "partials/favicon.html" %}
   <link rel="stylesheet" href="{% static 'sitio/sitio.css' %}" />
   {% if sitio.css_global %}
   <style id="sitio-css-global">{{ sitio.css_global|safe }}</style>

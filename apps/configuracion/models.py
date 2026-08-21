@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -14,6 +15,12 @@ class ConfiguracionEmpresa(models.Model):
     )
     rnc = models.CharField('RNC', max_length=20, blank=True)
     notas_contrato = models.TextField('Cláusulas del contrato', blank=True)
+    bloqueo_inactividad_horas = models.PositiveSmallIntegerField(
+        'Bloqueo por inactividad (horas)',
+        default=10,
+        validators=[MinValueValidator(1), MaxValueValidator(168)],
+        help_text='Cierra la sesión del panel si no hay actividad durante este tiempo (1 a 168 horas).',
+    )
 
     class Meta:
         verbose_name = 'Configuración de empresa'

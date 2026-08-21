@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
 from .models import AccesoModulo
-from .permisos import GRUPO_ADMIN, GRUPO_EMPLEADO, MODULOS, MODULOS_EMPLEADO_DEFAULT, permiso_codename
+from .permisos import GRUPO_ADMIN, GRUPO_EMPLEADO, MODULOS, MODULOS_EMPLEADO_DEFAULT, MODULOS_SOLO_ADMIN, permiso_codename
 
 
 def _content_type():
@@ -50,11 +50,27 @@ def sincronizar_grupo_admin():
 
 def sincronizar_grupo_empleado():
     grupo, _ = Group.objects.get_or_create(name=GRUPO_EMPLEADO)
-    permitidos = modulos_empleado_default()
+    permitidos = [
+        modulo for modulo in modulos_empleado_default()
+        if modulo not in MODULOS_SOLO_ADMIN
+    ]
     perms = [_permiso_modulo(m) for m in MODULOS if m in permitidos]
     grupo.permissions.set(perms)
 
 
+def asegurar_accesos_modulo():
+    """Crea filas AccesoModulo faltantes con valores por defecto."""
+    for clave in MODULOS:
+        if clave in MODULOS_SOLO_ADMIN:
+            continue
+        permitido = clave in MODULOS_EMPLEADO_DEFAULT
+        AccesoModulo.objects.get_or_create(
+            modulo=clave,
+            defaults={'permitido': permitido},
+        )
+
+
 def sincronizar_permisos_grupos():
+    asegurar_accesos_modulo()
     sincronizar_grupo_admin()
     sincronizar_grupo_empleado()

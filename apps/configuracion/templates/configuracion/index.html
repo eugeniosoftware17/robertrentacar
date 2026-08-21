@@ -12,7 +12,7 @@
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Datos de la empresa</div>
-      <div class="mod-card-hint">Aparecen en contratos y documentos</div>
+      <div class="mod-card-hint">Aparece en el panel, contratos y documentos. El bloqueo por inactividad cierra sesiones del panel sin uso.</div>
     </div>
   </div>
   <form method="post" class="mod-form">
@@ -32,12 +32,104 @@
   </form>
 </div>
 
-{% if puede_editar_permisos %}
+<div class="mod-card mod-form-card" style="margin-top: 1.5rem;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Usuarios del panel</div>
+      <div class="mod-card-hint">Crea cuentas para empleados o administradores</div>
+    </div>
+  </div>
+
+  {% if editar_usuario and editar_usuario_form %}
+  <form method="post" class="mod-form" style="border-bottom: 1px solid var(--border, #e5e7eb); padding-bottom: 1.5rem;">
+    {% csrf_token %}
+    <input type="hidden" name="editar_usuario" value="1" />
+    <input type="hidden" name="usuario_id" value="{{ editar_usuario.pk }}" />
+    <div class="mod-card-titulo" style="font-size: 1rem; margin-bottom: 1rem;">
+      Editar: {{ editar_usuario.username }}
+    </div>
+    {% if editar_usuario_form.non_field_errors %}
+    <div class="flash flash-error">{{ editar_usuario_form.non_field_errors }}</div>
+    {% endif %}
+    <div class="mod-grid">
+      {% for field in editar_usuario_form %}
+      <div class="mod-field {% if field.field.widget.input_type == 'checkbox' %}mod-field-check{% endif %}">
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <label class="mod-check-label">{{ field }} <span>{{ field.label }}</span></label>
+        {% else %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% endif %}
+        {% if field.errors %}<div class="mod-field-error">{{ field.errors|join:', ' }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar cambios</button>
+      <a href="{% url 'configuracion:index' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+    </div>
+  </form>
+  {% else %}
+  <form method="post" class="mod-form" style="border-bottom: 1px solid var(--border, #e5e7eb); padding-bottom: 1.5rem;">
+    {% csrf_token %}
+    <input type="hidden" name="crear_usuario" value="1" />
+    <div class="mod-card-titulo" style="font-size: 1rem; margin-bottom: 1rem;">Nuevo usuario</div>
+    {% if crear_usuario_form.non_field_errors %}
+    <div class="flash flash-error">{{ crear_usuario_form.non_field_errors }}</div>
+    {% endif %}
+    <div class="mod-grid">
+      {% for field in crear_usuario_form %}
+      <div class="mod-field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}<div class="mod-field-error">{{ field.errors|join:', ' }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Crear usuario</button>
+    </div>
+  </form>
+  {% endif %}
+
+  <div style="padding: 1.5rem;">
+    <div class="mod-card-titulo" style="font-size: 1rem; margin-bottom: 0.75rem;">Usuarios registrados</div>
+    {% if usuarios_panel %}
+    <div class="mod-table-wrap">
+      <table class="mod-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in usuarios_panel %}
+          <tr>
+            <td>{{ item.usuario.username }}</td>
+            <td>{{ item.usuario.get_full_name|default:"—" }}</td>
+            <td>{{ item.rol|default:"Sin rol" }}</td>
+            <td>{% if item.usuario.is_active %}Activo{% else %}Inactivo{% endif %}</td>
+            <td><a href="?usuario={{ item.usuario.pk }}">Editar</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="color: var(--text-muted, #666); margin: 0;">No hay usuarios del panel aparte del superusuario.</p>
+    {% endif %}
+  </div>
+</div>
+
 <div class="mod-card mod-form-card" style="margin-top: 1.5rem;">
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Permisos de empleados</div>
-      <div class="mod-card-hint">Selecciona qué secciones del menú pueden ver los usuarios del grupo Empleado</div>
+      <div class="mod-card-hint">Secciones del menú para usuarios con rol Empleado</div>
     </div>
   </div>
   <form method="post" class="mod-form">
@@ -59,15 +151,12 @@
   </form>
 
   <div style="padding: 0 1.5rem 1.5rem; color: var(--text-muted, #666); font-size: 0.9rem;">
-    <p><strong>Cómo crear un empleado:</strong></p>
-    <ol style="margin: 0.5rem 0 0 1.2rem;">
-      <li>Ve a <a href="/admin/auth/user/add/" target="_blank">Admin Django → Usuarios → Añadir</a></li>
-      <li>NO marques «Superusuario» (salvo que sea el dueño del negocio)</li>
-      <li>En «Grupos», selecciona <strong>Empleado</strong> — hereda los permisos marcados arriba</li>
-      <li>O asigna permisos uno a uno: «Acceder a Reservas», «Acceder a Clientes», etc.</li>
-      <li>Guarda y comparte usuario/contraseña con tu empleado</li>
-    </ol>
+    <p><strong>Cómo funciona:</strong></p>
+    <ul style="margin: 0.5rem 0 0 1.2rem;">
+      <li><strong>Administrador</strong> ve todo el panel, incluida esta configuración.</li>
+      <li><strong>Empleado</strong> ve solo los módulos marcados arriba.</li>
+      <li>Al guardar permisos se actualiza el grupo «Empleado» automáticamente.</li>
+    </ul>
   </div>
 </div>
-{% endif %}
 {% endblock %}

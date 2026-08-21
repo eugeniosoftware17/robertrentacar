@@ -1,4 +1,7 @@
-import pymysql
+from decouple import config
 
-pymysql.version_info = (2, 2, 4, "final", 0)
-pymysql.install_as_MySQLdb()
+if config('DB_ENGINE', default='django.db.backends.sqlite3') == 'django.db.backends.mysql':
+    import pymysql
+
+    pymysql.version_info = (2, 2, 4, 'final', 0)
+    pymysql.install_as_MySQLdb()

@@ -168,6 +168,10 @@ class ConfiguracionSitioForm(forms.ModelForm):
         required=False,
         label='Quitar logo actual',
     )
+    quitar_favicon = forms.BooleanField(
+        required=False,
+        label='Quitar icono del navegador',
+    )
 
     def __init__(self, *args, restringir_avanzado=False, **kwargs):
         super().__init__(*args, **kwargs)
@@ -179,6 +183,7 @@ class ConfiguracionSitioForm(forms.ModelForm):
         model = ConfiguracionSitio
         fields = [
             'logo',
+            'favicon',
             'mostrar_nombre_junto_logo',
             'home_titulo',
             'home_titulo_en',
@@ -230,6 +235,7 @@ class ConfiguracionSitioForm(forms.ModelForm):
         ]
         widgets = {
             'logo': forms.ClearableFileInput(attrs={'class': 'mod-input'}),
+            'favicon': forms.ClearableFileInput(attrs={'class': 'mod-input', 'accept': '.png,.ico,.webp,.jpg,.jpeg,.svg'}),
             'mostrar_nombre_junto_logo': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_titulo': forms.TextInput(attrs={'class': 'mod-input'}),
             'home_titulo_en': forms.TextInput(attrs={'class': 'mod-input'}),
@@ -285,6 +291,17 @@ class ConfiguracionSitioForm(forms.ModelForm):
         if valor is not None and not 0 <= valor <= 100:
             raise forms.ValidationError('Debe estar entre 0 y 100.')
         return valor
+
+    def clean_favicon(self):
+        import os
+
+        archivo = self.cleaned_data.get('favicon')
+        if not archivo:
+            return archivo
+        extension = os.path.splitext(archivo.name)[1].lower()
+        if extension not in {'.png', '.ico', '.webp', '.jpg', '.jpeg', '.svg'}:
+            raise ValidationError('Usa PNG, ICO, WebP, JPG o SVG.')
+        return archivo
 
 
 class PaginaInformativaForm(forms.ModelForm):

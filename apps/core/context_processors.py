@@ -1,11 +1,34 @@
 from django.conf import settings
+from django.db import DatabaseError
 
-from .permisos import MODULOS, modulos_usuario, rol_usuario
+from .permisos import MODULOS, modulos_usuario, rol_usuario, url_inicio_panel
+
+
+def _nombre_empresa():
+    try:
+        from apps.configuracion.models import ConfiguracionEmpresa
+
+        nombre = ConfiguracionEmpresa.obtener().nombre.strip()
+        if nombre:
+            return nombre
+    except DatabaseError:
+        pass
+    return getattr(settings, 'EMPRESA_NOMBRE', 'Rent Car')
+
+
+def _favicon_url():
+    try:
+        from apps.sitio.models import ConfiguracionSitio
+
+        return ConfiguracionSitio.obtener().url_favicon()
+    except DatabaseError:
+        return None
 
 
 def panel_usuario(request):
     context = {
-        'empresa_nombre': getattr(settings, 'EMPRESA_NOMBRE', 'Rent Car'),
+        'empresa_nombre': _nombre_empresa(),
+        'favicon_url': _favicon_url(),
         'panel_path': getattr(settings, 'PANEL_PATH', 'panel'),
         'alertas_reservas_web_count': 0,
         'alertas_reservas_web': [],
@@ -22,6 +45,7 @@ def panel_usuario(request):
         context['usuario_rol'] = rol_usuario(request.user)
         modulos = modulos_usuario(request.user)
         context['menu_permisos'] = {clave: clave in modulos for clave in MODULOS}
+        context['url_inicio_panel'] = url_inicio_panel(request.user)
 
         from apps.reservas.models import Reserva
         alertas_qs = Reserva.objects.filter(
