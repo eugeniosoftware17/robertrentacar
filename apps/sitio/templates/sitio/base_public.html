@@ -75,7 +75,15 @@
       {% endif %}
     </div>
     <div class="sitio-container sitio-copy">
-      <span>© {{ empresa.nombre }}</span>
+      <div class="sitio-copy-line">
+        <span>© {{ empresa.nombre }}</span>
+        {% if sitio.mostrar_pie_copyright %}
+        <span class="sitio-copy-sep" aria-hidden="true">·</span>
+        <a href="{{ sitio.creador_url }}" class="sitio-copy-link" target="_blank" rel="noopener noreferrer">
+          {% t 'footer_desarrollado_por' %} {{ sitio.creador_nombre }}
+        </a>
+        {% endif %}
+      </div>
       {% if user.is_authenticated %}
       <a href="{% url 'dashboard' %}" class="sitio-footer-login">{% t 'nav_ir_panel' %}</a>
       {% endif %}

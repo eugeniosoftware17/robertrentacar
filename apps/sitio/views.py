@@ -350,6 +350,7 @@ CAMPOS_PESTANA_SITIO = {
     },
     'contacto': {
         'whatsapp', 'whatsapp_mensaje', 'whatsapp_flotante', 'mostrar_whatsapp',
+        'horario', 'mostrar_pie_copyright',
         'instagram', 'mostrar_instagram', 'facebook', 'mostrar_facebook',
         'tiktok', 'mostrar_tiktok', 'youtube', 'mostrar_youtube',
         'twitter', 'mostrar_twitter',

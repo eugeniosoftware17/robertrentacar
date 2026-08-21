@@ -100,21 +100,38 @@ bindClick('btnNuevaReserva', function () {
   }
 
   function posicionarPanel() {
-    var rect = btn.getBoundingClientRect();
-    var margen = 8;
-    var ancho = Math.min(320, window.innerWidth - 24);
-    var top = rect.bottom + margen;
-    var right = Math.max(12, window.innerWidth - rect.right);
+    var margen = 12;
+    var mobile = window.innerWidth <= 860;
+    var ancho = Math.min(340, window.innerWidth - margen * 2);
 
     panel.style.width = ancho + 'px';
-    panel.style.top = top + 'px';
-    panel.style.right = right + 'px';
+    panel.style.maxHeight = mobile
+      ? Math.min(window.innerHeight * 0.72, 420) + 'px'
+      : '';
+
+    if (mobile) {
+      panel.style.left = '50%';
+      panel.style.right = 'auto';
+      panel.style.transform = 'translateX(-50%)';
+      var alto = panel.offsetHeight;
+      var top = Math.max(64, (window.innerHeight - alto) / 2);
+      panel.style.top = top + 'px';
+      return;
+    }
+
+    panel.style.transform = '';
     panel.style.left = 'auto';
+    var rect = btn.getBoundingClientRect();
+    var topBtn = rect.bottom + margen;
+    var right = Math.max(margen, window.innerWidth - rect.right);
+
+    panel.style.top = topBtn + 'px';
+    panel.style.right = right + 'px';
 
     var altoPanel = panel.offsetHeight;
-    if (top + altoPanel > window.innerHeight - 12) {
+    if (topBtn + altoPanel > window.innerHeight - margen) {
       var arriba = rect.top - altoPanel - margen;
-      if (arriba >= 12) {
+      if (arriba >= margen) {
         panel.style.top = arriba + 'px';
       }
     }

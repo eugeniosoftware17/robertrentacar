@@ -224,8 +224,6 @@
 
 .topbar-notif-panel {
   position: fixed;
-  top: 0;
-  right: 0;
   width: min(320px, calc(100vw - 24px));
   max-width: 320px;
   background: var(--topbar-bg);
@@ -234,6 +232,8 @@
   box-shadow: 0 16px 48px rgba(15, 23, 42, .18), 0 4px 12px rgba(15, 23, 42, .08);
   z-index: 200;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .topbar-notif-panel[hidden] {
@@ -249,6 +249,23 @@
   color: var(--text-3);
   border-bottom: 1px solid var(--topbar-border);
   background: color-mix(in srgb, var(--topbar-bg) 92%, var(--accent) 8%);
+  text-align: center;
+}
+
+@media (min-width: 861px) {
+  .topbar-notif-list a {
+    text-align: left;
+    align-items: flex-start;
+  }
+
+  .topbar-notif-list strong,
+  .topbar-notif-list span {
+    text-align: left;
+  }
+
+  .topbar-notif-head {
+    text-align: left;
+  }
 }
 
 .topbar-notif-list {
@@ -257,6 +274,7 @@
   padding: 0;
   max-height: 280px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .topbar-notif-list li {
@@ -271,6 +289,16 @@
   text-decoration: none;
   color: var(--text);
   transition: background .12s;
+  text-align: center;
+  align-items: center;
+}
+
+.topbar-notif-list strong,
+.topbar-notif-list span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: center;
 }
 
 .topbar-notif-list a:hover {
@@ -461,6 +489,23 @@
   }
 
   .topbar-notif-panel {
-    width: min(300px, calc(100vw - 16px));
+    width: min(340px, calc(100vw - 24px));
+    max-width: none;
+    max-height: min(72vh, 420px);
+    border-radius: 14px;
+  }
+
+  .topbar-notif-list {
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .topbar-notif-wrap.is-open::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, .45);
+    z-index: 199;
   }
 }

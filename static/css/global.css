@@ -127,6 +127,15 @@ body {
   border-radius: 9px;
   font-size: 13px;
   font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (min-width: 861px) {
+  .flash {
+    text-align: left;
+  }
 }
 
 .flash-success {

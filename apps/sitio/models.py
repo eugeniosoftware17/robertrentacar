@@ -120,6 +120,11 @@ class ConfiguracionSitio(models.Model):
     )
     mostrar_whatsapp = models.BooleanField('Mostrar WhatsApp', default=True)
     horario = models.CharField('Horario de atención', max_length=200, blank=True)
+    mostrar_pie_copyright = models.BooleanField(
+        'Mostrar crédito del desarrollador',
+        default=True,
+        help_text='Muestra el enlace a Cloud Tech System en el pie del sitio público.',
+    )
     instagram = models.URLField('Instagram', blank=True)
     facebook = models.URLField('Facebook', blank=True)
     tiktok = models.URLField('TikTok', blank=True)
@@ -245,6 +250,16 @@ class ConfiguracionSitio(models.Model):
         if self.logo:
             return self.logo.url
         return None
+
+    @property
+    def creador_nombre(self):
+        from .branding import CREADOR_SITIO_NOMBRE
+        return CREADOR_SITIO_NOMBRE
+
+    @property
+    def creador_url(self):
+        from .branding import CREADOR_SITIO_URL
+        return CREADOR_SITIO_URL
 
 
 class PaginaInformativa(models.Model):

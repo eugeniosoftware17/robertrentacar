@@ -21,6 +21,7 @@ TEXTOS = {
     'nav_ir_panel': {'es': 'Ir al panel', 'en': 'Go to panel'},
     'footer_ver_flota': {'es': 'Ver flota', 'en': 'View fleet'},
     'footer_siguenos': {'es': 'Síguenos', 'en': 'Follow us'},
+    'footer_desarrollado_por': {'es': 'Desarrollado por', 'en': 'Powered by'},
 
     # Home
     'home_lead_defecto': {
