@@ -174,3 +174,77 @@ bindClick('btnNuevaReserva', function () {
     cerrarPanel();
   }, true);
 })();
+
+(function () {
+  var input = document.getElementById('globalSearch');
+  var panel = document.getElementById('globalSearchPanel');
+  var wrap = document.getElementById('globalSearchWrap');
+  if (!input || !panel || !wrap) return;
+
+  var url = input.getAttribute('data-search-url');
+  var timer = null;
+  var controller = null;
+
+  function cerrarBusqueda() {
+    panel.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderResultados(items) {
+    panel.innerHTML = '';
+    if (!items.length) {
+      panel.innerHTML = '<p class="topbar-search-empty">Sin resultados</p>';
+      panel.hidden = false;
+      input.setAttribute('aria-expanded', 'true');
+      return;
+    }
+
+    items.forEach(function (item) {
+      var link = document.createElement('a');
+      link.className = 'topbar-search-item';
+      link.href = item.url;
+      link.innerHTML = '<em>' + item.tipo + '</em><strong>' + item.titulo + '</strong><span>' + (item.subtitulo || '') + '</span>';
+      panel.appendChild(link);
+    });
+    panel.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  }
+
+  function buscar() {
+    var q = input.value.trim();
+    if (q.length < 1) {
+      cerrarBusqueda();
+      return;
+    }
+
+    if (controller) controller.abort();
+    controller = new AbortController();
+
+    fetch(url + '?q=' + encodeURIComponent(q), {
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      signal: controller.signal,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { renderResultados(data.resultados || []); })
+      .catch(function (err) {
+        if (err.name !== 'AbortError') cerrarBusqueda();
+      });
+  }
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(buscar, 250);
+  });
+
+  input.addEventListener('focus', function () {
+    if (input.value.trim().length >= 1) buscar();
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!wrap.contains(e.target)) cerrarBusqueda();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarBusqueda();
+  });
+})();

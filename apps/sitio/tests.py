@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from apps.clientes.models import Cliente
 from apps.reservas.models import Reserva
-from apps.vehiculos.models import Vehiculo
+from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
 from .forms import ConfiguracionSitioForm, PaginaInformativaForm, ReservaWebForm
 from .i18n import texto, texto_categoria
@@ -25,6 +25,7 @@ def crear_vehiculo(placa='A123456', **extra):
         'tarifa_diaria': Decimal('2000.00'),
         'activo': True,
         'visible_en_web': True,
+        'categoria': CategoriaVehiculo.obtener_o_crear_default(),
     }
     defaults.update(extra)
     return Vehiculo.objects.create(**defaults)

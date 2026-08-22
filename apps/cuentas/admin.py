@@ -21,7 +21,8 @@ class UserAdmin(BaseUserAdmin):
         (_('Roles y permisos del panel'), {
             'fields': ('groups', 'user_permissions'),
             'description': (
-                'Forma recomendada: asigne el grupo «Empleado» o «Administrador». '
+                'Forma recomendada: asigne «Empleado», «Dueño del negocio» o «Administrador del sistema». '
+                'Configuración, Sitio web y Admin Django son solo para el administrador del sistema (superusuario). '
                 'También puede elegir permisos individuales del panel (Acceder a Reservas, etc.) '
                 'en la lista de abajo — esos SÍ controlan qué ve el usuario en el menú.'
             ),
@@ -56,8 +57,8 @@ class GroupAdmin(BaseGroupAdmin):
         if db_field.name == 'permissions':
             kwargs['queryset'] = permisos_panel()
             kwargs['help_text'] = (
-                'Permisos del panel Rent Car. El grupo «Empleado» y «Administrador» '
-                'se configuran automáticamente desde Configuración del panel.'
+                'Permisos del panel Rent Car. Los grupos se sincronizan desde Configuración del panel '
+                'o con el comando crear_grupos.'
             )
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 

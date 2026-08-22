@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.core.decorators import requiere_modulo
-from apps.core.permisos import es_admin, rol_usuario
+from apps.core.permisos import es_admin_sistema, rol_usuario
 
 from .forms import (
     ConfiguracionForm,
@@ -23,7 +23,7 @@ def _usuarios_panel():
 
 @requiere_modulo('configuracion')
 def index(request):
-    if not es_admin(request.user):
+    if not es_admin_sistema(request.user):
         return render(request, '403.html', {
             'page_title': 'Acceso denegado',
             'modulo': 'configuracion',
@@ -31,14 +31,18 @@ def index(request):
 
     config = ConfiguracionEmpresa.obtener()
     permisos_form = PermisosEmpleadoForm.desde_bd()
-    crear_usuario_form = CrearUsuarioPanelForm()
+    puede_gestionar_sistema = request.user.is_superuser
+    crear_usuario_form = CrearUsuarioPanelForm(puede_crear_sistema=puede_gestionar_sistema)
     editar_usuario = None
     editar_usuario_form = None
 
     editar_id = request.GET.get('usuario')
     if editar_id:
         editar_usuario = get_object_or_404(User, pk=editar_id, is_superuser=False)
-        editar_usuario_form = EditarUsuarioPanelForm(usuario=editar_usuario)
+        editar_usuario_form = EditarUsuarioPanelForm(
+            usuario=editar_usuario,
+            puede_asignar_sistema=puede_gestionar_sistema,
+        )
 
     if request.method == 'POST':
         if 'guardar_empresa' in request.POST:
@@ -54,7 +58,10 @@ def index(request):
                 messages.success(request, 'Permisos de empleados actualizados.')
                 return redirect('configuracion:index')
         elif 'crear_usuario' in request.POST:
-            crear_usuario_form = CrearUsuarioPanelForm(request.POST)
+            crear_usuario_form = CrearUsuarioPanelForm(
+                request.POST,
+                puede_crear_sistema=puede_gestionar_sistema,
+            )
             if crear_usuario_form.is_valid():
                 user = crear_usuario_form.guardar()
                 messages.success(request, f'Usuario «{user.username}» creado.')
@@ -68,6 +75,7 @@ def index(request):
             editar_usuario_form = EditarUsuarioPanelForm(
                 request.POST,
                 usuario=editar_usuario,
+                puede_asignar_sistema=puede_gestionar_sistema,
             )
             if editar_usuario_form.is_valid():
                 editar_usuario_form.guardar()

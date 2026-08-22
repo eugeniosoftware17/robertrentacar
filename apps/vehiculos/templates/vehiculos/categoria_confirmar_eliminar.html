@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Eliminar categoría{% endblock %}
+
+{% block content %}
+<div class="mod-card" style="max-width: 520px;">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Eliminar categoría</div>
+      <div class="mod-card-hint">{{ categoria.nombre }}</div>
+    </div>
+  </div>
+  <div style="padding: 1.5rem;">
+    <p>¿Seguro que deseas eliminar esta categoría?</p>
+    <p>Solo es posible si ningún vehículo la está usando.</p>
+    <form method="post" style="display:flex; gap:0.75rem; margin-top:1rem;">
+      {% csrf_token %}
+      <button type="submit" class="mod-btn mod-btn-prim" style="background:#b33;">Eliminar</button>
+      <a href="{% url 'vehiculos:categorias_lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

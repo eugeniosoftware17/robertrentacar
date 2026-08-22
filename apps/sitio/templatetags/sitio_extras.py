@@ -19,7 +19,9 @@ def t(context, clave, **kwargs):
 @register.simple_tag(takes_context=True)
 def t_categoria(context, valor):
     idioma = context.get('idioma_actual', IDIOMA_DEFECTO)
-    return texto_categoria(valor, idioma)
+    if hasattr(valor, 'nombre'):
+        return valor.nombre
+    return texto_categoria(valor, idioma) or str(valor or '')
 
 
 @register.simple_tag(takes_context=True)

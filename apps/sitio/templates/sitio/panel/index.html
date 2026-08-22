@@ -248,7 +248,7 @@
     <button type="button" class="sitio-tab" role="tab" data-tab="contacto" aria-selected="false">Contacto</button>
     <button type="button" class="sitio-tab" role="tab" data-tab="reservas" aria-selected="false">Reservas</button>
     <button type="button" class="sitio-tab" role="tab" data-tab="paginas" aria-selected="false">Páginas</button>
-    {% if usuario_rol == 'Administrador' %}
+    {% if es_admin_sistema %}
     <button type="button" class="sitio-tab" role="tab" data-tab="avanzado" aria-selected="false">Avanzado</button>
     {% endif %}
   </div>
@@ -468,7 +468,7 @@
       </div>
     </div>
 
-    {% if usuario_rol == 'Administrador' %}
+    {% if es_admin_sistema %}
     <div class="sitio-tab-panel" data-tab="avanzado" role="tabpanel">
       <div class="sitio-panel-seccion">
         <div class="sitio-panel-seccion-titulo">Código personalizado</div>

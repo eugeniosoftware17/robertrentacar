@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import DatabaseError
 
-from .permisos import MODULOS, modulos_usuario, rol_usuario, url_inicio_panel
+from .permisos import MODULOS, es_admin_sistema, modulos_usuario, rol_usuario, url_inicio_panel
 
 
 def _nombre_empresa():
@@ -43,6 +43,7 @@ def panel_usuario(request):
         context['usuario_nombre'] = nombre
         context['usuario_iniciales'] = iniciales
         context['usuario_rol'] = rol_usuario(request.user)
+        context['es_admin_sistema'] = es_admin_sistema(request.user)
         modulos = modulos_usuario(request.user)
         context['menu_permisos'] = {clave: clave in modulos for clave in MODULOS}
         context['url_inicio_panel'] = url_inicio_panel(request.user)

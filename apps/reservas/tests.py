@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from apps.clientes.models import Cliente
-from apps.vehiculos.models import Vehiculo
+from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
 from .models import Reserva
 from .services import actualizar_estado_vehiculo, limpiar_videos_entrega_vencidos
@@ -32,6 +32,7 @@ def crear_vehiculo(placa='A123456', tarifa=Decimal('2000.00'), **extra):
         'anio': 2022,
         'placa': placa,
         'tarifa_diaria': tarifa,
+        'categoria': CategoriaVehiculo.obtener_o_crear_default(),
     }
     defaults.update(extra)
     return Vehiculo.objects.create(**defaults)

@@ -1,7 +1,14 @@
-"""Permisos del panel por rol (Administrador / Empleado)."""
+"""Permisos del panel por rol (Administrador del sistema / Dueño / Empleado)."""
 
-GRUPO_ADMIN = 'Administrador'
+GRUPO_SISTEMA = 'Administrador del sistema'
+GRUPO_DUENO = 'Dueño del negocio'
 GRUPO_EMPLEADO = 'Empleado'
+
+# Nombre legacy del grupo admin (antes de separar roles).
+GRUPO_ADMIN_LEGACY = 'Administrador'
+
+# Alias interno por compatibilidad con imports existentes.
+GRUPO_ADMIN = GRUPO_SISTEMA
 
 MODULOS = {
     'dashboard': 'Dashboard',
@@ -26,10 +33,14 @@ MODULOS_EMPLEADO_DEFAULT = [
     'pagos',
 ]
 
-# Solo administradores (nunca se delega al grupo Empleado).
-MODULOS_SOLO_ADMIN = [
+# Solo administradores del sistema (Cloud Tech / superusuario).
+MODULOS_SOLO_SISTEMA = [
     'configuracion',
+    'sitio_web',
 ]
+
+# Alias legacy usado en formularios de empleados.
+MODULOS_SOLO_ADMIN = MODULOS_SOLO_SISTEMA
 
 ORDEN_INICIO_PANEL = [
     'dashboard',
@@ -90,10 +101,21 @@ def permiso_completo(modulo):
     return f'core.{permiso_codename(modulo)}'
 
 
-def es_admin(user):
+def es_admin_sistema(user):
     if not user.is_authenticated:
         return False
-    return user.is_superuser or user.groups.filter(name=GRUPO_ADMIN).exists()
+    return user.is_superuser or user.groups.filter(name=GRUPO_SISTEMA).exists()
+
+
+def es_dueno(user):
+    if not user.is_authenticated:
+        return False
+    return user.groups.filter(name=GRUPO_DUENO).exists()
+
+
+def es_admin(user):
+    """Rol elevado del negocio: dueño o administrador del sistema."""
+    return es_admin_sistema(user) or es_dueno(user)
 
 
 def es_empleado(user):
@@ -108,20 +130,27 @@ def es_empleado(user):
 def modulos_usuario(user):
     if not user.is_authenticated:
         return []
-    if es_admin(user):
+    if es_admin_sistema(user):
         return list(MODULOS.keys())
+    if es_dueno(user):
+        return [
+            modulo for modulo in MODULOS
+            if modulo not in MODULOS_SOLO_SISTEMA
+        ]
     from .sync_permisos import modulos_desde_permisos
     return [
         modulo for modulo in modulos_desde_permisos(user)
-        if modulo not in MODULOS_SOLO_ADMIN
+        if modulo not in MODULOS_SOLO_SISTEMA
     ]
 
 
 def puede_acceder(user, modulo):
-    if modulo in MODULOS_SOLO_ADMIN and not es_admin(user):
+    if modulo in MODULOS_SOLO_SISTEMA and not es_admin_sistema(user):
         return False
-    if es_admin(user):
+    if es_admin_sistema(user):
         return True
+    if es_dueno(user):
+        return modulo not in MODULOS_SOLO_SISTEMA
     return user.has_perm(permiso_completo(modulo))
 
 
@@ -154,8 +183,10 @@ def modulo_desde_ruta(path):
 def rol_usuario(user):
     if not user.is_authenticated:
         return ''
-    if es_admin(user):
-        return 'Administrador'
+    if es_admin_sistema(user):
+        return GRUPO_SISTEMA
+    if es_dueno(user):
+        return GRUPO_DUENO
     if es_empleado(user):
-        return 'Empleado'
+        return GRUPO_EMPLEADO
     return 'Sin rol'

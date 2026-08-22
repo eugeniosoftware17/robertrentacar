@@ -53,14 +53,14 @@
     {% endif %}
     {% endif %}
 
-    {% if menu_permisos.configuracion and usuario_rol == 'Administrador' %}
+    {% if menu_permisos.configuracion and es_admin_sistema %}
     <div class="nav-label">Sistema</div>
     <a class="nav-item" href="{% url 'configuracion:index' %}">Configuración</a>
     {% endif %}
-    {% if menu_permisos.sitio_web %}
+    {% if menu_permisos.sitio_web and es_admin_sistema %}
     <a class="nav-item" href="{% url 'sitio_web:panel_index' %}">Sitio web</a>
     {% endif %}
-    {% if user.is_superuser or user.is_staff %}
+    {% if user.is_superuser %}
     <a class="nav-item" href="/admin/" target="_blank">Admin Django</a>
     {% endif %}
   </nav>

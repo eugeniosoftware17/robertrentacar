@@ -42,10 +42,10 @@
     <h2>{% t 'home_elige_categoria' %}</h2>
     <p class="sitio-lead sitio-lead--sm">{% t 'home_elige_categoria_sub' %}</p>
     <div class="sitio-cat-grid">
-      {% for value, label in categorias_flota %}
-      <a href="{% url 'sitio:flota' %}?categoria={{ value }}" class="sitio-cat-card">
-        <span class="sitio-cat-nombre">{% t_categoria value %}</span>
-        <span class="sitio-cat-link">{% t 'home_ver' %} {% t_categoria value %} →</span>
+      {% for cat in categorias_flota %}
+      <a href="{% url 'sitio:flota' %}?categoria={{ cat.slug }}" class="sitio-cat-card">
+        <span class="sitio-cat-nombre">{{ cat.nombre }}</span>
+        <span class="sitio-cat-link">{% t 'home_ver' %} {{ cat.nombre }} →</span>
       </a>
       {% endfor %}
     </div>

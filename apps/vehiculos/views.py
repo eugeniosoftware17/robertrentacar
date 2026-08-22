@@ -1,30 +1,29 @@
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Count
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 
 from apps.core.utils import paginar_queryset
 
-from .forms import VehiculoForm
-from .models import Vehiculo, VehiculoFoto
+from .forms import CategoriaVehiculoForm, VehiculoForm
+from .models import CategoriaVehiculo, Vehiculo, VehiculoFoto
+from .queries import filtrar_vehiculos
 from .services import resumen_financiero
 
 
 def lista(request):
     busqueda = request.GET.get('q', '').strip()
+    letra = request.GET.get('letra', '').strip().upper()[:1]
     estado = request.GET.get('estado', '')
-    vehiculos = Vehiculo.objects.all()
+    categoria_id = request.GET.get('categoria', '')
 
-    if busqueda:
-        vehiculos = vehiculos.filter(
-            Q(marca__icontains=busqueda)
-            | Q(modelo__icontains=busqueda)
-            | Q(placa__icontains=busqueda)
-            | Q(color__icontains=busqueda)
-        )
+    vehiculos = Vehiculo.objects.select_related('categoria').all()
+    vehiculos = filtrar_vehiculos(vehiculos, termino=busqueda, letra=letra)
 
     if estado:
         vehiculos = vehiculos.filter(estado=estado)
+    if categoria_id:
+        vehiculos = vehiculos.filter(categoria_id=categoria_id)
 
     page_obj = paginar_queryset(request, vehiculos)
     query_string = request.GET.copy()
@@ -38,9 +37,86 @@ def lista(request):
         'page_obj': page_obj,
         'query_string': query_string,
         'busqueda': busqueda,
+        'letra_filtro': letra,
         'estado_filtro': estado,
+        'categoria_filtro': categoria_id,
         'estados': Vehiculo.Estado.choices,
+        'categorias': CategoriaVehiculo.objects.order_by('orden', 'nombre'),
+        'alfabeto': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
         'total': vehiculos.count(),
+    })
+
+
+def categorias_lista(request):
+    categorias = CategoriaVehiculo.objects.annotate(
+        total_vehiculos=Count('vehiculos'),
+    ).order_by('orden', 'nombre')
+
+    return render(request, 'vehiculos/categorias_lista.html', {
+        'page_title': 'Categorías de vehículos',
+        'page_subtitle': 'Tipos de vehículo para la flota y el sitio web',
+        'categorias': categorias,
+    })
+
+
+def categoria_crear(request):
+    if request.method == 'POST':
+        form = CategoriaVehiculoForm(request.POST)
+        if form.is_valid():
+            categoria = form.save()
+            messages.success(request, f'Categoría «{categoria.nombre}» creada.')
+            return redirect('vehiculos:categorias_lista')
+    else:
+        form = CategoriaVehiculoForm()
+
+    return render(request, 'vehiculos/categoria_form.html', {
+        'page_title': 'Nueva categoría',
+        'page_subtitle': 'Agregar tipo de vehículo',
+        'form': form,
+        'accion': 'crear',
+    })
+
+
+def categoria_editar(request, pk):
+    categoria = get_object_or_404(CategoriaVehiculo, pk=pk)
+
+    if request.method == 'POST':
+        form = CategoriaVehiculoForm(request.POST, instance=categoria)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Categoría «{categoria.nombre}» actualizada.')
+            return redirect('vehiculos:categorias_lista')
+    else:
+        form = CategoriaVehiculoForm(instance=categoria)
+
+    return render(request, 'vehiculos/categoria_form.html', {
+        'page_title': 'Editar categoría',
+        'page_subtitle': categoria.nombre,
+        'form': form,
+        'accion': 'editar',
+        'categoria': categoria,
+    })
+
+
+def categoria_eliminar(request, pk):
+    categoria = get_object_or_404(CategoriaVehiculo, pk=pk)
+
+    if request.method == 'POST':
+        nombre = categoria.nombre
+        try:
+            categoria.delete()
+            messages.success(request, f'Categoría «{nombre}» eliminada.')
+        except ProtectedError:
+            messages.error(
+                request,
+                f'No se puede eliminar «{nombre}»: tiene vehículos asignados.',
+            )
+        return redirect('vehiculos:categorias_lista')
+
+    return render(request, 'vehiculos/categoria_confirmar_eliminar.html', {
+        'page_title': 'Eliminar categoría',
+        'page_subtitle': categoria.nombre,
+        'categoria': categoria,
     })
 
 

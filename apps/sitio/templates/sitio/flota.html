@@ -15,8 +15,8 @@
     <form method="get" class="sitio-filtros">
       <select name="categoria" class="sitio-input">
         <option value="">{% t 'flota_todas_categorias' %}</option>
-        {% for value, label in categorias %}
-        <option value="{{ value }}" {% if categoria_filtro == value %}selected{% endif %}>{% t_categoria value %}</option>
+        {% for cat in categorias %}
+        <option value="{{ cat.slug }}" {% if categoria_filtro == cat.slug %}selected{% endif %}>{{ cat.nombre }}</option>
         {% endfor %}
       </select>
       <select name="transmision" class="sitio-input">

@@ -52,10 +52,11 @@ class FinanzasPanelTests(TestCase):
         self.assertEqual(pago.monto, Decimal('25000.00'))
 
     def test_admin_puede_crear_gasto_vinculado_a_vehiculo(self):
-        from apps.vehiculos.models import Vehiculo
+        from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
         vehiculo = Vehiculo.objects.create(
             marca='Honda', modelo='CRV', anio=2021, placa='GX00001', tarifa_diaria=Decimal('3000.00'),
+            categoria=CategoriaVehiculo.obtener_o_crear_default(),
         )
         self.client.force_login(self.admin)
         respuesta = self.client.post(reverse('finanzas:gasto_crear'), {

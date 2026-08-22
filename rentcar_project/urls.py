@@ -13,6 +13,7 @@ urlpatterns = [
     path('', include('apps.sitio.urls')),
     path(_panel, include([
         path('', core_views.dashboard, name='dashboard'),
+        path('buscar/', core_views.buscar_global, name='buscar_global'),
         path('vehiculos/', include('apps.vehiculos.urls')),
         path('clientes/', include('apps.clientes.urls')),
         path('reservas/', include('apps.reservas.urls')),

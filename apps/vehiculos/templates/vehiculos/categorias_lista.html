@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Categorías{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'vehiculos/vehiculos.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-toolbar">
+  <a href="{% url 'vehiculos:lista' %}" class="mod-btn mod-btn-sec">← Volver a vehículos</a>
+  <a href="{% url 'vehiculos:categoria_crear' %}" class="mod-btn mod-btn-prim">+ Nueva categoría</a>
+</div>
+
+<div class="mod-card">
+  <div class="mod-card-head">
+    <div>
+      <div class="mod-card-titulo">Categorías de vehículos</div>
+      <div class="mod-card-hint">Se usan en la flota, filtros del sitio web y formularios</div>
+    </div>
+  </div>
+
+  {% if categorias %}
+  <div class="mod-tabla-wrap">
+    <table class="mod-tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Identificador</th>
+          <th>Vehículos</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for categoria in categorias %}
+        <tr>
+          <td>{{ categoria.nombre }}</td>
+          <td><code>{{ categoria.slug }}</code></td>
+          <td>{{ categoria.total_vehiculos }}</td>
+          <td>
+            {% if categoria.activa %}
+            <span class="mod-badge verde">Activa</span>
+            {% else %}
+            <span class="mod-badge amarillo">Inactiva</span>
+            {% endif %}
+          </td>
+          <td class="mod-acciones">
+            <a href="{% url 'vehiculos:categoria_editar' categoria.pk %}" class="mod-link">Editar</a>
+            <a href="{% url 'vehiculos:categoria_eliminar' categoria.pk %}" class="mod-link rojo">Eliminar</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="mod-vacio">
+    <p>No hay categorías. Crea la primera para clasificar tus vehículos.</p>
+    <a href="{% url 'vehiculos:categoria_crear' %}" class="mod-btn mod-btn-prim">Nueva categoría</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

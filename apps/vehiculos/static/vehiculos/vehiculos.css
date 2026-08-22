@@ -199,10 +199,51 @@
 .mod-vacio p,
 .mod-confirm p { margin-bottom: 16px; }
 
+.mod-toolbar-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.mod-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.veh-letras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.veh-letra {
+  min-width: 2rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.veh-letra:hover,
+.veh-letra.is-active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  color: var(--accent);
+}
+
 @media (max-width: 760px) {
   .mod-grid { grid-template-columns: 1fr; }
-  .mod-buscar { flex-direction: column; }
+  .mod-buscar { flex-direction: column; min-width: 0; width: 100%; }
   .mod-select { max-width: none; }
+  .mod-toolbar-actions { width: 100%; }
+  .mod-toolbar-actions .mod-btn { flex: 1; }
+  .veh-letras { justify-content: center; }
 }
 
 .veh-galeria-head {

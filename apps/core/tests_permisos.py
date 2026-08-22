@@ -5,8 +5,9 @@ from django.urls import reverse
 
 from apps.core.models import AccesoModulo
 from apps.core.permisos import (
-    GRUPO_ADMIN,
+    GRUPO_DUENO,
     GRUPO_EMPLEADO,
+    GRUPO_SISTEMA,
     modulos_usuario,
     puede_acceder,
     url_inicio_panel,
@@ -25,15 +26,34 @@ class PermisosPanelTests(TestCase):
             email='admin@example.com',
             password='clave-segura-123',
         )
+        self.dueno = User.objects.create_user(
+            username='duenoperm',
+            password='clave-segura-123',
+        )
+        Group.objects.get(name=GRUPO_DUENO).user_set.add(self.dueno)
         self.empleado = User.objects.create_user(
             username='empleadoperm',
             password='clave-segura-123',
         )
         Group.objects.get(name=GRUPO_EMPLEADO).user_set.add(self.empleado)
 
-    def test_admin_ve_configuracion(self):
+    def test_admin_sistema_ve_configuracion_y_sitio(self):
         self.assertIn('configuracion', modulos_usuario(self.admin))
+        self.assertIn('sitio_web', modulos_usuario(self.admin))
         self.assertTrue(puede_acceder(self.admin, 'configuracion'))
+        self.assertTrue(puede_acceder(self.admin, 'sitio_web'))
+
+    def test_dueno_no_ve_configuracion_ni_sitio(self):
+        self.assertNotIn('configuracion', modulos_usuario(self.dueno))
+        self.assertNotIn('sitio_web', modulos_usuario(self.dueno))
+        self.assertFalse(puede_acceder(self.dueno, 'configuracion'))
+        self.assertFalse(puede_acceder(self.dueno, 'sitio_web'))
+
+    def test_dueno_si_ve_operaciones(self):
+        self.assertIn('reservas', modulos_usuario(self.dueno))
+        self.assertIn('finanzas', modulos_usuario(self.dueno))
+        self.assertTrue(puede_acceder(self.dueno, 'reservas'))
+        self.assertTrue(puede_acceder(self.dueno, 'finanzas'))
 
     def test_empleado_no_ve_configuracion(self):
         AccesoModulo.objects.filter(modulo='configuracion').update(permitido=True)
@@ -59,7 +79,6 @@ class PermisosPanelTests(TestCase):
             'clientes': False,
             'pagos': False,
             'reportes': False,
-            'sitio_web': False,
             'finanzas': False,
         })
         self.assertTrue(form.is_valid(), form.errors)
@@ -73,32 +92,42 @@ class PermisosPanelTests(TestCase):
         respuesta = self.client.get(reverse('finanzas:index'))
         self.assertEqual(respuesta.status_code, 403)
 
-    def test_crear_usuario_empleado_desde_formulario(self):
+    def test_crear_usuario_dueno_desde_formulario(self):
         from apps.configuracion.forms import CrearUsuarioPanelForm
 
         form = CrearUsuarioPanelForm({
-            'username': 'nuevoemp',
+            'username': 'nuevodueno',
             'first_name': 'Nuevo',
-            'last_name': 'Empleado',
+            'last_name': 'Dueño',
             'password1': 'clave-segura-123',
             'password2': 'clave-segura-123',
-            'rol': GRUPO_EMPLEADO,
+            'rol': GRUPO_DUENO,
         })
         self.assertTrue(form.is_valid(), form.errors)
         user = form.guardar()
-        self.assertTrue(user.groups.filter(name=GRUPO_EMPLEADO).exists())
-        self.assertTrue(modulos_usuario(user))
+        self.assertTrue(user.groups.filter(name=GRUPO_DUENO).exists())
+        self.assertNotIn('configuracion', modulos_usuario(user))
 
-    def test_configuracion_solo_admin_en_panel(self):
+    def test_configuracion_solo_admin_sistema_en_panel(self):
         self.client.force_login(self.empleado)
-        respuesta = self.client.get(reverse('configuracion:index'))
+        self.assertEqual(self.client.get(reverse('configuracion:index')).status_code, 403)
+
+        self.client.force_login(self.dueno)
+        self.assertEqual(self.client.get(reverse('configuracion:index')).status_code, 403)
+
+        self.client.force_login(self.admin)
+        self.assertEqual(self.client.get(reverse('configuracion:index')).status_code, 200)
+
+    def test_dueno_recibe_403_en_sitio_web(self):
+        self.client.force_login(self.dueno)
+        respuesta = self.client.get(reverse('sitio_web:panel_index'))
         self.assertEqual(respuesta.status_code, 403)
 
-        admin_user = User.objects.create_user(
-            username='adminpanel',
-            password='clave-segura-123',
-        )
-        Group.objects.get(name=GRUPO_ADMIN).user_set.add(admin_user)
-        self.client.force_login(admin_user)
-        respuesta = self.client.get(reverse('configuracion:index'))
-        self.assertEqual(respuesta.status_code, 200)
+    def test_migracion_grupo_admin_legacy_mueve_duenos(self):
+        legacy = Group.objects.create(name='Administrador')
+        usuario = User.objects.create_user(username='legacydueno', password='clave-segura-123')
+        legacy.user_set.add(usuario)
+        sincronizar_permisos_grupos()
+        usuario.refresh_from_db()
+        self.assertFalse(Group.objects.filter(name='Administrador').exists())
+        self.assertTrue(usuario.groups.filter(name=GRUPO_DUENO).exists())

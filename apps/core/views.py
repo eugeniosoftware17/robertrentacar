@@ -247,3 +247,64 @@ def dashboard(request):
         'alertas': alertas[:6],
         'grafica_datos': grafica_datos,
     })
+
+
+def buscar_global(request):
+    from django.http import JsonResponse
+    from django.urls import reverse
+
+    from apps.clientes.models import Cliente
+    from apps.core.permisos import puede_acceder
+    from apps.vehiculos.queries import filtrar_vehiculos
+
+    termino = request.GET.get('q', '').strip()
+    if len(termino) < 1:
+        return JsonResponse({'resultados': []})
+
+    resultados = []
+
+    if puede_acceder(request.user, 'vehiculos'):
+        vehiculos = filtrar_vehiculos(
+            Vehiculo.objects.select_related('categoria').all(),
+            termino=termino,
+        )[:6]
+        for vehiculo in vehiculos:
+            resultados.append({
+                'tipo': 'Vehículo',
+                'titulo': vehiculo.nombre_corto,
+                'subtitulo': f'{vehiculo.placa} · {vehiculo.categoria.nombre}',
+                'url': reverse('vehiculos:editar', kwargs={'pk': vehiculo.pk}),
+            })
+
+    if puede_acceder(request.user, 'clientes'):
+        clientes = Cliente.objects.filter(
+            Q(nombre__icontains=termino)
+            | Q(apellido__icontains=termino)
+            | Q(documento__icontains=termino)
+            | Q(telefono__icontains=termino)
+        )[:5]
+        for cliente in clientes:
+            resultados.append({
+                'tipo': 'Cliente',
+                'titulo': cliente.nombre_completo,
+                'subtitulo': cliente.telefono or cliente.documento,
+                'url': reverse('clientes:editar', kwargs={'pk': cliente.pk}),
+            })
+
+    if puede_acceder(request.user, 'reservas'):
+        reservas = Reserva.objects.select_related('cliente', 'vehiculo').filter(
+            Q(cliente__nombre__icontains=termino)
+            | Q(cliente__apellido__icontains=termino)
+            | Q(vehiculo__placa__icontains=termino)
+            | Q(vehiculo__marca__icontains=termino)
+            | Q(vehiculo__modelo__icontains=termino)
+        ).exclude(estado=Reserva.Estado.CANCELADA)[:5]
+        for reserva in reservas:
+            resultados.append({
+                'tipo': 'Reserva',
+                'titulo': f'Reserva #{reserva.pk}',
+                'subtitulo': f'{reserva.cliente.nombre_completo} · {reserva.vehiculo.placa}',
+                'url': reverse('reservas:editar', kwargs={'pk': reserva.pk}),
+            })
+
+    return JsonResponse({'resultados': resultados[:12]})

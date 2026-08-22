@@ -8,25 +8,42 @@
 {% endblock %}
 
 {% block content %}
-<div class="mod-toolbar">
-  <form class="mod-buscar" method="get">
-    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por marca, modelo o placa..." class="mod-input" />
+<div class="mod-toolbar mod-toolbar-stack">
+  <form class="mod-buscar" method="get" id="vehiculosBuscarForm">
+    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar por letra, marca, modelo, placa..." class="mod-input" autocomplete="off" />
+    <select name="categoria" class="mod-input mod-select">
+      <option value="">Todas las categorías</option>
+      {% for cat in categorias %}
+      <option value="{{ cat.pk }}" {% if categoria_filtro|stringformat:"s" == cat.pk|stringformat:"s" %}selected{% endif %}>{{ cat.nombre }}</option>
+      {% endfor %}
+    </select>
     <select name="estado" class="mod-input mod-select">
       <option value="">Todos los estados</option>
       {% for value, label in estados %}
       <option value="{{ value }}" {% if estado_filtro == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
+    {% if letra_filtro %}<input type="hidden" name="letra" value="{{ letra_filtro }}" />{% endif %}
     <button type="submit" class="mod-btn mod-btn-sec">Filtrar</button>
   </form>
-  <a href="{% url 'vehiculos:crear' %}" class="mod-btn mod-btn-prim">+ Nuevo vehículo</a>
+  <div class="mod-toolbar-actions">
+    <a href="{% url 'vehiculos:categorias_lista' %}" class="mod-btn mod-btn-sec">Categorías</a>
+    <a href="{% url 'vehiculos:crear' %}" class="mod-btn mod-btn-prim">+ Nuevo vehículo</a>
+  </div>
+</div>
+
+<div class="veh-letras" aria-label="Filtrar por letra inicial">
+  <a href="?{% if busqueda %}q={{ busqueda|urlencode }}&amp;{% endif %}{% if categoria_filtro %}categoria={{ categoria_filtro }}&amp;{% endif %}{% if estado_filtro %}estado={{ estado_filtro }}{% endif %}" class="veh-letra {% if not letra_filtro %}is-active{% endif %}">Todas</a>
+  {% for letra in alfabeto %}
+  <a href="?letra={{ letra }}{% if busqueda %}&amp;q={{ busqueda|urlencode }}{% endif %}{% if categoria_filtro %}&amp;categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&amp;estado={{ estado_filtro }}{% endif %}" class="veh-letra {% if letra_filtro == letra %}is-active{% endif %}">{{ letra }}</a>
+  {% endfor %}
 </div>
 
 <div class="mod-card">
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Flota de vehículos</div>
-      <div class="mod-card-hint">{{ total }} vehículo{{ total|pluralize:"s" }}</div>
+      <div class="mod-card-hint">{{ total }} vehículo{{ total|pluralize:"s" }}{% if letra_filtro %} · letra {{ letra_filtro }}{% endif %}</div>
     </div>
   </div>
 
@@ -51,7 +68,7 @@
             <div class="mod-sub">{{ vehiculo.color|default:"Sin color" }}</div>
           </td>
           <td>{{ vehiculo.placa }}</td>
-          <td>{{ vehiculo.get_categoria_display }}</td>
+          <td>{{ vehiculo.categoria.nombre }}</td>
           <td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td>
           <td>
             {% if vehiculo.estado == 'disponible' %}
@@ -74,7 +91,7 @@
   </div>
   {% else %}
   <div class="mod-vacio">
-    <p>No hay vehículos registrados.</p>
+    <p>No hay vehículos con estos filtros.</p>
     <a href="{% url 'vehiculos:crear' %}" class="mod-btn mod-btn-prim">Agregar vehículo</a>
   </div>
   {% endif %}

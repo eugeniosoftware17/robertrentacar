@@ -85,7 +85,7 @@ def vehiculos_relacionados(vehiculo, por_grupo=3):
                 'filtro_transmision': filtro_transmision,
             })
 
-    cat = vehiculo.get_categoria_display()
+    cat = vehiculo.categoria.nombre if vehiculo.categoria_id else ''
     trans = vehiculo.get_transmision_display()
 
     tomar(

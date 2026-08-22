@@ -12,7 +12,7 @@
   </div>
   <div style="padding: 1.5rem;">
     <p>Tu usuario <strong>{{ user.username }}</strong> puede iniciar sesión, pero no tiene un rol configurado.</p>
-    <p>El administrador debe asignarte al grupo <strong>Empleado</strong> o <strong>Administrador</strong> desde Admin Django → Usuarios.</p>
+    <p>El administrador del sistema debe asignarte al grupo <strong>Empleado</strong> o <strong>Dueño del negocio</strong>.</p>
     <form method="post" action="{% url 'cuentas:logout' %}" style="margin-top: 1rem;">
       {% csrf_token %}
       <button type="submit" class="mod-btn mod-btn-sec">Cerrar sesión</button>

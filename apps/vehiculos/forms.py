@@ -1,6 +1,22 @@
 from django import forms
 
-from .models import Vehiculo
+from .models import CategoriaVehiculo, Vehiculo
+
+
+class CategoriaVehiculoForm(forms.ModelForm):
+    class Meta:
+        model = CategoriaVehiculo
+        fields = ['nombre', 'slug', 'activa', 'orden']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'SUV'}),
+            'slug': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'suv (opcional, se genera solo)'}),
+            'orden': forms.NumberInput(attrs={'class': 'mod-input', 'min': '0'}),
+            'activa': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['slug'].required = False
 
 
 class VehiculoForm(forms.ModelForm):
@@ -54,3 +70,9 @@ class VehiculoForm(forms.ModelForm):
             'prox_mantenimiento': forms.DateInput(attrs={'class': 'mod-input', 'type': 'date'}),
             'activo': forms.CheckboxInput(attrs={'class': 'mod-check'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['categoria'].queryset = CategoriaVehiculo.objects.filter(activa=True).order_by('orden', 'nombre')
+        if not self.fields['categoria'].queryset.exists():
+            self.fields['categoria'].queryset = CategoriaVehiculo.objects.all().order_by('orden', 'nombre')

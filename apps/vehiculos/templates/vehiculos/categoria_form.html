@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if accion == 'crear' %}Nueva categoría{% else %}Editar categoría{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/modulo.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="mod-card mod-form-card">
+  <form method="post" class="mod-form">
+    {% csrf_token %}
+    <div class="mod-grid">
+      {% for field in form %}
+      <div class="mod-field {% if field.field.widget.input_type == 'checkbox' %}mod-field-check{% endif %}">
+        {% if field.field.widget.input_type == 'checkbox' %}
+        <label class="mod-check-label">{{ field }} <span>{{ field.label }}</span></label>
+        {% else %}
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% endif %}
+        {% if field.errors %}<div class="mod-field-error">{{ field.errors|join:', ' }}</div>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="mod-form-actions">
+      <button type="submit" class="mod-btn mod-btn-prim">Guardar</button>
+      <a href="{% url 'vehiculos:categorias_lista' %}" class="mod-btn mod-btn-sec">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

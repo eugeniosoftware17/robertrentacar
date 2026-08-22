@@ -10,7 +10,7 @@ from apps.finanzas.models import Gasto
 from apps.mantenimiento.models import Mantenimiento
 from apps.reservas.models import Reserva
 
-from .models import Vehiculo
+from .models import CategoriaVehiculo, Vehiculo
 from .services import resumen_financiero
 
 
@@ -24,6 +24,7 @@ class ResumenFinancieroTests(TestCase):
             placa='RF00001',
             tarifa_diaria=Decimal('2000.00'),
             precio_compra=Decimal('900000.00'),
+            categoria=CategoriaVehiculo.obtener_o_crear_default(),
         )
         self.cliente = Cliente.objects.create(
             nombre='Juan',
@@ -122,6 +123,7 @@ class FotoUrlTests(TestCase):
             anio=2021,
             placa='FT00001',
             tarifa_diaria=Decimal('1500.00'),
+            categoria=CategoriaVehiculo.obtener_o_crear_default(),
         )
 
     def test_sin_foto_ni_link_no_hay_fotos(self):

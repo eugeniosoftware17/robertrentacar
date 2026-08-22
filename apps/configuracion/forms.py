@@ -4,7 +4,13 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 
 from apps.core.models import AccesoModulo
-from apps.core.permisos import GRUPO_ADMIN, GRUPO_EMPLEADO, MODULOS, MODULOS_SOLO_ADMIN
+from apps.core.permisos import (
+    GRUPO_DUENO,
+    GRUPO_EMPLEADO,
+    GRUPO_SISTEMA,
+    MODULOS,
+    MODULOS_SOLO_SISTEMA,
+)
 
 from .models import ConfiguracionEmpresa
 
@@ -39,7 +45,7 @@ class PermisosEmpleadoForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for clave, etiqueta in MODULOS.items():
-            if clave in MODULOS_SOLO_ADMIN:
+            if clave in MODULOS_SOLO_SISTEMA:
                 continue
             self.fields[clave] = forms.BooleanField(
                 label=etiqueta,
@@ -54,13 +60,13 @@ class PermisosEmpleadoForm(forms.Form):
         initial = {
             clave: clave in permitidos
             for clave in MODULOS
-            if clave not in MODULOS_SOLO_ADMIN
+            if clave not in MODULOS_SOLO_SISTEMA
         }
         return cls(initial=initial)
 
     def guardar(self):
         for clave in MODULOS:
-            if clave in MODULOS_SOLO_ADMIN:
+            if clave in MODULOS_SOLO_SISTEMA:
                 AccesoModulo.objects.filter(modulo=clave).update(permitido=False)
                 continue
             permitido = self.cleaned_data.get(clave, False)
@@ -74,7 +80,8 @@ class PermisosEmpleadoForm(forms.Form):
 
 class CrearUsuarioPanelForm(forms.Form):
     ROL_EMPLEADO = GRUPO_EMPLEADO
-    ROL_ADMIN = GRUPO_ADMIN
+    ROL_DUENO = GRUPO_DUENO
+    ROL_SISTEMA = GRUPO_SISTEMA
 
     username = forms.CharField(
         label='Usuario',
@@ -105,10 +112,26 @@ class CrearUsuarioPanelForm(forms.Form):
         label='Rol',
         choices=[
             (ROL_EMPLEADO, 'Empleado'),
-            (ROL_ADMIN, 'Administrador'),
+            (ROL_DUENO, 'Dueño del negocio'),
+            (ROL_SISTEMA, 'Administrador del sistema'),
         ],
         widget=forms.Select(attrs={'class': 'mod-input'}),
     )
+
+    def __init__(self, *args, puede_crear_sistema=True, **kwargs):
+        self.puede_crear_sistema = puede_crear_sistema
+        super().__init__(*args, **kwargs)
+        if not puede_crear_sistema:
+            self.fields['rol'].choices = [
+                (self.ROL_EMPLEADO, 'Empleado'),
+                (self.ROL_DUENO, 'Dueño del negocio'),
+            ]
+
+    def clean_rol(self):
+        rol = self.cleaned_data.get('rol')
+        if rol == self.ROL_SISTEMA and not self.puede_crear_sistema:
+            raise ValidationError('No puedes asignar el rol de administrador del sistema.')
+        return rol
 
     def clean_username(self):
         username = self.cleaned_data['username'].strip()
@@ -139,14 +162,16 @@ class CrearUsuarioPanelForm(forms.Form):
 
 class EditarUsuarioPanelForm(forms.Form):
     ROL_EMPLEADO = GRUPO_EMPLEADO
-    ROL_ADMIN = GRUPO_ADMIN
+    ROL_DUENO = GRUPO_DUENO
+    ROL_SISTEMA = GRUPO_SISTEMA
     ROL_NINGUNO = 'ninguno'
 
     rol = forms.ChoiceField(
         label='Rol',
         choices=[
             (ROL_EMPLEADO, 'Empleado'),
-            (ROL_ADMIN, 'Administrador'),
+            (ROL_DUENO, 'Dueño del negocio'),
+            (ROL_SISTEMA, 'Administrador del sistema'),
             (ROL_NINGUNO, 'Sin rol'),
         ],
         widget=forms.Select(attrs={'class': 'mod-input'}),
@@ -167,12 +192,28 @@ class EditarUsuarioPanelForm(forms.Form):
         widget=forms.PasswordInput(attrs={'class': 'mod-input', 'autocomplete': 'new-password'}),
     )
 
-    def __init__(self, *args, usuario=None, **kwargs):
+    def __init__(self, *args, usuario=None, puede_asignar_sistema=True, **kwargs):
         self.usuario = usuario
+        self.puede_asignar_sistema = puede_asignar_sistema
         super().__init__(*args, **kwargs)
         if usuario:
             self.fields['rol'].initial = _rol_actual(usuario)
             self.fields['is_active'].initial = usuario.is_active
+        if not puede_asignar_sistema:
+            opciones = [
+                (self.ROL_EMPLEADO, 'Empleado'),
+                (self.ROL_DUENO, 'Dueño del negocio'),
+                (self.ROL_NINGUNO, 'Sin rol'),
+            ]
+            if usuario and _rol_actual(usuario) == self.ROL_SISTEMA:
+                opciones.insert(2, (self.ROL_SISTEMA, 'Administrador del sistema'))
+            self.fields['rol'].choices = opciones
+
+    def clean_rol(self):
+        rol = self.cleaned_data.get('rol')
+        if rol == self.ROL_SISTEMA and not self.puede_asignar_sistema:
+            raise ValidationError('No puedes asignar el rol de administrador del sistema.')
+        return rol
 
     def clean(self):
         cleaned = super().clean()
@@ -198,19 +239,24 @@ class EditarUsuarioPanelForm(forms.Form):
 
 
 def _rol_actual(user):
-    if user.groups.filter(name=GRUPO_ADMIN).exists():
-        return GRUPO_ADMIN
+    if user.groups.filter(name=GRUPO_SISTEMA).exists():
+        return GRUPO_SISTEMA
+    if user.groups.filter(name=GRUPO_DUENO).exists():
+        return GRUPO_DUENO
     if user.groups.filter(name=GRUPO_EMPLEADO).exists():
         return GRUPO_EMPLEADO
     return EditarUsuarioPanelForm.ROL_NINGUNO
 
 
 def _asignar_rol_panel(user, rol):
-    admin = Group.objects.get(name=GRUPO_ADMIN)
+    sistema = Group.objects.get(name=GRUPO_SISTEMA)
+    dueno = Group.objects.get(name=GRUPO_DUENO)
     empleado = Group.objects.get(name=GRUPO_EMPLEADO)
-    user.groups.remove(admin, empleado)
+    user.groups.remove(sistema, dueno, empleado)
     user.user_permissions.clear()
-    if rol == GRUPO_ADMIN:
-        user.groups.add(admin)
+    if rol == GRUPO_SISTEMA:
+        user.groups.add(sistema)
+    elif rol == GRUPO_DUENO:
+        user.groups.add(dueno)
     elif rol == GRUPO_EMPLEADO:
         user.groups.add(empleado)

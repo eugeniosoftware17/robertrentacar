@@ -6,18 +6,47 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 
+class CategoriaVehiculo(models.Model):
+    nombre = models.CharField('Nombre', max_length=60)
+    slug = models.SlugField('Identificador', max_length=40, unique=True)
+    activa = models.BooleanField('Activa', default=True)
+    orden = models.PositiveSmallIntegerField('Orden', default=0)
+
+    class Meta:
+        ordering = ['orden', 'nombre']
+        verbose_name = 'Categoría de vehículo'
+        verbose_name_plural = 'Categorías de vehículo'
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.nombre) or 'categoria'
+        base = self.slug
+        n = 2
+        while CategoriaVehiculo.objects.filter(slug=self.slug).exclude(pk=self.pk).exists():
+            self.slug = f'{base}-{n}'
+            n += 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def obtener_o_crear_default(cls):
+        obj = cls.objects.filter(activa=True).order_by('orden', 'pk').first()
+        if obj:
+            return obj
+        return cls.objects.create(nombre='General', slug='general', orden=0)
+
+    @classmethod
+    def activas(cls):
+        return cls.objects.filter(activa=True).order_by('orden', 'nombre')
+
+
 class Vehiculo(models.Model):
     class Estado(models.TextChoices):
         DISPONIBLE = 'disponible', 'Disponible'
         RENTADO = 'rentado', 'Rentado'
         MANTENIMIENTO = 'mantenimiento', 'En mantenimiento'
-
-    class Categoria(models.TextChoices):
-        SEDAN = 'sedan', 'Sedán'
-        SUV = 'suv', 'SUV'
-        PICKUP = 'pickup', 'Pick-up'
-        VAN = 'van', 'Van'
-        LUJO = 'lujo', 'Lujo'
 
     class Transmision(models.TextChoices):
         MANUAL = 'manual', 'Manual'
@@ -35,11 +64,11 @@ class Vehiculo(models.Model):
         blank=True,
         help_text='Enlace público, ej. toyota-corolla-2022',
     )
-    categoria = models.CharField(
-        'Categoría',
-        max_length=20,
-        choices=Categoria.choices,
-        default=Categoria.SEDAN,
+    categoria = models.ForeignKey(
+        CategoriaVehiculo,
+        on_delete=models.PROTECT,
+        related_name='vehiculos',
+        verbose_name='Categoría',
     )
     transmision = models.CharField(
         'Transmisión',

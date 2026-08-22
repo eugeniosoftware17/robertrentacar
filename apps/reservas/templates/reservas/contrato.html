@@ -36,7 +36,7 @@
     <section>
       <h2>Vehículo</h2>
       <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}</p>
-      <p>Categoría: {{ reserva.vehiculo.get_categoria_display }} · Tarifa diaria RD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
+      <p>Categoría: {{ reserva.vehiculo.categoria.nombre }} · Tarifa diaria RD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
     </section>
 
     <section>

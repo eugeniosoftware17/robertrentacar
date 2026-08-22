@@ -17,12 +17,13 @@
   </div>
 
   <div class="topbar-center">
-    <div class="topbar-buscador">
+    <div class="topbar-buscador" id="globalSearchWrap">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="11" cy="11" r="7" />
         <path d="m20 20-3.5-3.5" />
       </svg>
-      <input type="text" placeholder="Buscar..." id="globalSearch" />
+      <input type="search" placeholder="Buscar vehículos, clientes, reservas..." id="globalSearch" autocomplete="off" aria-controls="globalSearchPanel" aria-expanded="false" data-search-url="{% url 'buscar_global' %}" />
+      <div class="topbar-search-panel" id="globalSearchPanel" hidden role="listbox" aria-label="Resultados de búsqueda"></div>
     </div>
   </div>
 

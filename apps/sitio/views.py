@@ -17,9 +17,9 @@ PAGINA_PREVIEW_SESSION_KEY = 'sitio_pagina_preview'
 SITIO_PREVIEW_IMAGENES = ('home_fondo_imagen', 'logo', 'favicon')
 
 from apps.configuracion.models import ConfiguracionEmpresa
-from apps.core.permisos import es_admin
+from apps.core.permisos import es_admin_sistema
 from apps.core.utils import paginar_queryset
-from apps.vehiculos.models import Vehiculo
+from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
 from .forms import ConfiguracionSitioForm, PaginaInformativaForm, ReservaWebForm
 from .i18n import COOKIE_IDIOMA, idioma_actual
@@ -58,7 +58,7 @@ def _contexto_home(request, sitio=None):
     if not ctx['destacados']:
         ctx['destacados'] = publicos[:6]
     ctx['total_vehiculos'] = publicos.count()
-    ctx['categorias_flota'] = Vehiculo.Categoria.choices
+    ctx['categorias_flota'] = CategoriaVehiculo.activas()
     ctx['meta_description'] = meta_descripcion_home(ctx['empresa'], ctx['sitio'], ctx['idioma'])
     return ctx
 
@@ -195,7 +195,7 @@ def flota(request):
     fecha_fin = request.GET.get('hasta', '')
 
     if categoria:
-        qs = qs.filter(categoria=categoria)
+        qs = qs.filter(categoria__slug=categoria)
     if transmision:
         qs = qs.filter(transmision=transmision)
 
@@ -220,7 +220,7 @@ def flota(request):
         'transmision_filtro': transmision,
         'fecha_inicio': fecha_inicio,
         'fecha_fin': fecha_fin,
-        'categorias': Vehiculo.Categoria.choices,
+        'categorias': CategoriaVehiculo.activas(),
         'transmisiones': Vehiculo.Transmision.choices,
         'meta_description': meta_descripcion_flota(ctx['empresa'], ctx['idioma']),
     })
@@ -388,7 +388,7 @@ def panel_index(request):
     config = ConfiguracionSitio.obtener()
     paginas = PaginaInformativa.objects.all()
     pestana_activa = 'inicio'
-    restringir_avanzado = not es_admin(request.user)
+    restringir_avanzado = not es_admin_sistema(request.user)
 
     if request.method == 'POST':
         form = ConfiguracionSitioForm(
@@ -452,7 +452,7 @@ def panel_vista_previa_home(request):
 
 
 def panel_pagina_crear(request):
-    restringir_avanzado = not es_admin(request.user)
+    restringir_avanzado = not es_admin_sistema(request.user)
     if request.method == 'POST':
         form = PaginaInformativaForm(request.POST, restringir_avanzado=restringir_avanzado)
         if 'vista_previa_pagina' in request.POST:
@@ -477,7 +477,7 @@ def panel_pagina_crear(request):
 
 def panel_pagina_editar(request, pk):
     pagina_obj = get_object_or_404(PaginaInformativa, pk=pk)
-    restringir_avanzado = not es_admin(request.user)
+    restringir_avanzado = not es_admin_sistema(request.user)
     if request.method == 'POST':
         form = PaginaInformativaForm(request.POST, instance=pagina_obj, restringir_avanzado=restringir_avanzado)
         if 'vista_previa_pagina' in request.POST:

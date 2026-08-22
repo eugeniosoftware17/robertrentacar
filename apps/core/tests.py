@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from apps.vehiculos.models import Vehiculo
+from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
 
 def crear_vehiculo(placa, **extra):
@@ -17,6 +17,7 @@ def crear_vehiculo(placa, **extra):
         'placa': placa,
         'tarifa_diaria': Decimal('2000.00'),
         'activo': True,
+        'categoria': CategoriaVehiculo.obtener_o_crear_default(),
     }
     defaults.update(extra)
     return Vehiculo.objects.create(**defaults)
