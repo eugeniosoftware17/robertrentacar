@@ -147,3 +147,46 @@ class FotoUrlTests(TestCase):
         fotos = self.vehiculo.fotos_para_web()
         self.assertEqual(len(fotos), 1)
         self.assertIn('kia', fotos[0].url)
+
+
+class FiltrarVehiculosTests(TestCase):
+    def setUp(self):
+        self.categoria = CategoriaVehiculo.objects.create(nombre='SUV', slug='suv')
+        self.vehiculo = Vehiculo.objects.create(
+            marca='Honda',
+            modelo='CRV',
+            anio=2021,
+            placa='BX12345',
+            slug='honda-crv-2021',
+            categoria=self.categoria,
+            transmision=Vehiculo.Transmision.AUTOMATICO,
+            tarifa_diaria=Decimal('3500.00'),
+            precio_compra=Decimal('950000.00'),
+            color='Blanco',
+            kilometraje=42000,
+            descripcion_web='Perfecto para familias',
+            visible_en_web=True,
+            estado=Vehiculo.Estado.DISPONIBLE,
+            seguro_vence=timezone.localdate().replace(month=12, day=31),
+        )
+
+    def _filtrar(self, termino=''):
+        from .queries import filtrar_vehiculos
+
+        return list(filtrar_vehiculos(Vehiculo.objects.all(), termino=termino))
+
+    def test_busca_por_campos_de_texto(self):
+        self.assertEqual(self._filtrar('honda')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('bx12345')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('blanco')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('familias')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('suv')[0], self.vehiculo)
+
+    def test_busca_por_etiquetas_numericas_y_estado(self):
+        self.assertEqual(self._filtrar('2021')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('3500')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('42000')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('disponible')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('automatico')[0], self.vehiculo)
+        self.assertEqual(self._filtrar('web')[0], self.vehiculo)
+
