@@ -4,7 +4,6 @@ from datetime import date, timedelta
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_not_required
-from django.contrib.sitemaps import Sitemap
 from django.core.files.storage import default_storage
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -49,14 +48,23 @@ def _contexto_publico(request):
     }
 
 
+def _limite_destacados_home(sitio):
+    try:
+        cantidad = int(getattr(sitio, 'home_destacados_cantidad', 6) or 6)
+    except (TypeError, ValueError):
+        cantidad = 6
+    return max(1, min(cantidad, 24))
+
+
 def _contexto_home(request, sitio=None):
     ctx = _contexto_publico(request)
     if sitio is not None:
         ctx['sitio'] = sitio
     publicos = vehiculos_publicos()
-    ctx['destacados'] = publicos.filter(destacado_web=True)[:6]
+    limite = _limite_destacados_home(ctx['sitio'])
+    ctx['destacados'] = publicos.filter(destacado_web=True)[:limite]
     if not ctx['destacados']:
-        ctx['destacados'] = publicos[:6]
+        ctx['destacados'] = publicos[:limite]
     ctx['total_vehiculos'] = publicos.count()
     ctx['categorias_flota'] = CategoriaVehiculo.activas()
     ctx['meta_description'] = meta_descripcion_home(ctx['empresa'], ctx['sitio'], ctx['idioma'])
@@ -343,7 +351,7 @@ CAMPOS_PESTANA_SITIO = {
         'home_texto', 'home_texto_en', 'horario', 'meta_descripcion', 'meta_descripcion_en',
         'home_diseno', 'home_fondo_imagen', 'quitar_home_fondo', 'home_fondo_opacidad',
         'home_fondo_tamano', 'home_fondo_posicion', 'home_mostrar_panel',
-        'home_mostrar_categorias', 'home_mostrar_destacados', 'home_mostrar_cta',
+        'home_mostrar_categorias', 'home_mostrar_destacados', 'home_destacados_cantidad', 'home_mostrar_cta',
         'home_mostrar_contador', 'home_mostrar_redes_hero',
         'servicio_24h', 'entrega_aeropuertos', 'mostrar_resenas',
         'resena_calificacion', 'resena_cantidad',
@@ -516,60 +524,13 @@ def panel_vista_previa_pagina(request):
     return render(request, 'sitio/pagina.html', ctx)
 
 
-class VehiculoPublicoSitemap(Sitemap):
-    changefreq = 'weekly'
-    priority = 0.8
-
-    def items(self):
-        return vehiculos_publicos()
-
-    def lastmod(self, obj):
-        return obj.creado_en
-
-    def location(self, obj):
-        return obj.get_absolute_url()
-
-
-class PaginaSitemap(Sitemap):
-    changefreq = 'monthly'
-    priority = 0.6
-
-    def items(self):
-        return PaginaInformativa.objects.filter(publicada=True)
-
-    def location(self, obj):
-        return reverse('sitio:pagina', kwargs={'slug': obj.slug})
-
-
-class SitioEstaticoSitemap(Sitemap):
-    priority = 1.0
-    changefreq = 'daily'
-
-    def items(self):
-        return ['home', 'flota']
-
-    def location(self, item):
-        return reverse(f'sitio:{item}')
-
-
-@login_not_required
-def sitemap_xml(request):
-    from django.contrib.sitemaps.views import sitemap
-
-    sitemaps = {
-        'static': SitioEstaticoSitemap,
-        'vehiculos': VehiculoPublicoSitemap,
-        'paginas': PaginaSitemap,
-    }
-    return sitemap(request, sitemaps)
-
-
 @login_not_required
 def robots_txt(request):
     lines = [
         'User-agent: *',
         'Allow: /',
-        f'Sitemap: {request.build_absolute_uri(reverse("sitio:sitemap"))}',
+        '',
+        'Sitemap: https://robertrentacarrd.com/sitemap.xml',
     ]
     return HttpResponse('\n'.join(lines), content_type='text/plain')
 

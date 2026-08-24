@@ -1,14 +1,23 @@
 from django.contrib import admin
+from django.contrib.auth.decorators import login_not_required
+from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path, re_path
 from django.conf import settings
 from django.views.static import serve
 
 from apps.core import views as core_views
+from apps.sitio.sitemaps import SitioEstaticoSitemap, VehiculoSitemap
 
 _panel = settings.PANEL_PATH.strip('/') + '/'
 
+sitemaps = {
+    'static': SitioEstaticoSitemap,
+    'vehiculos': VehiculoSitemap,
+}
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('sitemap.xml', login_not_required(sitemap), {'sitemaps': sitemaps}, name='sitemap'),
     path('', include('apps.cuentas.urls')),
     path('', include('apps.sitio.urls')),
     path(_panel, include([
