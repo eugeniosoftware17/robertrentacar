@@ -12,7 +12,7 @@
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Datos de la empresa</div>
-      <div class="mod-card-hint">Aparece en el panel, contratos y documentos. El bloqueo por inactividad cierra sesiones del panel sin uso.</div>
+      <div class="mod-card-hint">Aparece en el panel, contratos y documentos. El bloqueo por inactividad cierra sesiones sin uso. Usa «Ver ejemplo de contrato» para previsualizar el formato.</div>
     </div>
   </div>
   <form method="post" class="mod-form">
@@ -28,6 +28,7 @@
     </div>
     <div class="mod-form-actions">
       <button type="submit" class="mod-btn mod-btn-prim">Guardar configuración</button>
+      <a href="{% url 'configuracion:contrato_demo' %}" class="mod-btn mod-btn-sec" target="_blank" rel="noopener">Ver ejemplo de contrato</a>
     </div>
   </form>
 </div>

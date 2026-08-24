@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from apps.core.decorators import requiere_modulo
 from apps.core.permisos import es_admin_sistema, rol_usuario
 
+from .contrato_demo import contexto_contrato_demo
 from .forms import (
     ConfiguracionForm,
     CrearUsuarioPanelForm,
@@ -102,3 +103,14 @@ def index(request):
         'usuarios_panel': usuarios_panel,
         'empresa_env': getattr(settings, 'EMPRESA_NOMBRE', ''),
     })
+
+
+@requiere_modulo('configuracion')
+def contrato_demo(request):
+    if not es_admin_sistema(request.user):
+        return render(request, '403.html', {
+            'page_title': 'Acceso denegado',
+            'modulo': 'configuracion',
+        }, status=403)
+
+    return render(request, 'reservas/contrato.html', contexto_contrato_demo())

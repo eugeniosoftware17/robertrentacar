@@ -199,6 +199,7 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'home_mostrar_panel',
             'home_mostrar_categorias',
             'home_mostrar_destacados',
+            'home_destacados_cantidad',
             'home_mostrar_cta',
             'home_mostrar_contador',
             'home_mostrar_redes_hero',
@@ -252,6 +253,12 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'home_mostrar_panel': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_categorias': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_destacados': forms.CheckboxInput(attrs={'class': 'mod-check'}),
+            'home_destacados_cantidad': forms.NumberInput(attrs={
+                'class': 'mod-input',
+                'min': 1,
+                'max': 24,
+                'step': 1,
+            }),
             'home_mostrar_cta': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_contador': forms.CheckboxInput(attrs={'class': 'mod-check'}),
             'home_mostrar_redes_hero': forms.CheckboxInput(attrs={'class': 'mod-check'}),
@@ -292,6 +299,12 @@ class ConfiguracionSitioForm(forms.ModelForm):
         valor = self.cleaned_data.get('home_fondo_opacidad')
         if valor is not None and not 0 <= valor <= 100:
             raise forms.ValidationError('Debe estar entre 0 y 100.')
+        return valor
+
+    def clean_home_destacados_cantidad(self):
+        valor = self.cleaned_data.get('home_destacados_cantidad')
+        if valor is not None and not 1 <= valor <= 24:
+            raise forms.ValidationError('Debe estar entre 1 y 24.')
         return valor
 
     def clean_favicon(self):

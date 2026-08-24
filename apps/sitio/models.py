@@ -71,6 +71,11 @@ class ConfiguracionSitio(models.Model):
     home_mostrar_panel = models.BooleanField('Panel «¿Por qué reservar?»', default=True)
     home_mostrar_categorias = models.BooleanField('Sección categorías', default=True)
     home_mostrar_destacados = models.BooleanField('Vehículos destacados', default=True)
+    home_destacados_cantidad = models.PositiveSmallIntegerField(
+        'Cantidad en inicio',
+        default=6,
+        help_text='Cuántos vehículos mostrar en la sección destacados del home (1–24).',
+    )
     home_mostrar_cta = models.BooleanField('Llamada a la acción final', default=True)
     home_mostrar_contador = models.BooleanField('Contador de vehículos', default=True)
     home_mostrar_redes_hero = models.BooleanField('Redes sociales en el hero', default=True)

@@ -3,12 +3,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Contrato #{{ reserva.pk }} — {{ empresa.nombre }}</title>
+  <title>{% if es_demo %}Contrato de ejemplo{% else %}Contrato #{{ reserva.pk }}{% endif %} — {{ empresa.nombre }}</title>
   <link rel="stylesheet" href="{% static 'reservas/contrato.css' %}" />
 </head>
 <body>
   <div class="contrato-toolbar no-print">
+    {% if es_demo %}
+    <a href="{% url 'configuracion:index' %}" class="btn">← Volver a configuración</a>
+    <span class="contrato-demo-badge">Ejemplo — datos ficticios</span>
+    {% else %}
     <a href="{% url 'reservas:lista' %}" class="btn">← Volver</a>
+    {% endif %}
     <button onclick="window.print()" class="btn btn-prim">Imprimir / PDF</button>
   </div>
 
@@ -21,7 +26,7 @@
       </div>
       <div class="contrato-meta">
         <strong>Contrato de alquiler</strong>
-        <span>#{{ reserva.pk }}</span>
+        <span>{% if es_demo %}DEMO{% else %}#{{ reserva.pk }}{% endif %}</span>
         <span>{{ reserva.creado_en|date:"d/m/Y" }}</span>
       </div>
     </header>

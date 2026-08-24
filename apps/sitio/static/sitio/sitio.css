@@ -743,6 +743,11 @@
   color: var(--sitio-brand-dark);
 }
 
+.sitio-section .sitio-cta-box h2,
+.sitio-section .sitio-cta-box .sitio-lead {
+  color: #fff;
+}
+
 .sitio-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
