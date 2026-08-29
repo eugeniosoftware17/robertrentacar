@@ -37,12 +37,13 @@
         <span class="sitio-logo-text">{{ empresa.nombre }}</span>
         {% endif %}
       </a>
-      <button type="button" class="sitio-nav-toggle" id="navToggle" aria-label="Menú">☰</button>
+      <button type="button" class="sitio-nav-toggle" id="navToggle" aria-label="Menú" aria-expanded="false" aria-controls="sitioNav">☰</button>
+      <div class="sitio-nav-backdrop" id="navBackdrop"></div>
       <nav class="sitio-nav" id="sitioNav" aria-label="Principal">
-        <a href="{% url 'sitio:home' %}">{% t 'nav_inicio' %}</a>
-        <a href="{% url 'sitio:flota' %}">{% t 'nav_vehiculos' %}</a>
+        <a href="{% url 'sitio:home' %}" class="{% if request.resolver_match.url_name == 'home' %}sitio-nav-activo{% endif %}">{% t 'nav_inicio' %}</a>
+        <a href="{% url 'sitio:flota' %}" class="{% if request.resolver_match.url_name == 'flota' %}sitio-nav-activo{% endif %}">{% t 'nav_vehiculos' %}</a>
         {% for p in menu_paginas %}
-        <a href="{% url 'sitio:pagina' p.slug %}">{{ p.titulo }}</a>
+        <a href="{% url 'sitio:pagina' p.slug %}" class="{% if request.resolver_match.url_name == 'pagina' and request.resolver_match.kwargs.slug == p.slug %}sitio-nav-activo{% endif %}">{% campo p 'titulo' %}</a>
         {% endfor %}
         <span class="sitio-idioma-switch">
           <a href="{% url 'sitio:cambiar_idioma' 'es' %}" class="{% if idioma_actual == 'es' %}sitio-idioma-activo{% endif %}">ES</a>

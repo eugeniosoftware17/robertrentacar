@@ -435,6 +435,11 @@
 
 .sitio-nav a:hover { color: var(--sitio-brand); }
 
+.sitio-nav a.sitio-nav-activo {
+  color: var(--sitio-brand-dark);
+  font-weight: 700;
+}
+
 .sitio-idioma-switch {
   display: inline-flex;
   align-items: center;
@@ -466,6 +471,22 @@
 }
 
 .sitio-main { min-height: 60vh; }
+
+.sitio-nav-backdrop {
+  display: none;
+}
+
+.sitio-body--menu-abierto {
+  overflow: hidden;
+}
+
+/* backdrop-filter en el header crea un "containing block" para los
+   descendientes position:fixed (el menú vive dentro de <header>), lo que
+   encogería el panel a la altura del header. Se desactiva solo mientras
+   el menú está abierto para que el panel pueda ocupar todo el viewport. */
+.sitio-body--menu-abierto .sitio-header {
+  backdrop-filter: none;
+}
 
 .sitio-hero {
   background: linear-gradient(135deg, #084248 0%, #0b5a60 45%, #127a82 100%);
@@ -1896,15 +1917,56 @@
 }
 
 @media (max-width: 768px) {
-  .sitio-nav-toggle { display: block; }
+  .sitio-nav-toggle { display: block; position: relative; z-index: 101; }
+
   .sitio-nav {
-    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 100%;
-    padding-bottom: 0.5rem;
+    width: min(80vw, 320px);
+    padding: 5rem 1.75rem 2rem;
+    gap: 0.15rem;
+    background-color: #fff;
+    box-shadow: -12px 0 28px rgba(11, 30, 30, 0.18);
+    overflow-y: auto;
+    z-index: 100;
+    transform: translateX(100%);
+    visibility: hidden;
+    transition: transform 0.28s ease, visibility 0s linear 0.28s;
   }
-  .sitio-nav.is-open { display: flex; }
+
+  .sitio-nav.is-open {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform 0.28s ease, visibility 0s linear 0s;
+  }
+
+  .sitio-nav a {
+    width: 100%;
+    padding: 0.6rem 0;
+    font-size: 1.02rem;
+  }
+
+  .sitio-nav-backdrop.is-open {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(9, 23, 23, 0.5);
+    z-index: 95;
+  }
+
+  .sitio-idioma-switch {
+    margin: 1.25rem 0 0;
+    padding: 1.1rem 0 0;
+    border-left: none;
+    border-top: 1px solid #dde5e3;
+    width: 100%;
+  }
+
   .sitio-header-inner { flex-wrap: wrap; }
   .sitio-hero-grid { grid-template-columns: 1fr; }
   .sitio-hero-grid--split { grid-template-columns: 1fr; }
