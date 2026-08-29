@@ -52,6 +52,7 @@
     <table class="mod-tabla">
       <thead>
         <tr>
+          <th>Ref.</th>
           <th>Vehículo</th>
           <th>Placa</th>
           <th>Categoría</th>
@@ -63,6 +64,7 @@
       <tbody>
         {% for vehiculo in vehiculos %}
         <tr>
+          <td class="mod-sub">VEH-{{ vehiculo.pk|stringformat:"04d" }}</td>
           <td>
             <div class="mod-nombre">{{ vehiculo.nombre_corto }}</div>
             <div class="mod-sub">{{ vehiculo.color|default:"Sin color" }}</div>
