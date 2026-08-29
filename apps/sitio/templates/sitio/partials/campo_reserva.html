@@ -1,0 +1,13 @@
+{% load sitio_extras %}
+<div class="sitio-field {{ extra_class|default:'' }}">
+  <label for="{{ field.id_for_label }}">
+    {{ field.label }}
+    {% if field.field.required %}
+    <span class="sitio-field-required" aria-hidden="true">*</span>
+    {% else %}
+    <span class="sitio-field-optional">{% t 'res_campo_opcional' %}</span>
+    {% endif %}
+  </label>
+  {{ field }}
+  {% if field.errors %}<span class="sitio-field-error">{{ field.errors.0 }}</span>{% endif %}
+</div>

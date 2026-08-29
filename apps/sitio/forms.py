@@ -52,10 +52,9 @@ class ReservaWebForm(forms.Form):
         if vehiculo:
             self.fields['vehiculo'].initial = vehiculo
             self.fields['vehiculo'].queryset = Vehiculo.objects.filter(pk=vehiculo.pk)
-        if idioma == 'en':
-            for campo, clave in self.CAMPO_A_CLAVE_TEXTO.items():
-                if campo in self.fields:
-                    self.fields[campo].label = texto(clave, idioma)
+        for campo, clave in self.CAMPO_A_CLAVE_TEXTO.items():
+            if campo in self.fields:
+                self.fields[campo].label = texto(clave, idioma)
 
     def clean_empresa_web(self):
         valor = self.cleaned_data.get('empresa_web')

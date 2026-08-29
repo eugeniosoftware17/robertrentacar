@@ -1,5 +1,5 @@
 {% extends "sitio/base_public.html" %}
-{% load sitio_extras %}
+{% load static sitio_extras %}
 
 {% block title %}{% t 'res_titulo' %} {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
 {% block robots %}noindex, nofollow{% endblock %}
@@ -7,12 +7,28 @@
 {% block content %}
 <section class="sitio-section sitio-section--top">
   <div class="sitio-container sitio-form-wrap">
-    <h1>{% t 'res_titulo' %} {{ vehiculo.nombre_corto }}</h1>
-    <p class="sitio-meta">{% t_categoria vehiculo.categoria %} · RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</p>
+    <h1>{% t 'res_titulo' %}</h1>
+
+    <div class="sitio-reserva-vehiculo">
+      {% with fotos=vehiculo.fotos_para_web %}
+      {% if fotos %}
+      <img src="{{ fotos.0.url }}" alt="{{ vehiculo.nombre_corto }}" class="sitio-reserva-vehiculo-img" />
+      {% else %}
+      <span class="sitio-reserva-vehiculo-img sitio-reserva-vehiculo-img--empty">{% t 'flota_sin_foto' %}</span>
+      {% endif %}
+      {% endwith %}
+      <div class="sitio-reserva-vehiculo-body">
+        <strong>{{ vehiculo.nombre_corto }}</strong>
+        <span class="sitio-reserva-vehiculo-meta">{% t_categoria vehiculo.categoria %}</span>
+        <span class="sitio-reserva-vehiculo-precio">RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</span>
+      </div>
+    </div>
 
     {% if error_limite %}
     <div class="sitio-form-error">{{ error_limite }}</div>
     {% endif %}
+
+    <p class="sitio-form-nota-requerido">{% t 'res_campo_requerido_nota' %}</p>
 
     <form method="post" class="sitio-form">
       {% csrf_token %}
@@ -21,20 +37,56 @@
       {% if form.non_field_errors %}
       <div class="sitio-form-error">{{ form.non_field_errors }}</div>
       {% endif %}
-      <div class="sitio-form-grid">
-        {% for field in form %}
-          {% if field.name != 'vehiculo' and field.name != 'empresa_web' %}
-          <div class="sitio-field {% if field.name == 'notas' %}sitio-field--full{% endif %}">
-            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}<span class="sitio-field-error">{{ field.errors.0 }}</span>{% endif %}
-          </div>
-          {% endif %}
-        {% endfor %}
+
+      <div class="sitio-form-seccion">
+        <h2 class="sitio-form-seccion-titulo">{% t 'res_seccion_fechas' %}</h2>
+        <div class="sitio-form-grid">
+          {% include "sitio/partials/campo_reserva.html" with field=form.fecha_inicio %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.fecha_fin %}
+        </div>
+        <p id="reservaTotalEstimado" class="sitio-total-estimado"></p>
       </div>
-      <button type="submit" class="sitio-btn sitio-btn-prim">{% t 'res_enviar' %}</button>
-      <a href="{{ vehiculo.get_absolute_url }}" class="sitio-btn sitio-btn-sec">{% t 'res_volver' %}</a>
+
+      <div class="sitio-form-seccion">
+        <h2 class="sitio-form-seccion-titulo">{% t 'res_seccion_datos' %}</h2>
+        <div class="sitio-form-grid">
+          {% include "sitio/partials/campo_reserva.html" with field=form.nombre %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.apellido %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.documento %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.telefono %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.email %}
+        </div>
+      </div>
+
+      <div class="sitio-form-seccion">
+        <h2 class="sitio-form-seccion-titulo">{% t 'res_seccion_licencia' %}</h2>
+        <div class="sitio-form-grid">
+          {% include "sitio/partials/campo_reserva.html" with field=form.licencia_numero %}
+          {% include "sitio/partials/campo_reserva.html" with field=form.licencia_vence %}
+        </div>
+      </div>
+
+      <div class="sitio-form-seccion">
+        <h2 class="sitio-form-seccion-titulo">{% t 'res_seccion_notas' %}</h2>
+        <div class="sitio-form-grid">
+          {% include "sitio/partials/campo_reserva.html" with field=form.notas extra_class="sitio-field--full" %}
+        </div>
+      </div>
+
+      <div class="sitio-form-acciones">
+        <button type="submit" class="sitio-btn sitio-btn-prim sitio-btn--block">{% t 'res_enviar' %}</button>
+        <a href="{{ vehiculo.get_absolute_url }}" class="sitio-btn sitio-btn-sec sitio-btn--block">{% t 'res_volver' %}</a>
+      </div>
     </form>
   </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+{% t 'res_resumen_precio' tarifa='__TARIFA__' total='__TOTAL__' as texto_precio_tpl %}
+<script>
+  window.SITIO_TARIFA_DIA = {{ vehiculo.tarifa_diaria }};
+  window.SITIO_TEXTO_PRECIO_TPL = "{{ texto_precio_tpl|escapejs }}";
+</script>
+<script src="{% static 'sitio/reservar.js' %}"></script>
 {% endblock %}
