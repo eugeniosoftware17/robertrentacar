@@ -7,6 +7,17 @@ class Cliente(models.Model):
     documento = models.CharField('Cédula / Pasaporte', max_length=20, unique=True)
     telefono = models.CharField('Teléfono', max_length=20)
     email = models.EmailField('Correo', blank=True)
+    direccion = models.CharField('Dirección', max_length=200, blank=True)
+    nacionalidad = models.CharField('Nacionalidad', max_length=60, blank=True)
+    ocupacion = models.CharField('Ocupación', max_length=80, blank=True)
+    pasaporte = models.CharField(
+        'Pasaporte', max_length=30, blank=True,
+        help_text='Para clientes extranjeros, si aplica.',
+    )
+    lugar_expedicion = models.CharField(
+        'Expedido en', max_length=80, blank=True,
+        help_text='Lugar de expedición de la cédula o pasaporte.',
+    )
     licencia_numero = models.CharField('Número de licencia', max_length=30)
     licencia_vence = models.DateField('Vencimiento de licencia')
     activo = models.BooleanField(default=True)

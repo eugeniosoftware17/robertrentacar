@@ -80,6 +80,34 @@ class Reserva(models.Model):
         TRES_CUARTOS = 'tres_cuartos', '3/4'
         LLENO = 'lleno', 'Lleno'
 
+    CHECKLIST_ITEMS = [
+        ('aire_acondicionado', 'Aire acondicionado'),
+        ('encendedor', 'Encendedor'),
+        ('radio', 'Radio'),
+        ('bateria', 'Batería'),
+        ('limpia_brisas', 'Limpia brisas'),
+        ('revista', 'Revista (manual)'),
+        ('documentos_vehiculo', 'Documentos del vehículo'),
+        ('micas', 'Micas'),
+        ('asientos', 'Asientos'),
+        ('goma_repuesto', 'Goma de repuesto'),
+        ('placa', 'Placa'),
+        ('vidrios', 'Vidrios'),
+        ('llaveros', 'Llaveros'),
+        ('antena', 'Antena'),
+        ('gato', 'Gato'),
+        ('tapa_gasolina', 'Tapa de gasolina'),
+        ('cinturones', 'Cinturones'),
+        ('llaves_ruedas', 'Llaves de ruedas'),
+        ('alfombras', 'Alfombras'),
+        ('espejos', 'Espejos'),
+        ('tapa_bocina', 'Tapa bocina'),
+        ('bocinas', 'Bocinas'),
+        ('logos', 'Logos'),
+    ]
+
+    DEPOSITO_MARCADOR = 'Depósito inicial (automático)'
+
     km_entrega = models.PositiveIntegerField('Km al entregar', blank=True, null=True)
     km_devolucion = models.PositiveIntegerField('Km al devolver', blank=True, null=True)
     combustible_entrega = models.CharField(
@@ -111,6 +139,18 @@ class Reserva(models.Model):
     devolucion_registrada_en = models.DateTimeField(
         'Devolución registrada el', blank=True, null=True,
         help_text='Se usa para borrar el video de entrega unos días después de la devolución.',
+    )
+    deducible = models.DecimalField(
+        'Deducible (RD$)', max_digits=10, decimal_places=2, blank=True, null=True,
+        help_text='Monto que asume el cliente en caso de accidente o daño.',
+    )
+    posible_retorno = models.DateField(
+        'Posible retorno estimado', blank=True, null=True,
+        help_text='Solo si es distinto a la fecha de fin.',
+    )
+    checklist_entrega = models.JSONField(
+        'Checklist de entrega', default=list, blank=True,
+        help_text='Claves de CHECKLIST_ITEMS marcadas como presentes al entregar el vehículo.',
     )
 
     class Meta:
@@ -179,7 +219,7 @@ class Reserva(models.Model):
     def _sincronizar_deposito_pago(self):
         from apps.pagos.models import Pago
 
-        marcador = 'Depósito inicial (automático)'
+        marcador = self.DEPOSITO_MARCADOR
         pago_auto = self.pagos.filter(notas=marcador, tipo=Pago.Tipo.DEPOSITO).first()
 
         if self.deposito <= 0:
@@ -199,6 +239,12 @@ class Reserva(models.Model):
                 metodo=Pago.Metodo.EFECTIVO,
                 notas=marcador,
             )
+
+    @property
+    def pago_deposito(self):
+        from apps.pagos.models import Pago
+
+        return self.pagos.filter(notas=self.DEPOSITO_MARCADOR, tipo=Pago.Tipo.DEPOSITO).first()
 
     @property
     def total_pagado(self):
@@ -265,3 +311,45 @@ class Reserva(models.Model):
         if self.fecha_fin in (hoy, manana):
             return 'Devolución'
         return 'Reserva'
+
+
+class ConductorAdicional(models.Model):
+    """Segundo conductor autorizado en el contrato (opcional), con los mismos
+    datos de identidad que el cliente principal. No es un Cliente del sistema."""
+
+    reserva = models.OneToOneField(
+        Reserva,
+        on_delete=models.CASCADE,
+        related_name='conductor_adicional',
+        verbose_name='Reserva',
+    )
+    nombre = models.CharField('Nombre', max_length=100, blank=True)
+    apellido = models.CharField('Apellido', max_length=100, blank=True)
+    documento = models.CharField('Cédula', max_length=20, blank=True)
+    pasaporte = models.CharField('Pasaporte', max_length=30, blank=True)
+    direccion = models.CharField('Dirección', max_length=200, blank=True)
+    telefono = models.CharField('Teléfono', max_length=20, blank=True)
+    nacionalidad = models.CharField('Nacionalidad', max_length=60, blank=True)
+    ocupacion = models.CharField('Ocupación', max_length=80, blank=True)
+    lugar_expedicion = models.CharField('Expedido en', max_length=80, blank=True)
+    licencia_numero = models.CharField('Número de licencia', max_length=30, blank=True)
+    licencia_vence = models.DateField('Vencimiento de licencia', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Conductor adicional'
+        verbose_name_plural = 'Conductores adicionales'
+
+    def __str__(self):
+        return f'{self.nombre} {self.apellido}'.strip() or f'Conductor adicional de reserva #{self.reserva_id}'
+
+    @property
+    def nombre_completo(self):
+        return f'{self.nombre} {self.apellido}'.strip()
+
+    def tiene_datos(self):
+        campos = (
+            self.nombre, self.apellido, self.documento, self.pasaporte,
+            self.direccion, self.telefono, self.nacionalidad, self.ocupacion,
+            self.lugar_expedicion, self.licencia_numero,
+        )
+        return any(campos) or self.licencia_vence is not None

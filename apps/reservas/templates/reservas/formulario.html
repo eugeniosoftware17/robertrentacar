@@ -50,6 +50,21 @@
         {% endfor %}
       </div>
 
+      <details class="mod-field-full reserva-conductor-adicional">
+        <summary>Conductor adicional (opcional)</summary>
+        <div class="mod-grid">
+          {% for field in conductor_form %}
+          <div class="mod-field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="mod-error">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+
       <div class="reserva-precio-panel" id="reserva-precio-panel">
         <div class="reserva-precio-titulo">Resumen del alquiler</div>
         <div class="reserva-precio-grid">

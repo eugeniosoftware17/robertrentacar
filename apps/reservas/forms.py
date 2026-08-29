@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from apps.clientes.models import Cliente
 from apps.vehiculos.models import Vehiculo
 
-from .models import Reserva
+from .models import ConductorAdicional, Reserva
 
 VIDEO_ENTREGA_EXTENSIONES = {'.mp4', '.webm', '.mov', '.m4v'}
 VIDEO_ENTREGA_MIMES = {
@@ -52,6 +52,8 @@ class ReservaForm(forms.ModelForm):
             'lugar_devolucion',
             'estado',
             'deposito',
+            'deducible',
+            'posible_retorno',
             'notas',
         ]
         widgets = {
@@ -65,6 +67,8 @@ class ReservaForm(forms.ModelForm):
             'lugar_devolucion': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Sucursal'}),
             'estado': forms.Select(attrs={'class': 'mod-input'}),
             'deposito': forms.NumberInput(attrs={'class': 'mod-input', 'step': '0.01', 'min': '0'}),
+            'deducible': forms.NumberInput(attrs={'class': 'mod-input', 'step': '0.01', 'min': '0'}),
+            'posible_retorno': forms.DateInput(attrs={'class': 'mod-input', 'type': 'date'}),
             'notas': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
         }
 
@@ -97,7 +101,33 @@ class ReservaForm(forms.ModelForm):
         return cleaned
 
 
+class ConductorAdicionalForm(forms.ModelForm):
+    class Meta:
+        model = ConductorAdicional
+        exclude = ['reserva']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Nombre'}),
+            'apellido': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Apellido'}),
+            'documento': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Cédula'}),
+            'pasaporte': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Opcional, para extranjeros'}),
+            'direccion': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Dirección'}),
+            'telefono': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': '809-000-0000'}),
+            'nacionalidad': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Nacionalidad'}),
+            'ocupacion': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Ocupación'}),
+            'lugar_expedicion': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Lugar de expedición'}),
+            'licencia_numero': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Número de licencia'}),
+            'licencia_vence': forms.DateInput(attrs={'class': 'mod-input', 'type': 'date'}),
+        }
+
+
 class EntregaForm(forms.ModelForm):
+    checklist_entrega = forms.MultipleChoiceField(
+        label='Checklist de entrega',
+        choices=Reserva.CHECKLIST_ITEMS,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+
     class Meta:
         model = Reserva
         fields = [
@@ -125,6 +155,15 @@ class EntregaForm(forms.ModelForm):
                 'accept': 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v',
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['checklist_entrega'].initial = self.instance.checklist_entrega
+
+    def save(self, commit=True):
+        self.instance.checklist_entrega = list(self.cleaned_data.get('checklist_entrega', []))
+        return super().save(commit=commit)
 
     def clean_km_entrega(self):
         km = self.cleaned_data.get('km_entrega')

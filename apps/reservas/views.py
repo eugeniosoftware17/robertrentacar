@@ -8,11 +8,21 @@ from django.utils import timezone
 
 from apps.configuracion.models import ConfiguracionEmpresa
 from apps.core.utils import paginar_queryset
+from apps.sitio.models import ConfiguracionSitio
 from apps.vehiculos.models import Vehiculo
 
-from .forms import DevolucionForm, EntregaForm, ReservaForm
-from .models import Reserva
+from .forms import ConductorAdicionalForm, DevolucionForm, EntregaForm, ReservaForm
+from .models import ConductorAdicional, Reserva
 from .services import actualizar_estado_vehiculo
+
+
+def _guardar_conductor_adicional(reserva, conductor_form):
+    conductor = conductor_form.save(commit=False)
+    if conductor.tiene_datos():
+        conductor.reserva = reserva
+        conductor.save()
+    else:
+        ConductorAdicional.objects.filter(reserva=reserva).delete()
 
 
 def _tarifas_vehiculos():
@@ -148,8 +158,10 @@ def lista_contratos(request):
 def crear(request):
     if request.method == 'POST':
         form = ReservaForm(request.POST)
-        if form.is_valid():
+        conductor_form = ConductorAdicionalForm(request.POST, prefix='conductor')
+        if form.is_valid() and conductor_form.is_valid():
             reserva = form.save()
+            _guardar_conductor_adicional(reserva, conductor_form)
             messages.success(request, f'Reserva #{reserva.pk} creada correctamente.')
             return redirect('reservas:lista')
     else:
@@ -159,11 +171,13 @@ def crear(request):
             initial['fecha_inicio'] = fecha_inicio
             initial['fecha_fin'] = fecha_inicio
         form = ReservaForm(initial=initial)
+        conductor_form = ConductorAdicionalForm(prefix='conductor')
 
     return render(request, 'reservas/formulario.html', {
         'page_title': 'Nueva reserva',
         'page_subtitle': 'Registrar una nueva reserva',
         'form': form,
+        'conductor_form': conductor_form,
         'accion': 'crear',
         'tarifas_json': _tarifas_vehiculos(),
         'ocupacion_json': _ocupacion_por_vehiculo(),
@@ -171,7 +185,11 @@ def crear(request):
 
 
 def editar(request, pk):
-    reserva = get_object_or_404(Reserva.objects.select_related('cliente', 'vehiculo'), pk=pk)
+    reserva = get_object_or_404(
+        Reserva.objects.select_related('cliente', 'vehiculo', 'conductor_adicional'),
+        pk=pk,
+    )
+    conductor_instance = getattr(reserva, 'conductor_adicional', None)
 
     if request.method == 'POST':
         if 'marcar_contactado' in request.POST:
@@ -180,18 +198,24 @@ def editar(request, pk):
             messages.success(request, 'Reserva marcada como contactada.')
             return redirect('reservas:editar', pk=pk)
         form = ReservaForm(request.POST, instance=reserva)
-        if form.is_valid():
+        conductor_form = ConductorAdicionalForm(
+            request.POST, instance=conductor_instance, prefix='conductor',
+        )
+        if form.is_valid() and conductor_form.is_valid():
             reserva = form.save()
+            _guardar_conductor_adicional(reserva, conductor_form)
             actualizar_estado_vehiculo(reserva.vehiculo)
             messages.success(request, f'Reserva #{reserva.pk} actualizada.')
             return redirect('reservas:lista')
     else:
         form = ReservaForm(instance=reserva)
+        conductor_form = ConductorAdicionalForm(instance=conductor_instance, prefix='conductor')
 
     return render(request, 'reservas/formulario.html', {
         'page_title': 'Editar reserva',
         'page_subtitle': f'Reserva #{reserva.pk}',
         'form': form,
+        'conductor_form': conductor_form,
         'accion': 'editar',
         'reserva': reserva,
         'tarifas_json': _tarifas_vehiculos(),
@@ -246,16 +270,18 @@ def eliminar(request, pk):
 
 def contrato(request, pk):
     reserva = get_object_or_404(
-        Reserva.objects.select_related('cliente', 'vehiculo'),
+        Reserva.objects.select_related('cliente', 'vehiculo', 'conductor_adicional'),
         pk=pk,
     )
     empresa = ConfiguracionEmpresa.obtener()
+    sitio = ConfiguracionSitio.obtener()
 
     return render(request, 'reservas/contrato.html', {
         'page_title': f'Contrato #{reserva.pk}',
         'page_subtitle': reserva.cliente.nombre_completo,
         'reserva': reserva,
         'empresa': empresa,
+        'sitio': sitio,
     })
 
 

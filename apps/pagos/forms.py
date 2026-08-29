@@ -11,7 +11,11 @@ from .models import Pago
 class PagoForm(forms.ModelForm):
     class Meta:
         model = Pago
-        fields = ['reserva', 'monto', 'tipo', 'metodo', 'referencia', 'notas']
+        fields = [
+            'reserva', 'monto', 'tipo', 'metodo', 'referencia',
+            'tarjeta_tipo', 'tarjeta_ultimos4', 'tarjeta_vencimiento', 'tarjeta_autorizacion',
+            'notas',
+        ]
         widgets = {
             'reserva': forms.Select(attrs={'class': 'mod-input', 'id': 'id_reserva_pago'}),
             'monto': forms.NumberInput(attrs={
@@ -23,6 +27,10 @@ class PagoForm(forms.ModelForm):
             'tipo': forms.Select(attrs={'class': 'mod-input', 'id': 'id_tipo_pago'}),
             'metodo': forms.Select(attrs={'class': 'mod-input'}),
             'referencia': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Opcional'}),
+            'tarjeta_tipo': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'Visa, Mastercard…'}),
+            'tarjeta_ultimos4': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': '••••', 'maxlength': '4'}),
+            'tarjeta_vencimiento': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'MM/AA'}),
+            'tarjeta_autorizacion': forms.TextInput(attrs={'class': 'mod-input', 'placeholder': 'No. de autorización'}),
             'notas': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 2}),
         }
 

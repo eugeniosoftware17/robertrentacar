@@ -43,6 +43,9 @@
       <div class="mod-field {% if field.name == 'notas' %}mod-field-full{% endif %}">
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
+        {% if field.name == 'tarjeta_tipo' %}
+        <div class="mod-hint">Completa los datos de tarjeta solo si el método es Tarjeta (para el depósito de garantía).</div>
+        {% endif %}
         {% if field.errors %}<div class="mod-error">{{ field.errors.0 }}</div>{% endif %}
       </div>
       {% endfor %}

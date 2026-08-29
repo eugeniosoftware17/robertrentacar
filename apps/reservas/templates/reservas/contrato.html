@@ -19,10 +19,15 @@
 
   <article class="contrato">
     <header class="contrato-head">
-      <div>
-        <h1>{{ empresa.nombre }}</h1>
-        <p>{{ empresa.direccion }}{% if empresa.telefono %} · {{ empresa.telefono }}{% endif %}</p>
-        {% if empresa.rnc %}<p>RNC: {{ empresa.rnc }}</p>{% endif %}
+      <div class="contrato-marca">
+        {% if sitio.tiene_logo %}
+        <img src="{{ sitio.logo.url }}" alt="{{ empresa.nombre }}" class="contrato-logo" />
+        {% endif %}
+        <div>
+          <h1>{{ empresa.nombre }}</h1>
+          <p>{{ empresa.direccion }}{% if empresa.telefono %} · {{ empresa.telefono }}{% endif %}</p>
+          {% if empresa.rnc %}<p>RNC: {{ empresa.rnc }}</p>{% endif %}
+        </div>
       </div>
       <div class="contrato-meta">
         <strong>Contrato de alquiler</strong>
@@ -34,14 +39,35 @@
     <section>
       <h2>Cliente</h2>
       <p><strong>{{ reserva.cliente.nombre_completo }}</strong></p>
-      <p>Documento: {{ reserva.cliente.documento }} · Tel: {{ reserva.cliente.telefono }}</p>
-      <p>Licencia: {{ reserva.cliente.licencia_numero }} (vence {{ reserva.cliente.licencia_vence|date:"d/m/Y" }})</p>
+      <p>Cédula: {{ reserva.cliente.documento }}{% if reserva.cliente.pasaporte %} · Pasaporte: {{ reserva.cliente.pasaporte }}{% endif %} · Tel: {{ reserva.cliente.telefono }}</p>
+      <p>Nacionalidad: {{ reserva.cliente.nacionalidad|default:"—" }} · Ocupación: {{ reserva.cliente.ocupacion|default:"—" }}</p>
+      {% if reserva.cliente.direccion %}<p>Dirección: {{ reserva.cliente.direccion }}</p>{% endif %}
+      <p>Licencia: {{ reserva.cliente.licencia_numero }} (vence {{ reserva.cliente.licencia_vence|date:"d/m/Y" }}){% if reserva.cliente.lugar_expedicion %} · Expedida en: {{ reserva.cliente.lugar_expedicion }}{% endif %}</p>
     </section>
+
+    {% if reserva.conductor_adicional %}
+    <section>
+      <h2>Conductor adicional</h2>
+      <p><strong>{{ reserva.conductor_adicional.nombre_completo }}</strong></p>
+      <p>Cédula: {{ reserva.conductor_adicional.documento|default:"—" }}{% if reserva.conductor_adicional.pasaporte %} · Pasaporte: {{ reserva.conductor_adicional.pasaporte }}{% endif %} · Tel: {{ reserva.conductor_adicional.telefono|default:"—" }}</p>
+      <p>Nacionalidad: {{ reserva.conductor_adicional.nacionalidad|default:"—" }} · Ocupación: {{ reserva.conductor_adicional.ocupacion|default:"—" }}</p>
+      {% if reserva.conductor_adicional.direccion %}<p>Dirección: {{ reserva.conductor_adicional.direccion }}</p>{% endif %}
+      <p>Licencia: {{ reserva.conductor_adicional.licencia_numero|default:"—" }}{% if reserva.conductor_adicional.licencia_vence %} (vence {{ reserva.conductor_adicional.licencia_vence|date:"d/m/Y" }}){% endif %}{% if reserva.conductor_adicional.lugar_expedicion %} · Expedida en: {{ reserva.conductor_adicional.lugar_expedicion }}{% endif %}</p>
+    </section>
+    {% endif %}
 
     <section>
       <h2>Vehículo</h2>
-      <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}</p>
+      <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}{% if reserva.vehiculo.color %} · Color: {{ reserva.vehiculo.color }}{% endif %}</p>
       <p>Categoría: {{ reserva.vehiculo.categoria.nombre }} · Tarifa diaria RD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
+      <p>
+        Km de salida: {{ reserva.km_entrega|default:"—" }} ·
+        Combustible al entregar: {{ reserva.get_combustible_entrega_display|default:"—" }}
+        {% if reserva.deducible %} · Deducible: RD$ {{ reserva.deducible|floatformat:2 }}{% endif %}
+      </p>
+      {% if reserva.posible_retorno and reserva.posible_retorno != reserva.fecha_fin %}
+      <p>Posible retorno estimado: {{ reserva.posible_retorno|date:"d/m/Y" }}</p>
+      {% endif %}
     </section>
 
     <section>
@@ -60,7 +86,32 @@
         <tr><td>Depósito</td><td>RD$ {{ reserva.deposito|floatformat:2 }}</td></tr>
         <tr><td>Pagado</td><td>RD$ {{ reserva.total_pagado|floatformat:2 }}</td></tr>
         <tr><td>Saldo pendiente</td><td>RD$ {{ reserva.saldo_pendiente|floatformat:2 }}</td></tr>
+        {% if reserva.pago_deposito %}
+        <tr>
+          <td>Forma de pago (depósito)</td>
+          <td>
+            {{ reserva.pago_deposito.get_metodo_display }}
+            {% if reserva.pago_deposito.metodo == 'tarjeta' %}
+              {% if reserva.pago_deposito.tarjeta_tipo %} · {{ reserva.pago_deposito.tarjeta_tipo }}{% endif %}
+              {% if reserva.pago_deposito.tarjeta_ultimos4 %} · **** {{ reserva.pago_deposito.tarjeta_ultimos4 }}{% endif %}
+              {% if reserva.pago_deposito.tarjeta_vencimiento %} · Vence {{ reserva.pago_deposito.tarjeta_vencimiento }}{% endif %}
+              {% if reserva.pago_deposito.tarjeta_autorizacion %} · Autorización {{ reserva.pago_deposito.tarjeta_autorizacion }}{% endif %}
+            {% endif %}
+          </td>
+        </tr>
+        {% endif %}
       </table>
+    </section>
+
+    <section>
+      <h2>Checklist de entrega</h2>
+      <div class="contrato-checklist">
+        {% for clave, etiqueta in reserva.CHECKLIST_ITEMS %}
+        <span class="contrato-checklist-item {% if clave in reserva.checklist_entrega %}presente{% else %}ausente{% endif %}">
+          {% if clave in reserva.checklist_entrega %}✓{% else %}—{% endif %} {{ etiqueta }}
+        </span>
+        {% endfor %}
+      </div>
     </section>
 
     {% if empresa.notas_contrato or reserva.notas %}
@@ -71,9 +122,15 @@
     </section>
     {% endif %}
 
+    <section class="contrato-declaracion">
+      <h2>Declaración</h2>
+      <p>Soy el Cliente, quien garantizo y aseguro que todo lo que está marcado arriba es correcto, por lo cual me comprometo a devolverlo de la misma forma, en caso de no ser así, tengo que pagar a ROB-REI RENT-A-CAR el valor del costo de cada accesorio que le falte al vehículo.</p>
+      <p><em>I am the Client, who guarantee and assure that everything that is marked above is correct, for which I promise to return it in the same way, if not, I have to pay ROB-REI RENT-A-CAR the value of the cost of each accessory missing from the vehicle.</em></p>
+    </section>
+
     <footer class="contrato-firmas">
       <div><span>Cliente</span></div>
-      <div><span>{{ empresa.nombre }}</span></div>
+      <div><span>Agente de Renta (Rental Agent)</span></div>
     </footer>
   </article>
 </body>

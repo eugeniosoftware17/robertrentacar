@@ -13,7 +13,9 @@ class Pago(models.Model):
         REEMBOLSO = 'reembolso', 'Reembolso'
 
     class Metodo(models.TextChoices):
-        EFECTIVO = 'efectivo', 'Efectivo'
+        EFECTIVO = 'efectivo', 'Efectivo (RD$)'
+        DOLAR = 'dolar', 'Dólar (US$)'
+        EURO = 'euro', 'Euro (€)'
         TARJETA = 'tarjeta', 'Tarjeta'
         TRANSFERENCIA = 'transferencia', 'Transferencia'
 
@@ -27,6 +29,13 @@ class Pago(models.Model):
     tipo = models.CharField('Tipo', max_length=20, choices=Tipo.choices, default=Tipo.PARCIAL)
     metodo = models.CharField('Método', max_length=20, choices=Metodo.choices, default=Metodo.EFECTIVO)
     referencia = models.CharField('Referencia', max_length=60, blank=True)
+    tarjeta_tipo = models.CharField('Tipo de tarjeta', max_length=30, blank=True)
+    tarjeta_ultimos4 = models.CharField('Últimos 4 dígitos', max_length=4, blank=True)
+    tarjeta_vencimiento = models.CharField(
+        'Vencimiento de tarjeta', max_length=10, blank=True,
+        help_text='MM/AA',
+    )
+    tarjeta_autorizacion = models.CharField('No. de autorización', max_length=40, blank=True)
     notas = models.TextField('Notas', blank=True)
     fecha = models.DateTimeField('Fecha del pago', auto_now_add=True)
 
