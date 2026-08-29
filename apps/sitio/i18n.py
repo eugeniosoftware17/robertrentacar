@@ -99,6 +99,7 @@ TEXTOS = {
     'veh_condicion_confirmacion_manual': {'es': 'Confirmación por teléfono o WhatsApp tras la solicitud', 'en': 'Confirmation by phone or WhatsApp after your request'},
     'veh_condicion_horario': {'es': 'Horario', 'en': 'Hours'},
     'veh_condicion_documentos': {'es': 'Documento de identidad y licencia vigente requeridos', 'en': 'Valid ID and driver’s license required'},
+    'veh_ver_detalles': {'es': 'Ver detalles y condiciones', 'en': 'See details and conditions'},
     'veh_incluye_titulo': {'es': 'Incluye', 'en': 'Includes'},
     'veh_incluye_1': {'es': 'Vehículo en condiciones de circulación', 'en': 'Vehicle in roadworthy condition'},
     'veh_incluye_2': {'es': 'Documentación al día', 'en': 'Up-to-date documentation'},

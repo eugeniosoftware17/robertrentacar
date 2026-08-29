@@ -69,13 +69,13 @@
 
         {% campo vehiculo 'descripcion_web' as descripcion %}
         {% if descripcion %}
-        <div class="sitio-bloque">
+        <div class="sitio-bloque sitio-bloque--descripcion">
           <h2 class="sitio-bloque-titulo">{% t 'veh_descripcion' %}</h2>
           <p class="sitio-text sitio-text--bloque">{{ descripcion }}</p>
         </div>
         {% endif %}
 
-        <div class="sitio-ficha">
+        <div class="sitio-ficha sitio-ficha--desktop">
           <div class="sitio-ficha-head">
             <h2>{% t 'veh_ficha_tecnica' %}</h2>
             <span class="sitio-ficha-ref">Ref. VEH-{{ vehiculo.pk|stringformat:"04d" }}</span>
@@ -98,7 +98,23 @@
           </table>
         </div>
 
-        <div class="sitio-info-grid">
+        <details class="sitio-acordeon sitio-ficha--movil">
+          <summary class="sitio-acordeon-toggle">{% t 'veh_ficha_tecnica' %} <span class="sitio-acordeon-caret">▾</span></summary>
+          <div class="sitio-acordeon-body">
+            <div class="sitio-ficha-grid-movil">
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_marca' %}</span><span class="sitio-ficha-item-valor">{{ vehiculo.marca }}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_modelo' %}</span><span class="sitio-ficha-item-valor">{{ vehiculo.modelo }}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_anio' %}</span><span class="sitio-ficha-item-valor">{{ vehiculo.anio }}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_categoria' %}</span><span class="sitio-ficha-item-valor">{% t_categoria vehiculo.categoria %}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_transmision' %}</span><span class="sitio-ficha-item-valor">{% t_transmision vehiculo.transmision %}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_color' %}</span><span class="sitio-ficha-item-valor">{{ vehiculo.color|default:"—" }}</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_kilometraje' %}</span><span class="sitio-ficha-item-valor">{{ vehiculo.kilometraje|floatformat:0 }} km</span></div>
+              <div class="sitio-ficha-item"><span class="sitio-ficha-item-label">{% t 'veh_estado' %}</span><span class="sitio-ficha-item-valor sitio-ficha-estado">{% t 'veh_disponible' %}</span></div>
+            </div>
+          </div>
+        </details>
+
+        <div class="sitio-info-grid sitio-info-grid--desktop">
           <div class="sitio-bloque">
             <h2 class="sitio-bloque-titulo">{% t 'veh_condiciones_titulo' %}</h2>
             <ul class="sitio-lista-info">
@@ -118,8 +134,31 @@
           </div>
         </div>
 
+        <details class="sitio-acordeon sitio-acordeon--movil">
+          <summary class="sitio-acordeon-toggle">{% t 'veh_ver_detalles' %} <span class="sitio-acordeon-caret">▾</span></summary>
+          <div class="sitio-acordeon-body">
+            <div>
+              <h3 class="sitio-bloque-subtitulo">{% t 'veh_condiciones_titulo' %}</h3>
+              <ul class="sitio-lista-info">
+                <li>{% t 'veh_condicion_anticipacion' h=sitio.anticipacion_horas %}</li>
+                <li>{% if sitio.reserva_auto_confirmar %}{% t 'veh_condicion_confirmacion_auto' %}{% else %}{% t 'veh_condicion_confirmacion_manual' %}{% endif %}</li>
+                {% if sitio.horario %}<li>{% t 'veh_condicion_horario' %}: {{ sitio.horario }}</li>{% endif %}
+                <li>{% t 'veh_condicion_documentos' %}</li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="sitio-bloque-subtitulo">{% t 'veh_incluye_titulo' %}</h3>
+              <ul class="sitio-lista-info">
+                <li>{% t 'veh_incluye_1' %}</li>
+                <li>{% t 'veh_incluye_2' %}</li>
+                <li>{% t 'veh_incluye_3' %} {{ empresa.nombre }}</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+
         {% if empresa.direccion or empresa.telefono or sitio.whatsapp_activo or sitio.tiene_redes %}
-        <div class="sitio-bloque sitio-bloque--contacto">
+        <div class="sitio-bloque sitio-bloque--contacto sitio-bloque--contacto-desktop">
           <h2 class="sitio-bloque-titulo">{% t 'veh_contacto_titulo' %}</h2>
           <dl class="sitio-contacto-dl">
             {% if empresa.direccion %}<div><dt>{% t 'veh_direccion' %}</dt><dd>{{ empresa.direccion }}</dd></div>{% endif %}
@@ -130,6 +169,12 @@
           <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--sm sitio-btn--wa" target="_blank" rel="noopener">{% t 'veh_consultar_whatsapp' %}</a>
           {% endif %}
           {% include "sitio/partials/redes_sociales.html" with clase="sitio-redes--bloque" %}
+        </div>
+        {% endif %}
+
+        {% if sitio.whatsapp_activo %}
+        <div class="sitio-bloque sitio-bloque--contacto-movil">
+          <a href="{% whatsapp_url sitio wa_msg %}" class="sitio-btn sitio-btn-sec sitio-btn--block sitio-btn--wa" target="_blank" rel="noopener">{% t 'veh_consultar_whatsapp' %}</a>
         </div>
         {% endif %}
       </div>
@@ -183,7 +228,7 @@
           </div>
 
           {% if relacionados %}
-          <aside class="sitio-relacionados">
+          <aside class="sitio-relacionados sitio-relacionados--desktop">
             <h2 class="sitio-relacionados-titulo">También te puede interesar</h2>
             {% for grupo in relacionados %}
             <div class="sitio-relacionados-grupo">
@@ -198,6 +243,17 @@
               </div>
             </div>
             {% endfor %}
+          </aside>
+
+          <aside class="sitio-relacionados sitio-relacionados--movil">
+            <h2 class="sitio-relacionados-titulo">También te puede interesar</h2>
+            <div class="sitio-relacionados-carrusel">
+              {% for grupo in relacionados %}
+              {% for v in grupo.vehiculos %}
+              {% include "sitio/partials/vehiculo_mini.html" with v=v %}
+              {% endfor %}
+              {% endfor %}
+            </div>
           </aside>
           {% endif %}
         </div>

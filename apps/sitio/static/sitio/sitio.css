@@ -133,6 +133,32 @@
   gap: 0.45rem;
 }
 
+.sitio-relacionados--movil {
+  display: none;
+}
+
+.sitio-relacionados-carrusel {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.4rem;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sitio-relacionados-carrusel .sitio-mini-card {
+  flex: 0 0 auto;
+  width: 180px;
+  flex-direction: column;
+  align-items: flex-start;
+  scroll-snap-align: start;
+}
+
+.sitio-relacionados-carrusel .sitio-mini-card-img {
+  width: 100%;
+  height: 96px;
+}
+
 .sitio-mini-card {
   display: flex;
   align-items: center;
@@ -214,6 +240,64 @@
   gap: 1rem;
 }
 
+/* Acordeón "Ver detalles y condiciones" — solo móvil */
+.sitio-acordeon--movil {
+  display: none;
+}
+
+.sitio-acordeon-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.15rem;
+  background: var(--sitio-surface);
+  border: 1px solid #dde5e3;
+  border-radius: var(--sitio-radius);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--sitio-brand-dark);
+  cursor: pointer;
+  list-style: none;
+}
+
+.sitio-acordeon-toggle::-webkit-details-marker {
+  display: none;
+}
+
+.sitio-acordeon-caret {
+  transition: transform 0.2s;
+  color: var(--sitio-muted);
+}
+
+.sitio-acordeon[open] .sitio-acordeon-toggle {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.sitio-acordeon[open] .sitio-acordeon-caret {
+  transform: rotate(180deg);
+}
+
+.sitio-acordeon-body {
+  padding: 1rem 1.15rem 1.1rem;
+  background: var(--sitio-surface);
+  border: 1px solid #dde5e3;
+  border-top: none;
+  border-bottom-left-radius: var(--sitio-radius);
+  border-bottom-right-radius: var(--sitio-radius);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sitio-bloque-subtitulo {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--sitio-brand-dark);
+}
+
 .sitio-lista-info {
   margin: 0;
   padding: 0 0 0 1.15rem;
@@ -234,6 +318,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
+}
+
+.sitio-bloque--contacto-movil {
+  display: none;
 }
 
 .sitio-contacto-dl {
@@ -1027,12 +1115,19 @@
 .sitio-detalle-media img,
 .sitio-detalle-placeholder {
   width: 100%;
+  min-width: 0;
   border-radius: var(--sitio-radius);
   box-shadow: var(--sitio-shadow);
 }
 
 /* Galería de fotos */
+.sitio-galeria {
+  min-width: 0;
+}
+
 .sitio-galeria-main {
+  min-width: 0;
+  max-width: 100%;
   border-radius: var(--sitio-radius);
   overflow: hidden;
   box-shadow: var(--sitio-shadow);
@@ -1042,6 +1137,7 @@
 
 .sitio-galeria-main img {
   width: 100%;
+  max-width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
@@ -1055,6 +1151,7 @@
 
 .sitio-galeria-thumb {
   flex: 1;
+  min-width: 0;
   max-width: 33%;
   padding: 0;
   border: 2px solid transparent;
@@ -1161,6 +1258,45 @@
 .sitio-ficha-tarifa td {
   font-size: 0.95rem;
   color: var(--sitio-brand-dark);
+}
+
+/* Ficha técnica compacta — solo móvil */
+.sitio-ficha--movil {
+  display: none;
+}
+
+.sitio-ficha-grid-movil {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1rem;
+}
+
+.sitio-ficha-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #eef2f1;
+}
+
+.sitio-ficha-item:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+.sitio-ficha-item-label {
+  font-size: 0.72rem;
+  color: var(--sitio-muted);
+  font-weight: 500;
+}
+
+.sitio-ficha-item-valor {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--sitio-text);
+}
+
+.sitio-ficha-item-valor.sitio-ficha-estado {
+  color: #1f7a55;
 }
 
 /* Calendario visual — compacto */
@@ -1649,11 +1785,43 @@
   .sitio-hero-split-img { min-height: 220px; order: -1; }
   .sitio-hero--foto { min-height: 58vh; }
   .sitio-cta-box { flex-direction: column; align-items: flex-start; }
-  .sitio-detalle { grid-template-columns: 1fr; }
-  .sitio-lateral-sticky { position: static; }
+  .sitio-detalle { grid-template-columns: 1fr; gap: 1.25rem; }
   .sitio-detalle-header--movil { display: block; }
   .sitio-detalle-header--desktop { display: none; }
-  .sitio-ficha-tabla th { width: 38%; }
+
+  /* Reordenar la columna de reserva justo después de la ficha técnica,
+     sin duplicar el calendario (que tiene JS con ids únicos): se
+     disuelven los envoltorios de columna para que sus hijos pasen a
+     ser ítems directos de .sitio-detalle y se puedan reordenar con `order`. */
+  .sitio-detalle-col-principal,
+  .sitio-detalle-col-lateral,
+  .sitio-lateral-sticky {
+    display: contents;
+  }
+
+  /* Todo ítem que quede como hijo directo del grid de una sola columna
+     necesita min-width:0 — si no, el ítem con más contenido (tabla,
+     imagen, calendario) fuerza la única columna 1fr a su ancho de
+     contenido y desborda el viewport. */
+  .sitio-detalle-col-principal > *,
+  .sitio-detalle-col-lateral > *,
+  .sitio-lateral-sticky > * {
+    min-width: 0;
+  }
+
+  .sitio-galeria,
+  .sitio-detalle-placeholder { order: 1; }
+  .sitio-detalle-header--movil { order: 2; }
+  .sitio-bloque--descripcion { order: 3; }
+  .sitio-ficha--desktop { display: none; }
+  .sitio-ficha--movil { display: block; order: 4; }
+  .sitio-reserva-panel { order: 5; }
+  .sitio-info-grid--desktop { display: none; }
+  .sitio-acordeon--movil { display: block; order: 6; }
+  .sitio-bloque--contacto-desktop { display: none; }
+  .sitio-bloque--contacto-movil { display: block; order: 7; }
+  .sitio-relacionados--desktop { display: none; }
+  .sitio-relacionados--movil { display: block; order: 8; }
   .sitio-form-grid { grid-template-columns: 1fr; }
 
   .sitio-footer-grid {
