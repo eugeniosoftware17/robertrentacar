@@ -159,7 +159,9 @@
 }
 
 .topbar-search-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 11px 14px;
   text-decoration: none;
   color: var(--text);
@@ -173,6 +175,24 @@
 .topbar-search-item:hover,
 .topbar-search-item.is-active {
   background: var(--topbar-btn-hover);
+}
+
+.topbar-search-foto {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--topbar-btn-hover);
+}
+
+.topbar-search-foto--vacia {
+  display: block;
+}
+
+.topbar-search-texto {
+  min-width: 0;
+  flex: 1;
 }
 
 .topbar-search-item strong {

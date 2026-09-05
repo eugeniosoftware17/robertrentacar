@@ -265,15 +265,17 @@ def buscar_global(request):
 
     if puede_acceder(request.user, 'vehiculos'):
         vehiculos = filtrar_vehiculos(
-            Vehiculo.objects.select_related('categoria').all(),
+            Vehiculo.objects.select_related('categoria').prefetch_related('fotos_galeria').all(),
             termino=termino,
         )[:6]
         for vehiculo in vehiculos:
+            fotos = vehiculo.fotos_para_web()
             resultados.append({
                 'tipo': 'Vehículo',
                 'titulo': vehiculo.nombre_corto,
                 'subtitulo': f'{vehiculo.placa} · {vehiculo.categoria.nombre}',
                 'url': reverse('vehiculos:editar', kwargs={'pk': vehiculo.pk}),
+                'foto': fotos[0].url if fotos else None,
             })
 
     if puede_acceder(request.user, 'clientes'):

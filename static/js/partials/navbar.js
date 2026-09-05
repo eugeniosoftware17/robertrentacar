@@ -203,7 +203,15 @@ bindClick('btnNuevaReserva', function () {
       var link = document.createElement('a');
       link.className = 'topbar-search-item';
       link.href = item.url;
-      link.innerHTML = '<em>' + item.tipo + '</em><strong>' + item.titulo + '</strong><span>' + (item.subtitulo || '') + '</span>';
+
+      var miniatura = item.tipo === 'Vehículo'
+        ? (item.foto
+          ? '<img class="topbar-search-foto" src="' + item.foto + '" alt="" />'
+          : '<span class="topbar-search-foto topbar-search-foto--vacia"></span>')
+        : '';
+
+      link.innerHTML = miniatura
+        + '<div class="topbar-search-texto"><em>' + item.tipo + '</em><strong>' + item.titulo + '</strong><span>' + (item.subtitulo || '') + '</span></div>';
       panel.appendChild(link);
     });
     panel.hidden = false;
