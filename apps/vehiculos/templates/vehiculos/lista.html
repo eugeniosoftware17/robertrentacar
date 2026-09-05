@@ -45,15 +45,15 @@
     <table class="mod-tabla">
       <thead>
         <tr>
-          <th>Foto</th>
-          <th>Ref.</th>
-          <th>Vehículo</th>
-          <th>Placa</th>
-          <th>Categoría</th>
-          <th>Tarifa/día</th>
-          <th>Estado</th>
-          <th>Web</th>
-          <th>Destacado</th>
+          <th data-col="0" style="cursor:pointer;">Foto</th>
+          <th data-col="1" style="cursor:pointer;">Ref. ↕</th>
+          <th data-col="2" style="cursor:pointer;">Vehículo ↕</th>
+          <th data-col="3" style="cursor:pointer;">Placa ↕</th>
+          <th data-col="4" style="cursor:pointer;">Categoría ↕</th>
+          <th data-col="5" style="cursor:pointer;">Tarifa/día ↕</th>
+          <th data-col="6" style="cursor:pointer;">Estado ↕</th>
+          <th data-col="7">Web</th>
+          <th data-col="8">Destacado</th>
           <th></th>
         </tr>
       </thead>
@@ -139,6 +139,46 @@
   });
   // Limpiar el value inicial que venía del GET para evitar confusión
   input.value = '';
+})();
+</script>
+<script>
+(function() {
+  const tabla = document.querySelector('.mod-tabla');
+  if (!tabla) return;
+  let colActual = -1;
+  let ascendente = true;
+
+  tabla.querySelectorAll('th[data-col]').forEach(function(th) {
+    const col = parseInt(th.dataset.col);
+    // Solo columnas ordenables (no Foto=0, Web=7, Destacado=8)
+    if ([0, 7, 8].includes(col)) return;
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', function() {
+      ascendente = (colActual === col) ? !ascendente : true;
+      colActual = col;
+
+      // Actualizar flecha en encabezados
+      tabla.querySelectorAll('th[data-col]').forEach(function(t) {
+        const txt = t.textContent.replace(' ↑', '').replace(' ↓', '').replace(' ↕', '');
+        t.textContent = txt + (parseInt(t.dataset.col) === col ? (ascendente ? ' ↑' : ' ↓') : ([0,7,8].includes(parseInt(t.dataset.col)) ? '' : ' ↕'));
+      });
+
+      const tbody = tabla.querySelector('tbody');
+      const filas = Array.from(tbody.querySelectorAll('tr'));
+      filas.sort(function(a, b) {
+        const celdaA = a.cells[col] ? a.cells[col].textContent.trim().toLowerCase() : '';
+        const celdaB = b.cells[col] ? b.cells[col].textContent.trim().toLowerCase() : '';
+        // Intentar ordenar como número si es posible
+        const numA = parseFloat(celdaA.replace(/[^0-9.]/g, ''));
+        const numB = parseFloat(celdaB.replace(/[^0-9.]/g, ''));
+        if (!isNaN(numA) && !isNaN(numB)) {
+          return ascendente ? numA - numB : numB - numA;
+        }
+        return ascendente ? celdaA.localeCompare(celdaB) : celdaB.localeCompare(celdaA);
+      });
+      filas.forEach(function(fila) { tbody.appendChild(fila); });
+    });
+  });
 })();
 </script>
 {% endblock %}
