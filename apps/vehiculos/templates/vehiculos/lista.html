@@ -110,6 +110,50 @@
       </tbody>
     </table>
   </div>
+
+  <div class="veh-cards-movil">
+    {% for vehiculo in vehiculos %}
+    <div class="veh-card-movil" data-busqueda="{{ vehiculo.nombre_corto|lower }} veh-{{ vehiculo.pk|stringformat:'04d' }} {{ vehiculo.placa|lower }} {{ vehiculo.categoria.nombre|lower }} {{ vehiculo.color|lower }}">
+      <div class="veh-card-movil-header">
+        {% with foto=vehiculo.fotos_galeria.all.first %}
+        {% if foto %}
+        <img src="{{ foto.imagen.url }}" alt="{{ vehiculo.nombre_corto }}" class="veh-card-movil-foto" />
+        {% else %}
+        <div class="veh-card-movil-foto veh-card-movil-foto--vacia">Sin foto</div>
+        {% endif %}
+        {% endwith %}
+        <div class="veh-card-movil-info">
+          <div class="veh-card-movil-ref">VEH-{{ vehiculo.pk|stringformat:"04d" }}</div>
+          <div class="veh-card-movil-nombre">{{ vehiculo.nombre_corto }}</div>
+          <div class="veh-card-movil-color">{{ vehiculo.color|default:"Sin color" }}</div>
+        </div>
+      </div>
+      <div class="veh-card-movil-datos">
+        <span><strong>Placa:</strong> {{ vehiculo.placa }}</span>
+        <span><strong>Cat:</strong> {{ vehiculo.categoria.nombre }}</span>
+        <span><strong>Tarifa:</strong> USD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}/día</span>
+        <span>
+          {% if vehiculo.estado == 'disponible' %}
+          <span class="mod-badge verde">Disponible</span>
+          {% elif vehiculo.estado == 'rentado' %}
+          <span class="mod-badge azul">Rentado</span>
+          {% else %}
+          <span class="mod-badge amarillo">Mantenimiento</span>
+          {% endif %}
+        </span>
+        <span>
+          {% if vehiculo.visible_en_web %}<span class="mod-badge verde">Web ✓</span>{% endif %}
+          {% if vehiculo.destacado_web %}<span class="mod-badge azul">★ Destacado</span>{% endif %}
+        </span>
+      </div>
+      <div class="veh-card-movil-acciones">
+        <a href="{% url 'vehiculos:rentabilidad' vehiculo.pk %}" class="mod-btn mod-btn-sec">Rentabilidad</a>
+        <a href="{% url 'vehiculos:editar' vehiculo.pk %}" class="mod-btn mod-btn-sec">Editar</a>
+        <a href="{% url 'vehiculos:eliminar' vehiculo.pk %}" class="mod-btn" style="color:#e53e3e;">Eliminar</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% else %}
   <div class="mod-vacio">
     <p>No hay vehículos con estos filtros.</p>
@@ -128,11 +172,17 @@
   if (!input) return;
   input.addEventListener('input', function() {
     const q = this.value.toLowerCase().trim();
+    // Filtrar tabla escritorio
     document.querySelectorAll('tbody tr').forEach(function(row) {
       const texto = row.dataset.busqueda || '';
       row.style.display = (!q || texto.includes(q)) ? '' : 'none';
     });
-    // Actualizar el contador de resultados
+    // Filtrar tarjetas móviles
+    document.querySelectorAll('.veh-card-movil').forEach(function(card) {
+      const texto = card.dataset.busqueda || '';
+      card.style.display = (!q || texto.includes(q)) ? '' : 'none';
+    });
+    // Actualizar contador
     const visibles = document.querySelectorAll('tbody tr:not([style*="none"])').length;
     const hint = document.querySelector('.mod-card-hint');
     if (hint) hint.textContent = visibles + ' vehículo' + (visibles !== 1 ? 's' : '');
