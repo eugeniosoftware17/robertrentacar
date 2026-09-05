@@ -10,7 +10,7 @@
 {% block content %}
 <div class="mod-toolbar mod-toolbar-stack">
   <form class="mod-buscar" method="get" id="vehiculosBuscarForm">
-    <input type="text" name="q" value="{{ busqueda }}" placeholder="Buscar en todos los campos del vehículo..." class="mod-input" autocomplete="off" />
+    <input type="text" id="adminBuscador" value="{{ busqueda }}" placeholder="Buscar en todos los campos del vehículo..." class="mod-input" autocomplete="off" />
     <select name="categoria" class="mod-input mod-select">
       <option value="">Todas las categorías</option>
       {% for cat in categorias %}
@@ -59,7 +59,7 @@
       </thead>
       <tbody>
         {% for vehiculo in vehiculos %}
-        <tr>
+        <tr data-busqueda="{{ vehiculo.nombre_corto|lower }} veh-{{ vehiculo.pk|stringformat:'04d' }} {{ vehiculo.placa|lower }} {{ vehiculo.categoria.nombre|lower }} {{ vehiculo.color|lower }}">
           <td>
             {% with foto=vehiculo.fotos_galeria.all.first %}
             {% if foto %}
@@ -122,4 +122,23 @@
 
 {% block extra_js %}
 <script src="{% static 'vehiculos/vehiculos.js' %}"></script>
+<script>
+(function() {
+  const input = document.getElementById('adminBuscador');
+  if (!input) return;
+  input.addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    document.querySelectorAll('tbody tr').forEach(function(row) {
+      const texto = row.dataset.busqueda || '';
+      row.style.display = (!q || texto.includes(q)) ? '' : 'none';
+    });
+    // Actualizar el contador de resultados
+    const visibles = document.querySelectorAll('tbody tr:not([style*="none"])').length;
+    const hint = document.querySelector('.mod-card-hint');
+    if (hint) hint.textContent = visibles + ' vehículo' + (visibles !== 1 ? 's' : '');
+  });
+  // Limpiar el value inicial que venía del GET para evitar confusión
+  input.value = '';
+})();
+</script>
 {% endblock %}
