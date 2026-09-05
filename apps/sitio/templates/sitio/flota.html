@@ -12,6 +12,8 @@
     <h1>{% t 'flota_titulo' %}</h1>
     <p class="sitio-lead">{% t 'flota_lead' %}</p>
 
+    <input type="text" id="buscador-flota" class="sitio-input" placeholder="Buscar vehículo..." autocomplete="off" style="width:100%; margin-bottom: 1rem;" />
+
     <form method="get" class="sitio-filtros">
       <select name="categoria" class="sitio-input">
         <option value="">{% t 'flota_todas_categorias' %}</option>
@@ -34,7 +36,7 @@
     {% if vehiculos %}
     <div class="sitio-grid">
       {% for v in vehiculos %}
-      <article class="sitio-card">
+      <article class="sitio-card" data-busqueda="{{ v.nombre_corto|lower }} {{ v.categoria }} {{ v.transmision }} {{ v.color|lower }} {{ v.anio }} veh-{{ v.pk|stringformat:'04d' }}">
         <a href="{{ v.get_absolute_url }}">
           {% with fotos=v.fotos_para_web %}
           {% if fotos %}
@@ -73,6 +75,20 @@
     {% else %}
     <p class="sitio-empty">{% t 'flota_vacio' %}</p>
     {% endif %}
+
+    <script>
+    (function() {
+      const input = document.getElementById('buscador-flota');
+      if (!input) return;
+      input.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        document.querySelectorAll('.sitio-card').forEach(function(card) {
+          const texto = card.dataset.busqueda || '';
+          card.style.display = (!q || texto.includes(q)) ? '' : 'none';
+        });
+      });
+    })();
+    </script>
   </div>
 </section>
 {% endblock %}
