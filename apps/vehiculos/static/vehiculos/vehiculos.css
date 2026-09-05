@@ -335,3 +335,9 @@
   gap: 0.5rem;
   flex-wrap: wrap;
 }
+
+@media (max-width: 768px) {
+  #adminBuscador {
+    margin-top: 3.5rem;
+  }
+}
