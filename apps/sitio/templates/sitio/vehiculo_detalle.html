@@ -1,7 +1,7 @@
 {% extends "sitio/base_public.html" %}
 {% load static sitio_extras %}
 
-{% block title %}{% if idioma_actual == 'en' %}Rent{% else %}Alquiler{% endif %} {{ vehiculo.nombre_corto }} — RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %} | {{ empresa.nombre }}{% endblock %}
+{% block title %}{% if idioma_actual == 'en' %}Rent{% else %}Alquiler{% endif %} {{ vehiculo.nombre_corto }} — USD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %} | {{ empresa.nombre }}{% endblock %}
 {% block meta_description %}{{ meta_description }}{% endblock %}
 {% block og_title %}{% if idioma_actual == 'en' %}Rent{% else %}Alquiler{% endif %} {{ vehiculo.nombre_corto }} — {{ empresa.nombre }}{% endblock %}
 {% block og_description %}{{ meta_description }}{% endblock %}
@@ -91,9 +91,9 @@
               <tr><th scope="row">{% t 'veh_color' %}</th><td>{{ vehiculo.color|default:"—" }}</td></tr>
               <tr><th scope="row">{% t 'veh_kilometraje' %}</th><td>{{ vehiculo.kilometraje|floatformat:0 }} km</td></tr>
               <tr><th scope="row">{% t 'veh_estado' %}</th><td><span class="sitio-ficha-estado">{% t 'veh_disponible' %}</span></td></tr>
-              <tr class="sitio-ficha-sep"><th scope="row">{% t 'veh_tarifa_diaria' %}</th><td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td></tr>
-              <tr><th scope="row">{% t 'veh_estimado_7' %}</th><td>RD$ {{ tarifa_semanal|floatformat:0 }}</td></tr>
-              <tr><th scope="row">{% t 'veh_estimado_30' %}</th><td>RD$ {{ tarifa_mensual|floatformat:0 }}</td></tr>
+              <tr class="sitio-ficha-sep"><th scope="row">{% t 'veh_tarifa_diaria' %}</th><td>USD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td></tr>
+              <tr><th scope="row">{% t 'veh_estimado_7' %}</th><td>USD$ {{ tarifa_semanal|floatformat:0 }}</td></tr>
+              <tr><th scope="row">{% t 'veh_estimado_30' %}</th><td>USD$ {{ tarifa_mensual|floatformat:0 }}</td></tr>
             </tbody>
           </table>
         </div>
@@ -189,8 +189,8 @@
 
             <div class="sitio-precio-box">
               <span class="sitio-precio-box-label">Tarifa diaria</span>
-              <p class="sitio-precio sitio-precio--lg">RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
-              <p class="sitio-precio-extra">7 días ≈ RD$ {{ tarifa_semanal|floatformat:0 }} · 30 días ≈ RD$ {{ tarifa_mensual|floatformat:0 }}</p>
+              <p class="sitio-precio sitio-precio--lg">USD$ {{ vehiculo.tarifa_diaria|floatformat:0 }} <span>/ día</span></p>
+              <p class="sitio-precio-extra">7 días ≈ USD$ {{ tarifa_semanal|floatformat:0 }} · 30 días ≈ USD$ {{ tarifa_mensual|floatformat:0 }}</p>
             </div>
 
             <div class="sitio-calendario-box sitio-calendario-box--compact" id="calendarioReserva"

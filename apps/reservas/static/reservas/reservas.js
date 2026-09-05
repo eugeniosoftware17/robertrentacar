@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var calAnio, calMes;
 
   function fmt(n) {
-    return 'RD$ ' + Math.round(n).toLocaleString('es-DO');
+    return 'USD$ ' + Math.round(n).toLocaleString('es-DO');
   }
 
   function calcularDias(fi, ff) {
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('rp-dias').textContent = dias > 0 ? dias : '—';
     document.getElementById('rp-tarifa').textContent = tarifa ? fmt(tarifa) + '/día' : '—';
     document.getElementById('rp-total').textContent = total > 0 ? fmt(total) : '—';
-    document.getElementById('rp-deposito').textContent = dep > 0 ? fmt(dep) : 'RD$ 0';
+    document.getElementById('rp-deposito').textContent = dep > 0 ? fmt(dep) : 'USD$ 0';
     document.getElementById('rp-saldo').textContent = total > 0 ? fmt(saldo) : '—';
   }
 

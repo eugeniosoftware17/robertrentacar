@@ -12,7 +12,7 @@ class Empleado(models.Model):
     telefono = models.CharField('Teléfono', max_length=20, blank=True)
     email = models.EmailField('Correo', blank=True)
     salario_base = models.DecimalField(
-        'Salario base (RD$)',
+        'Salario base (USD$)',
         max_digits=10,
         decimal_places=2,
         default=Decimal('0.00'),
@@ -55,7 +55,7 @@ class PagoNomina(models.Model):
         verbose_name='Empleado',
     )
     concepto = models.CharField('Concepto', max_length=20, choices=Concepto.choices, default=Concepto.SALARIO)
-    monto = models.DecimalField('Monto (RD$)', max_digits=10, decimal_places=2)
+    monto = models.DecimalField('Monto (USD$)', max_digits=10, decimal_places=2)
     fecha_pago = models.DateField('Fecha de pago')
     metodo = models.CharField('Método', max_length=20, choices=Metodo.choices, default=Metodo.EFECTIVO)
     notas = models.TextField('Notas', blank=True)
@@ -67,7 +67,7 @@ class PagoNomina(models.Model):
         verbose_name_plural = 'Pagos de nómina'
 
     def __str__(self):
-        return f'{self.empleado} — RD$ {self.monto} ({self.fecha_pago})'
+        return f'{self.empleado} — USD$ {self.monto} ({self.fecha_pago})'
 
 
 class Gasto(models.Model):
@@ -81,7 +81,7 @@ class Gasto(models.Model):
 
     concepto = models.CharField('Concepto', max_length=120)
     categoria = models.CharField('Categoría', max_length=20, choices=Categoria.choices, default=Categoria.OTRO)
-    monto = models.DecimalField('Monto (RD$)', max_digits=10, decimal_places=2)
+    monto = models.DecimalField('Monto (USD$)', max_digits=10, decimal_places=2)
     fecha = models.DateField('Fecha')
     vehiculo = models.ForeignKey(
         Vehiculo,
@@ -101,4 +101,4 @@ class Gasto(models.Model):
         verbose_name_plural = 'Gastos'
 
     def __str__(self):
-        return f'{self.concepto} — RD$ {self.monto} ({self.fecha})'
+        return f'{self.concepto} — USD$ {self.monto} ({self.fecha})'

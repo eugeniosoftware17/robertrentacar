@@ -76,9 +76,9 @@ class Vehiculo(models.Model):
         choices=Transmision.choices,
         default=Transmision.AUTOMATICO,
     )
-    tarifa_diaria = models.DecimalField('Tarifa diaria (RD$)', max_digits=10, decimal_places=2)
+    tarifa_diaria = models.DecimalField('Tarifa diaria (USD$)', max_digits=10, decimal_places=2)
     precio_compra = models.DecimalField(
-        'Precio de compra (RD$)',
+        'Precio de compra (USD$)',
         max_digits=10,
         decimal_places=2,
         default=Decimal('0.00'),

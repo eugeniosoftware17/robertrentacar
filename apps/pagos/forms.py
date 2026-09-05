@@ -45,8 +45,8 @@ class PagoForm(forms.ModelForm):
     def _etiqueta_reserva(reserva):
         return (
             f'#{reserva.pk} — {reserva.cliente.nombre_completo} · '
-            f'{reserva.vehiculo.placa} · RD$ {reserva.precio_total:,.0f} '
-            f'(saldo RD$ {reserva.saldo_pendiente:,.0f})'
+            f'{reserva.vehiculo.placa} · USD$ {reserva.precio_total:,.0f} '
+            f'(saldo USD$ {reserva.saldo_pendiente:,.0f})'
         )
 
     def clean(self):
@@ -64,15 +64,15 @@ class PagoForm(forms.ModelForm):
         if tipo == Pago.Tipo.REEMBOLSO:
             if monto > reserva.total_pagado:
                 raise ValidationError({
-                    'monto': f'El reembolso no puede superar lo pagado (RD$ {reserva.total_pagado:,.2f}).',
+                    'monto': f'El reembolso no puede superar lo pagado (USD$ {reserva.total_pagado:,.2f}).',
                 })
         elif monto > reserva.saldo_pendiente:
             raise ValidationError({
                 'monto': (
                     f'El monto supera el saldo pendiente de la reserva '
-                    f'(RD$ {reserva.saldo_pendiente:,.2f}). '
-                    f'Total alquiler: RD$ {reserva.precio_total:,.2f} · '
-                    f'Pagado: RD$ {reserva.total_pagado:,.2f}.'
+                    f'(USD$ {reserva.saldo_pendiente:,.2f}). '
+                    f'Total alquiler: USD$ {reserva.precio_total:,.2f} · '
+                    f'Pagado: USD$ {reserva.total_pagado:,.2f}.'
                 ),
             })
 

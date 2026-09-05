@@ -19,27 +19,27 @@
 <div class="rep-resumen">
   <div class="rep-card">
     <span>Nómina del periodo</span>
-    <strong>RD$ {{ total_nomina|floatformat:0 }}</strong>
+    <strong>USD$ {{ total_nomina|floatformat:0 }}</strong>
     <small>{{ pagos_periodo }} pago{{ pagos_periodo|pluralize:"s" }}</small>
   </div>
   <div class="rep-card">
     <span>Gastos del periodo</span>
-    <strong>RD$ {{ total_gastos|floatformat:0 }}</strong>
+    <strong>USD$ {{ total_gastos|floatformat:0 }}</strong>
     <small>{{ gastos_cantidad }} registro{{ gastos_cantidad|pluralize:"s" }}</small>
   </div>
   <div class="rep-card">
     <span>Gastos generales</span>
-    <strong>RD$ {{ gastos_generales|floatformat:0 }}</strong>
+    <strong>USD$ {{ gastos_generales|floatformat:0 }}</strong>
     <small>Oficina, publicidad, etc.</small>
   </div>
   <div class="rep-card">
     <span>Gastos por vehículo</span>
-    <strong>RD$ {{ gastos_vehiculo|floatformat:0 }}</strong>
+    <strong>USD$ {{ gastos_vehiculo|floatformat:0 }}</strong>
     <small>Sumados a rentabilidad del auto</small>
   </div>
   <div class="rep-card">
     <span>Total egresos</span>
-    <strong class="rojo">RD$ {{ total_general|floatformat:0 }}</strong>
+    <strong class="rojo">USD$ {{ total_general|floatformat:0 }}</strong>
     <small>Nómina + gastos (sin mantenimiento)</small>
   </div>
   <div class="rep-card">

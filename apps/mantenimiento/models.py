@@ -26,7 +26,7 @@ class Mantenimiento(models.Model):
     fecha = models.DateField('Fecha')
     tipo = models.CharField('Tipo', max_length=20, choices=Tipo.choices, default=Tipo.REVISION)
     estado = models.CharField('Estado', max_length=20, choices=Estado.choices, default=Estado.PROGRAMADO)
-    costo = models.DecimalField('Costo (RD$)', max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    costo = models.DecimalField('Costo (USD$)', max_digits=10, decimal_places=2, default=Decimal('0.00'))
     kilometraje = models.PositiveIntegerField('Kilometraje', blank=True, null=True)
     descripcion = models.TextField('Descripción', blank=True)
     proximo_servicio = models.DateField('Próximo servicio', blank=True, null=True)

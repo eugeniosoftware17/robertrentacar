@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var col = document.createElement('div');
     col.className = 'dash-barra-col';
     col.innerHTML =
-      '<div class="dash-barra" style="height:' + altura + 'px; animation-delay:' + (i * 60) + 'ms" title="RD$ ' + (d.valor * 1000).toLocaleString('es-DO') + '"></div>' +
+      '<div class="dash-barra" style="height:' + altura + 'px; animation-delay:' + (i * 60) + 'ms" title="USD$ ' + (d.valor * 1000).toLocaleString('es-DO') + '"></div>' +
       '<div class="dash-barra-mes">' + d.mes + '</div>';
     contenedor.appendChild(col);
   });

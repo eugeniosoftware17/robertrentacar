@@ -57,7 +57,7 @@
             <div class="mod-sub">{{ reserva.vehiculo.placa }}</div>
           </td>
           <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }}<div class="mod-sub">{{ reserva.dias }} día{{ reserva.dias|pluralize:"s" }}</div></td>
-          <td>RD$ {{ reserva.precio_total|floatformat:0 }}</td>
+          <td>USD$ {{ reserva.precio_total|floatformat:0 }}</td>
           <td>
             {% if reserva.estado == 'confirmada' %}
             <span class="mod-badge azul">Confirmada</span>

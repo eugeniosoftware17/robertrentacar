@@ -76,7 +76,7 @@
           </td>
           <td>{{ vehiculo.placa }}</td>
           <td>{{ vehiculo.categoria.nombre }}</td>
-          <td>RD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td>
+          <td>USD$ {{ vehiculo.tarifa_diaria|floatformat:0 }}</td>
           <td>
             {% if vehiculo.estado == 'disponible' %}
             <span class="mod-badge verde">Disponible</span>

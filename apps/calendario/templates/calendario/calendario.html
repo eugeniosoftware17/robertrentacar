@@ -144,7 +144,7 @@
             <a href="{{ evento.editar_url }}"
                class="cal-evento {{ evento.estado_clase }} {{ evento.pago_clase }} cal-ev-{{ evento.tipo_dia }}"
                data-color-veh="{{ evento.vehiculo_color }}"
-               data-tooltip="{{ evento.cliente }} · {{ evento.placa }} · RD$ {{ evento.precio_total|floatformat:0 }} · {{ evento.estado_pago_label }}">
+               data-tooltip="{{ evento.cliente }} · {{ evento.placa }} · USD$ {{ evento.precio_total|floatformat:0 }} · {{ evento.estado_pago_label }}">
               {% if evento.tipo_dia == 'entrega' %}<span class="cal-ev-icon" aria-hidden="true">🚗</span>{% elif evento.tipo_dia == 'devolucion' %}<span class="cal-ev-icon" aria-hidden="true">🏁</span>{% endif %}
               {{ evento.vehiculo|truncatechars:13 }}
             </a>

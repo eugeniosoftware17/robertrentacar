@@ -59,11 +59,11 @@
     <section>
       <h2>Vehículo</h2>
       <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}{% if reserva.vehiculo.color %} · Color: {{ reserva.vehiculo.color }}{% endif %}</p>
-      <p>Categoría: {{ reserva.vehiculo.categoria.nombre }} · Tarifa diaria RD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
+      <p>Categoría: {{ reserva.vehiculo.categoria.nombre }} · Tarifa diaria USD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
       <p>
         Km de salida: {{ reserva.km_entrega|default:"—" }} ·
         Combustible al entregar: {{ reserva.get_combustible_entrega_display|default:"—" }}
-        {% if reserva.deducible %} · Deducible: RD$ {{ reserva.deducible|floatformat:2 }}{% endif %}
+        {% if reserva.deducible %} · Deducible: USD$ {{ reserva.deducible|floatformat:2 }}{% endif %}
       </p>
       {% if reserva.posible_retorno and reserva.posible_retorno != reserva.fecha_fin %}
       <p>Posible retorno estimado: {{ reserva.posible_retorno|date:"d/m/Y" }}</p>
@@ -82,10 +82,10 @@
     <section>
       <h2>Montos</h2>
       <table>
-        <tr><td>Precio total</td><td>RD$ {{ reserva.precio_total|floatformat:2 }}</td></tr>
-        <tr><td>Depósito</td><td>RD$ {{ reserva.deposito|floatformat:2 }}</td></tr>
-        <tr><td>Pagado</td><td>RD$ {{ reserva.total_pagado|floatformat:2 }}</td></tr>
-        <tr><td>Saldo pendiente</td><td>RD$ {{ reserva.saldo_pendiente|floatformat:2 }}</td></tr>
+        <tr><td>Precio total</td><td>USD$ {{ reserva.precio_total|floatformat:2 }}</td></tr>
+        <tr><td>Depósito</td><td>USD$ {{ reserva.deposito|floatformat:2 }}</td></tr>
+        <tr><td>Pagado</td><td>USD$ {{ reserva.total_pagado|floatformat:2 }}</td></tr>
+        <tr><td>Saldo pendiente</td><td>USD$ {{ reserva.saldo_pendiente|floatformat:2 }}</td></tr>
         {% if reserva.pago_deposito %}
         <tr>
           <td>Forma de pago (depósito)</td>

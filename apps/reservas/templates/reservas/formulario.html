@@ -71,15 +71,15 @@
           <div><span>Días</span><strong id="rp-dias">—</strong></div>
           <div><span>Tarifa</span><strong id="rp-tarifa">—</strong></div>
           <div><span>Total alquiler</span><strong id="rp-total">—</strong></div>
-          <div><span>Depósito</span><strong id="rp-deposito">RD$ 0</strong></div>
+          <div><span>Depósito</span><strong id="rp-deposito">USD$ 0</strong></div>
           <div class="reserva-precio-saldo"><span>Saldo pendiente</span><strong id="rp-saldo">—</strong></div>
         </div>
       </div>
 
       {% if reserva %}
       <div class="reserva-pago-actual">
-        <span>Pagado hasta ahora: <strong>RD$ {{ reserva.total_pagado|floatformat:0 }}</strong></span>
-        <span>Saldo real: <strong>RD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong></span>
+        <span>Pagado hasta ahora: <strong>USD$ {{ reserva.total_pagado|floatformat:0 }}</strong></span>
+        <span>Saldo real: <strong>USD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong></span>
         <a href="{% url 'pagos:crear' %}?reserva={{ reserva.pk }}" class="mod-link">+ Registrar otro pago</a>
       </div>
 

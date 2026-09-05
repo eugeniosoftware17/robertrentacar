@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var reservas = JSON.parse(dataNode.textContent);
 
   function fmt(n) {
-    return 'RD$ ' + Math.round(n).toLocaleString('es-DO');
+    return 'USD$ ' + Math.round(n).toLocaleString('es-DO');
   }
 
   function actualizar() {

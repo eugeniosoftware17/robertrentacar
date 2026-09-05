@@ -13,7 +13,7 @@ class Pago(models.Model):
         REEMBOLSO = 'reembolso', 'Reembolso'
 
     class Metodo(models.TextChoices):
-        EFECTIVO = 'efectivo', 'Efectivo (RD$)'
+        EFECTIVO = 'efectivo', 'Efectivo (USD$)'
         DOLAR = 'dolar', 'Dólar (US$)'
         EURO = 'euro', 'Euro (€)'
         TARJETA = 'tarjeta', 'Tarjeta'
@@ -25,7 +25,7 @@ class Pago(models.Model):
         related_name='pagos',
         verbose_name='Reserva',
     )
-    monto = models.DecimalField('Monto (RD$)', max_digits=10, decimal_places=2)
+    monto = models.DecimalField('Monto (USD$)', max_digits=10, decimal_places=2)
     tipo = models.CharField('Tipo', max_length=20, choices=Tipo.choices, default=Tipo.PARCIAL)
     metodo = models.CharField('Método', max_length=20, choices=Metodo.choices, default=Metodo.EFECTIVO)
     referencia = models.CharField('Referencia', max_length=60, blank=True)
@@ -45,4 +45,4 @@ class Pago(models.Model):
         verbose_name_plural = 'Pagos'
 
     def __str__(self):
-        return f'RD$ {self.monto} — Reserva #{self.reserva_id}'
+        return f'USD$ {self.monto} — Reserva #{self.reserva_id}'

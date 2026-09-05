@@ -31,14 +31,14 @@ def meta_descripcion_vehiculo(vehiculo, empresa, idioma=IDIOMA_DEFECTO):
     if idioma == 'en':
         lugar = f'in {empresa.ciudad}' if empresa.ciudad else f'at {empresa.nombre}'
         base = (
-            f'Rent {vehiculo.nombre_corto} from RD$ {vehiculo.tarifa_diaria:,.0f}/day '
+            f'Rent {vehiculo.nombre_corto} from USD$ {vehiculo.tarifa_diaria:,.0f}/day '
             f'{lugar}. {categoria}, {transmision}. Book online.'
         )
         extra = (vehiculo.descripcion_web_en or vehiculo.descripcion_web or '').strip()
     else:
         lugar = f'en {empresa.ciudad}' if empresa.ciudad else f'en {empresa.nombre}'
         base = (
-            f'Alquila {vehiculo.nombre_corto} desde RD$ {vehiculo.tarifa_diaria:,.0f}/día '
+            f'Alquila {vehiculo.nombre_corto} desde USD$ {vehiculo.tarifa_diaria:,.0f}/día '
             f'{lugar}. {categoria}, {transmision}. Reserva en línea.'
         )
         extra = (vehiculo.descripcion_web or '').strip()

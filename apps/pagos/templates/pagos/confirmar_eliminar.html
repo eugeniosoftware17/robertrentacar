@@ -10,7 +10,7 @@
 {% block content %}
 <div class="mod-card mod-form-card">
   <div class="mod-confirm">
-    <p>¿Eliminar el pago de <strong>RD$ {{ pago.monto }}</strong> de la reserva #{{ pago.reserva_id }}?</p>
+    <p>¿Eliminar el pago de <strong>USD$ {{ pago.monto }}</strong> de la reserva #{{ pago.reserva_id }}?</p>
     <form method="post">
       {% csrf_token %}
       <a href="{% url 'pagos:lista' %}" class="mod-btn mod-btn-sec">Volver</a>

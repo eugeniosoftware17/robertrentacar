@@ -26,7 +26,7 @@
 <div class="rep-resumen">
   <div class="rep-card">
     <span>Total del periodo</span>
-    <strong>RD$ {{ total|floatformat:0 }}</strong>
+    <strong>USD$ {{ total|floatformat:0 }}</strong>
     <small>{{ cantidad }} gasto{{ cantidad|pluralize:"s" }}</small>
   </div>
 </div>
@@ -59,7 +59,7 @@
           <td><span class="mod-badge azul">{{ gasto.get_categoria_display }}</span></td>
           <td>{{ gasto.vehiculo.nombre_corto|default:"—" }}</td>
           <td>{{ gasto.fecha|date:"d/m/Y" }}</td>
-          <td>RD$ {{ gasto.monto|floatformat:0 }}</td>
+          <td>USD$ {{ gasto.monto|floatformat:0 }}</td>
           <td class="mod-acciones">
             <a href="{% url 'finanzas:gasto_editar' gasto.pk %}" class="mod-link">Editar</a>
             <a href="{% url 'finanzas:gasto_eliminar' gasto.pk %}" class="mod-link rojo">Eliminar</a>

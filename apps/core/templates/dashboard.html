@@ -64,15 +64,15 @@
     <div class="dash-stat-fin-grid">
       <div>
         <span class="dash-fin-lbl">Cobrado en caja</span>
-        <span class="dash-fin-val">RD$ {{ caja_mes|floatformat:0 }}</span>
+        <span class="dash-fin-val">USD$ {{ caja_mes|floatformat:0 }}</span>
       </div>
       <div>
         <span class="dash-fin-lbl">Facturado (reservas)</span>
-        <span class="dash-fin-val sec">RD$ {{ facturado_mes|floatformat:0 }}</span>
+        <span class="dash-fin-val sec">USD$ {{ facturado_mes|floatformat:0 }}</span>
       </div>
       <div>
         <span class="dash-fin-lbl">Saldo pendiente</span>
-        <span class="dash-fin-val pend">RD$ {{ saldo_pendiente_mes|floatformat:0 }}</span>
+        <span class="dash-fin-val pend">USD$ {{ saldo_pendiente_mes|floatformat:0 }}</span>
       </div>
     </div>
     <div class="dash-stat-delta {% if variacion_caja >= 0 %}up{% else %}down{% endif %}">
@@ -86,7 +86,7 @@
   <div class="dash-card">
     <div class="dash-card-head">
       <div class="dash-card-titulo">Cobros en caja</div>
-      <div class="dash-card-hint">Últimos 6 meses · RD$ miles (neto)</div>
+      <div class="dash-card-hint">Últimos 6 meses · USD$ miles (neto)</div>
     </div>
     <div class="dash-card-body">
       <div class="dash-barras" id="graficaBarras"></div>
@@ -135,7 +135,7 @@
         <div class="dash-rank-pos">{% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% else %}🥉{% endif %}</div>
         <div class="dash-rank-info">
           <div class="dash-rank-nombre">{{ item.vehiculo__marca }} {{ item.vehiculo__modelo }}</div>
-          <div class="dash-rank-sub">{{ item.total_reservas }} alquiler{{ item.total_reservas|pluralize:"es" }} · RD$ {{ item.ingresos|floatformat:0 }}</div>
+          <div class="dash-rank-sub">{{ item.total_reservas }} alquiler{{ item.total_reservas|pluralize:"es" }} · USD$ {{ item.ingresos|floatformat:0 }}</div>
         </div>
         <span class="dash-badge azul">{{ item.total_reservas }} res.</span>
       </div>

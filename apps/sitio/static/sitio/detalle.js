@@ -146,7 +146,7 @@
     var dias = diasEntre(di, df);
     var tarifa = parseFloat(window.SITIO_TARIFA_DIA) || 0;
     totalEl.textContent =
-      dias + ' día(s) · estimado RD$ ' + (dias * tarifa).toLocaleString('es-DO');
+      dias + ' día(s) · estimado USD$ ' + (dias * tarifa).toLocaleString('es-DO');
     btn.classList.remove('sitio-btn--disabled');
     btn.href =
       reservarBase +

@@ -26,7 +26,7 @@
 <div class="rep-resumen">
   <div class="rep-card">
     <span>Total del periodo</span>
-    <strong>RD$ {{ total|floatformat:0 }}</strong>
+    <strong>USD$ {{ total|floatformat:0 }}</strong>
     <small>{{ cantidad }} pago{{ cantidad|pluralize:"s" }}</small>
   </div>
 </div>
@@ -67,7 +67,7 @@
           <td>{{ pago.get_concepto_display }}</td>
           <td>{{ pago.fecha_pago|date:"d/m/Y" }}</td>
           <td>{{ pago.get_metodo_display }}</td>
-          <td>RD$ {{ pago.monto|floatformat:0 }}</td>
+          <td>USD$ {{ pago.monto|floatformat:0 }}</td>
           <td class="mod-acciones">
             <a href="{% url 'finanzas:nomina_editar' pago.pk %}" class="mod-link">Editar</a>
             <a href="{% url 'finanzas:nomina_eliminar' pago.pk %}" class="mod-link rojo">Eliminar</a>

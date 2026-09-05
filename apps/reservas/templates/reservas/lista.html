@@ -59,11 +59,11 @@
             <div class="mod-sub">{{ reserva.vehiculo.placa }}</div>
           </td>
           <td>{{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }}<div class="mod-sub">{{ reserva.dias }} día{{ reserva.dias|pluralize:"s" }}</div></td>
-          <td>RD$ {{ reserva.precio_total|floatformat:0 }}</td>
-          <td>RD$ {{ reserva.total_pagado|floatformat:0 }}</td>
+          <td>USD$ {{ reserva.precio_total|floatformat:0 }}</td>
+          <td>USD$ {{ reserva.total_pagado|floatformat:0 }}</td>
           <td>
             {% if reserva.saldo_pendiente > 0 %}
-            <strong class="mod-saldo-pend">RD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong>
+            <strong class="mod-saldo-pend">USD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong>
             {% else %}
             <span class="mod-saldo-ok">Pagado</span>
             {% endif %}

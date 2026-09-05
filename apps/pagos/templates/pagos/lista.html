@@ -20,7 +20,7 @@
   <div class="mod-card-head">
     <div>
       <div class="mod-card-titulo">Historial de pagos</div>
-      <div class="mod-card-hint">{{ total }} pago{{ total|pluralize:"s" }} · Total filtrado RD$ {{ total_cobrado|floatformat:0 }}</div>
+      <div class="mod-card-hint">{{ total }} pago{{ total|pluralize:"s" }} · Total filtrado USD$ {{ total_cobrado|floatformat:0 }}</div>
     </div>
   </div>
 
@@ -43,7 +43,7 @@
         <tr>
           <td>#{{ pago.reserva_id }}</td>
           <td>{{ pago.reserva.cliente.nombre_completo }}</td>
-          <td>RD$ {{ pago.monto|floatformat:0 }}</td>
+          <td>USD$ {{ pago.monto|floatformat:0 }}</td>
           <td>{{ pago.get_tipo_display }}</td>
           <td>{{ pago.get_metodo_display }}</td>
           <td>{{ pago.fecha|date:"d/m/Y H:i" }}</td>

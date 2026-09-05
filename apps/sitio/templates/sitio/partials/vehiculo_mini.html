@@ -11,6 +11,6 @@
     <span class="sitio-mini-card-ref">Ref. VEH-{{ v.pk|stringformat:"04d" }}</span>
     <strong class="sitio-mini-card-nombre">{{ v.nombre_corto }}</strong>
     <span class="sitio-mini-card-meta">{% t_categoria v.categoria %} · {{ v.anio }}</span>
-    <span class="sitio-mini-card-precio">RD$ {{ v.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</span>
+    <span class="sitio-mini-card-precio">USD$ {{ v.tarifa_diaria|floatformat:0 }}{% t 'flota_dia' %}</span>
   </span>
 </a>

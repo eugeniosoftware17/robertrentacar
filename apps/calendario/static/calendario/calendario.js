@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var fechaSeleccionada = null;
 
   function fmt(n) {
-    return 'RD$ ' + Math.round(n).toLocaleString('es-DO');
+    return 'USD$ ' + Math.round(n).toLocaleString('es-DO');
   }
 
   function formatearFecha(iso) {

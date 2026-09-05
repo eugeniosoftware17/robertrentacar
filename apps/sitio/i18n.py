@@ -134,7 +134,7 @@ TEXTOS = {
     'res_seccion_datos': {'es': 'Tus datos', 'en': 'Your details'},
     'res_seccion_licencia': {'es': 'Licencia de conducir', 'en': "Driver's license"},
     'res_seccion_notas': {'es': 'Notas adicionales', 'en': 'Additional notes'},
-    'res_resumen_precio': {'es': 'días × RD$ {tarifa} = RD$ {total} total estimado', 'en': 'day(s) × RD$ {tarifa} = RD$ {total} estimated total'},
+    'res_resumen_precio': {'es': 'días × USD$ {tarifa} = USD$ {total} total estimado', 'en': 'day(s) × USD$ {tarifa} = USD$ {total} estimated total'},
     'res_exito_listo': {'es': '¡Listo!', 'en': 'All set!'},
     'res_exito_registrada': {'es': 'Reserva #{n} registrada.', 'en': 'Booking #{n} received.'},
     'res_exito_volver_inicio': {'es': 'Volver al inicio', 'en': 'Back to home'},

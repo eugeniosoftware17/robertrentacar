@@ -23,20 +23,20 @@
 <div class="rep-resumen">
   <div class="rep-card">
     <span>Facturado</span>
-    <strong>RD$ {{ facturado_total|floatformat:0 }}</strong>
+    <strong>USD$ {{ facturado_total|floatformat:0 }}</strong>
     <small>{{ total_reservas }} reserva{{ total_reservas|pluralize:"s" }}</small>
   </div>
   <div class="rep-card">
     <span>Cobrado (reservas)</span>
-    <strong class="verde">RD$ {{ cobrado_total|floatformat:0 }}</strong>
+    <strong class="verde">USD$ {{ cobrado_total|floatformat:0 }}</strong>
   </div>
   <div class="rep-card">
     <span>Saldo pendiente</span>
-    <strong class="rojo">RD$ {{ saldo_pendiente|floatformat:0 }}</strong>
+    <strong class="rojo">USD$ {{ saldo_pendiente|floatformat:0 }}</strong>
   </div>
   <div class="rep-card">
     <span>Caja del periodo</span>
-    <strong>RD$ {{ caja_periodo|floatformat:0 }}</strong>
+    <strong>USD$ {{ caja_periodo|floatformat:0 }}</strong>
     <small>Pagos registrados en fechas</small>
   </div>
 </div>
@@ -58,9 +58,9 @@
         <tr>
           <td>{{ fila.estado }}</td>
           <td>{{ fila.cantidad }}</td>
-          <td>RD$ {{ fila.facturado|floatformat:0 }}</td>
-          <td>RD$ {{ fila.cobrado|floatformat:0 }}</td>
-          <td>RD$ {{ fila.saldo|floatformat:0 }}</td>
+          <td>USD$ {{ fila.facturado|floatformat:0 }}</td>
+          <td>USD$ {{ fila.cobrado|floatformat:0 }}</td>
+          <td>USD$ {{ fila.saldo|floatformat:0 }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="5">Sin datos en el periodo.</td></tr>

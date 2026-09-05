@@ -93,8 +93,8 @@ class ReservaForm(forms.ModelForm):
             if deposito > total:
                 raise ValidationError({
                     'deposito': (
-                        f'El depósito (RD$ {deposito:,.2f}) no puede superar '
-                        f'el total del alquiler (RD$ {total:,.2f}).'
+                        f'El depósito (USD$ {deposito:,.2f}) no puede superar '
+                        f'el total del alquiler (USD$ {total:,.2f}).'
                     ),
                 })
 

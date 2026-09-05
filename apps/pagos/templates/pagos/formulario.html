@@ -28,9 +28,9 @@
         <div><span>Cliente</span><strong id="pr-cliente">{% if reserva_sel %}{{ reserva_sel.cliente.nombre_completo }}{% else %}—{% endif %}</strong></div>
         <div><span>Vehículo</span><strong id="pr-vehiculo">{% if reserva_sel %}{{ reserva_sel.vehiculo.nombre_corto }} · {{ reserva_sel.vehiculo.placa }}{% else %}—{% endif %}</strong></div>
         <div><span>Días de alquiler</span><strong id="pr-dias">{% if reserva_sel %}{{ reserva_sel.dias }}{% else %}—{% endif %}</strong></div>
-        <div><span>Total alquiler</span><strong id="pr-total">{% if reserva_sel %}RD$ {{ reserva_sel.precio_total|floatformat:0 }}{% else %}—{% endif %}</strong></div>
-        <div><span>Ya pagado</span><strong id="pr-pagado">{% if reserva_sel %}RD$ {{ reserva_sel.total_pagado|floatformat:0 }}{% else %}—{% endif %}</strong></div>
-        <div><span>Saldo pendiente</span><strong id="pr-saldo">{% if reserva_sel %}RD$ {{ reserva_sel.saldo_pendiente|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+        <div><span>Total alquiler</span><strong id="pr-total">{% if reserva_sel %}USD$ {{ reserva_sel.precio_total|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+        <div><span>Ya pagado</span><strong id="pr-pagado">{% if reserva_sel %}USD$ {{ reserva_sel.total_pagado|floatformat:0 }}{% else %}—{% endif %}</strong></div>
+        <div><span>Saldo pendiente</span><strong id="pr-saldo">{% if reserva_sel %}USD$ {{ reserva_sel.saldo_pendiente|floatformat:0 }}{% else %}—{% endif %}</strong></div>
       </div>
       <div id="pr-estado" class="pago-estado pago-estado-{% if reserva_sel %}{{ reserva_sel.estado_pago }}{% endif %}">
         {% if reserva_sel %}{{ reserva_sel.estado_pago_label }}{% endif %}

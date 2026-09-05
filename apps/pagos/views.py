@@ -68,7 +68,7 @@ def crear(request):
         form = PagoForm(request.POST)
         if form.is_valid():
             pago = form.save()
-            messages.success(request, f'Pago de RD$ {pago.monto:,.2f} registrado.')
+            messages.success(request, f'Pago de USD$ {pago.monto:,.2f} registrado.')
             return redirect('pagos:lista')
     else:
         initial = {}
@@ -101,7 +101,7 @@ def eliminar(request, pk):
     if request.method == 'POST':
         monto = pago.monto
         pago.delete()
-        messages.success(request, f'Pago de RD$ {monto:,.2f} eliminado.')
+        messages.success(request, f'Pago de USD$ {monto:,.2f} eliminado.')
         return redirect('pagos:lista')
 
     return render(request, 'pagos/confirmar_eliminar.html', {

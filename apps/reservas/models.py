@@ -47,13 +47,13 @@ class Reserva(models.Model):
         default=Estado.PENDIENTE,
     )
     precio_total = models.DecimalField(
-        'Precio total (RD$)',
+        'Precio total (USD$)',
         max_digits=10,
         decimal_places=2,
         default=Decimal('0.00'),
     )
     deposito = models.DecimalField(
-        'Depósito inicial (RD$)',
+        'Depósito inicial (USD$)',
         max_digits=10,
         decimal_places=2,
         default=Decimal('0.00'),
@@ -141,7 +141,7 @@ class Reserva(models.Model):
         help_text='Se usa para borrar el video de entrega unos días después de la devolución.',
     )
     deducible = models.DecimalField(
-        'Deducible (RD$)', max_digits=10, decimal_places=2, blank=True, null=True,
+        'Deducible (USD$)', max_digits=10, decimal_places=2, blank=True, null=True,
         help_text='Monto que asume el cliente en caso de accidente o daño.',
     )
     posible_retorno = models.DateField(

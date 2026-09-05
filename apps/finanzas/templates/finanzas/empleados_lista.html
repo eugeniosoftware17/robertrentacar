@@ -44,7 +44,7 @@
             <div class="mod-sub">{{ empleado.telefono }}</div>
           </td>
           <td>{{ empleado.puesto|default:"—" }}</td>
-          <td>RD$ {{ empleado.salario_base|floatformat:0 }}</td>
+          <td>USD$ {{ empleado.salario_base|floatformat:0 }}</td>
           <td>
             {% if empleado.activo %}
             <span class="mod-badge verde">Activo</span>

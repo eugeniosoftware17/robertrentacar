@@ -27,7 +27,7 @@
 <div class="rep-resumen">
   <div class="rep-card">
     <span>Gasto en el periodo filtrado</span>
-    <strong>RD$ {{ costo_total|floatformat:0 }}</strong>
+    <strong>USD$ {{ costo_total|floatformat:0 }}</strong>
     <small>{{ total }} registro{{ total|pluralize:"s" }}</small>
   </div>
 </div>
@@ -63,7 +63,7 @@
           <td>{{ registro.fecha|date:"d/m/Y" }}</td>
           <td>{{ registro.get_tipo_display }}</td>
           <td><span class="mod-badge azul">{{ registro.get_estado_display }}</span></td>
-          <td>RD$ {{ registro.costo|floatformat:0 }}</td>
+          <td>USD$ {{ registro.costo|floatformat:0 }}</td>
           <td class="mod-acciones">
             <a href="{% url 'mantenimiento:editar' registro.pk %}" class="mod-link">Editar</a>
             <a href="{% url 'mantenimiento:eliminar' registro.pk %}" class="mod-link rojo">Eliminar</a>
