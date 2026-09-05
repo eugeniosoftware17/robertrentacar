@@ -32,13 +32,6 @@
   </div>
 </div>
 
-<div class="veh-letras" aria-label="Filtrar por letra inicial">
-  <a href="?{% if busqueda %}q={{ busqueda|urlencode }}&amp;{% endif %}{% if categoria_filtro %}categoria={{ categoria_filtro }}&amp;{% endif %}{% if estado_filtro %}estado={{ estado_filtro }}{% endif %}" class="veh-letra {% if not letra_filtro %}is-active{% endif %}">Todas</a>
-  {% for letra in alfabeto %}
-  <a href="?letra={{ letra }}{% if busqueda %}&amp;q={{ busqueda|urlencode }}{% endif %}{% if categoria_filtro %}&amp;categoria={{ categoria_filtro }}{% endif %}{% if estado_filtro %}&amp;estado={{ estado_filtro }}{% endif %}" class="veh-letra {% if letra_filtro == letra %}is-active{% endif %}">{{ letra }}</a>
-  {% endfor %}
-</div>
-
 <div class="mod-card">
   <div class="mod-card-head">
     <div>
@@ -52,18 +45,30 @@
     <table class="mod-tabla">
       <thead>
         <tr>
+          <th>Foto</th>
           <th>Ref.</th>
           <th>Vehículo</th>
           <th>Placa</th>
           <th>Categoría</th>
           <th>Tarifa/día</th>
           <th>Estado</th>
+          <th>Web</th>
+          <th>Destacado</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {% for vehiculo in vehiculos %}
         <tr>
+          <td>
+            {% with foto=vehiculo.fotos_galeria.all.first %}
+            {% if foto %}
+            <img src="{{ foto.imagen.url }}" alt="{{ vehiculo.nombre_corto }}" style="width:60px; height:45px; object-fit:cover; border-radius:4px;" />
+            {% else %}
+            <div style="width:60px; height:45px; background:#f0f0f0; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#aaa;">Sin foto</div>
+            {% endif %}
+            {% endwith %}
+          </td>
           <td class="mod-sub">VEH-{{ vehiculo.pk|stringformat:"04d" }}</td>
           <td>
             <div class="mod-nombre">{{ vehiculo.nombre_corto }}</div>
@@ -79,6 +84,20 @@
             <span class="mod-badge azul">Rentado</span>
             {% else %}
             <span class="mod-badge amarillo">Mantenimiento</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if vehiculo.visible_en_web %}
+            <span class="mod-badge verde">✓</span>
+            {% else %}
+            <span class="mod-badge" style="background:#eee;color:#999;">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if vehiculo.destacado_web %}
+            <span class="mod-badge azul">★</span>
+            {% else %}
+            <span class="mod-badge" style="background:#eee;color:#999;">—</span>
             {% endif %}
           </td>
           <td class="mod-acciones">

@@ -17,7 +17,7 @@ def lista(request):
     estado = request.GET.get('estado', '')
     categoria_id = request.GET.get('categoria', '')
 
-    vehiculos = Vehiculo.objects.select_related('categoria').all()
+    vehiculos = Vehiculo.objects.select_related('categoria').prefetch_related('fotos_galeria').all()
     vehiculos = filtrar_vehiculos(vehiculos, termino=busqueda, letra=letra)
 
     if estado:
@@ -25,7 +25,7 @@ def lista(request):
     if categoria_id:
         vehiculos = vehiculos.filter(categoria_id=categoria_id)
 
-    page_obj = paginar_queryset(request, vehiculos)
+    page_obj = paginar_queryset(request, vehiculos, per_page=100)
     query_string = request.GET.copy()
     query_string.pop('page', None)
     query_string = query_string.urlencode()
