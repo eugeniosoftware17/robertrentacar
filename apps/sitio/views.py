@@ -17,7 +17,6 @@ SITIO_PREVIEW_IMAGENES = ('home_fondo_imagen', 'logo', 'favicon')
 
 from apps.configuracion.models import ConfiguracionEmpresa
 from apps.core.permisos import es_admin_sistema
-from apps.core.utils import paginar_queryset
 from apps.vehiculos.models import CategoriaVehiculo, Vehiculo
 
 from .forms import ConfiguracionSitioForm, PaginaInformativaForm, ReservaWebForm
@@ -219,11 +218,9 @@ def flota(request):
     if fi and ff:
         qs = filtrar_por_disponibilidad(qs, fi, ff)
 
-    page_obj = paginar_queryset(request, qs, por_pagina=12)
     ctx.update({
         'page_title': 'Flota',
-        'vehiculos': page_obj,
-        'page_obj': page_obj,
+        'vehiculos': qs,
         'categoria_filtro': categoria,
         'transmision_filtro': transmision,
         'fecha_inicio': fecha_inicio,

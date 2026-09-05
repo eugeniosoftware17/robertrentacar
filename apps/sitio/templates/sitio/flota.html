@@ -61,17 +61,6 @@
       {% endfor %}
     </div>
 
-    {% if page_obj.has_other_pages %}
-    <nav class="sitio-pager">
-      {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">{% t 'flota_anterior' %}</a>
-      {% endif %}
-      <span>{% t 'flota_pagina_de' n=page_obj.number total=page_obj.paginator.num_pages %}</span>
-      {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}&categoria={{ categoria_filtro }}&transmision={{ transmision_filtro }}&desde={{ fecha_inicio }}&hasta={{ fecha_fin }}">{% t 'flota_siguiente' %}</a>
-      {% endif %}
-    </nav>
-    {% endif %}
     {% else %}
     <p class="sitio-empty">{% t 'flota_vacio' %}</p>
     {% endif %}
