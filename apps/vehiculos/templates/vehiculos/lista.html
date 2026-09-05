@@ -52,8 +52,8 @@
           <th data-col="4" style="cursor:pointer;">Categoría ↕</th>
           <th data-col="5" style="cursor:pointer;">Tarifa/día ↕</th>
           <th data-col="6" style="cursor:pointer;">Estado ↕</th>
-          <th data-col="7">Web</th>
-          <th data-col="8">Destacado</th>
+          <th data-col="7" style="cursor:pointer;">Web ↕</th>
+          <th data-col="8" style="cursor:pointer;">Destacado ↕</th>
           <th></th>
         </tr>
       </thead>
@@ -150,8 +150,8 @@
 
   tabla.querySelectorAll('th[data-col]').forEach(function(th) {
     const col = parseInt(th.dataset.col);
-    // Solo columnas ordenables (no Foto=0, Web=7, Destacado=8)
-    if ([0, 7, 8].includes(col)) return;
+    // Solo columnas ordenables (no Foto=0)
+    if (col === 0) return;
     th.style.cursor = 'pointer';
     th.addEventListener('click', function() {
       ascendente = (colActual === col) ? !ascendente : true;
@@ -160,7 +160,7 @@
       // Actualizar flecha en encabezados
       tabla.querySelectorAll('th[data-col]').forEach(function(t) {
         const txt = t.textContent.replace(' ↑', '').replace(' ↓', '').replace(' ↕', '');
-        t.textContent = txt + (parseInt(t.dataset.col) === col ? (ascendente ? ' ↑' : ' ↓') : ([0,7,8].includes(parseInt(t.dataset.col)) ? '' : ' ↕'));
+        t.textContent = txt + (parseInt(t.dataset.col) === col ? (ascendente ? ' ↑' : ' ↓') : (parseInt(t.dataset.col) === 0 ? '' : ' ↕'));
       });
 
       const tbody = tabla.querySelector('tbody');
