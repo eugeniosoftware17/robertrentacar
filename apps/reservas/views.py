@@ -201,6 +201,8 @@ def _notificar_confirmacion_reserva(reserva):
         f'Fechas: {reserva.fecha_inicio.strftime("%d/%m/%Y")} — {reserva.fecha_fin.strftime("%d/%m/%Y")}\n'
         f'Días: {reserva.dias}\n'
         f'Total: USD$ {reserva.precio_total}\n'
+        f'Depósito pagado: USD$ {reserva.total_pagado}\n'
+        f'Saldo pendiente: USD$ {reserva.saldo_pendiente}\n\n'
         f'Lugar de entrega: {reserva.lugar_entrega or "Por confirmar"}\n\n'
         f'Para cualquier consulta puede contactarnos por WhatsApp.\n\n'
         f'Gracias por elegir ROB-REI Rent A Car.\n'
