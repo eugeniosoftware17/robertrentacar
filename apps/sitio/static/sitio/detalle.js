@@ -156,17 +156,21 @@
       encodeURIComponent(inpFin.value);
   }
 
+  var esperandoFin = false;
+
   function seleccionarFecha(fecha) {
     if (diaBloqueado(fecha) || (minDate && fecha < minDate)) return;
 
-    if (!inpInicio.value || (inpInicio.value && inpFin.value)) {
+    if (!esperandoFin || fecha < inpInicio.value) {
+      // 1er clic (o clic antes del inicio, o 3er clic tras un rango completo):
+      // reinicia la seleccion desde esta fecha.
       inpInicio.value = fecha;
-      inpFin.value = fecha;
-    } else if (fecha >= inpInicio.value) {
-      inpFin.value = fecha;
+      inpFin.value = '';
+      esperandoFin = true;
     } else {
-      inpInicio.value = fecha;
+      // 2do clic: fija el fin.
       inpFin.value = fecha;
+      esperandoFin = false;
     }
     sincronizarMes();
     actualizar();
