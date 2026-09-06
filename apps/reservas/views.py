@@ -217,6 +217,66 @@ def _notificar_confirmacion_reserva(reserva):
         logger.error(f'Error enviando email confirmación reserva #{reserva.pk}: {e}')
 
 
+def _notificar_entrega(reserva):
+    logger.info(f'Intentando notificar entrega reserva #{reserva.pk}, email cliente: "{reserva.cliente.email}"')
+    if not reserva.cliente.email:
+        return
+    mensaje = (
+        f'Estimado/a {reserva.cliente.nombre_completo},\n\n'
+        f'Le confirmamos que el vehículo ha sido entregado. Aquí están los detalles de su alquiler:\n\n'
+        f'Vehículo: {reserva.vehiculo.nombre_corto}\n'
+        f'Fechas: {reserva.fecha_inicio.strftime("%d/%m/%Y")} — {reserva.fecha_fin.strftime("%d/%m/%Y")}\n'
+        f'Días: {reserva.dias}\n'
+        f'Total: USD$ {reserva.precio_total}\n'
+        f'Pagado: USD$ {reserva.total_pagado}\n'
+        f'Saldo pendiente: USD$ {reserva.saldo_pendiente}\n\n'
+        f'Recuerde que el pago restante se realiza al devolver el vehículo.\n\n'
+        f'Para cualquier consulta puede contactarnos por WhatsApp.\n\n'
+        f'Gracias por elegir ROB-REI Rent A Car.\n'
+    )
+    try:
+        send_mail(
+            subject=f'Entrega de vehículo — {reserva.vehiculo.nombre_corto}',
+            message=mensaje,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[reserva.cliente.email],
+        )
+        logger.info(f'Email entrega enviado a {reserva.cliente.email} reserva #{reserva.pk}')
+    except Exception as e:
+        logger.error(f'Error enviando email entrega reserva #{reserva.pk}: {e}')
+
+
+def _notificar_devolucion(reserva):
+    logger.info(f'Intentando notificar devolución reserva #{reserva.pk}, email cliente: "{reserva.cliente.email}"')
+    if not reserva.cliente.email:
+        return
+    mensaje = (
+        f'Estimado/a {reserva.cliente.nombre_completo},\n\n'
+        f'Esperamos que haya disfrutado su experiencia con ROB-REI Rent A Car.\n\n'
+        f'Su alquiler ha sido completado exitosamente:\n\n'
+        f'Vehículo: {reserva.vehiculo.nombre_corto}\n'
+        f'Fechas: {reserva.fecha_inicio.strftime("%d/%m/%Y")} — {reserva.fecha_fin.strftime("%d/%m/%Y")}\n'
+        f'Total pagado: USD$ {reserva.precio_total}\n\n'
+        f'Nos encantaría conocer su opinión. Si tuvo una buena experiencia, \n'
+        f'le agradecemos mucho que nos deje una reseña en Google:\n\n'
+        f'👉 https://share.google/Rgv0l703tNeGMne0P\n\n'
+        f'Su opinión nos ayuda a seguir mejorando y a que otros viajeros \n'
+        f'puedan encontrarnos.\n\n'
+        f'¡Gracias y esperamos verle pronto!\n\n'
+        f'ROB-REI Rent A Car\n'
+    )
+    try:
+        send_mail(
+            subject='¡Gracias por alquilar con nosotros! — ROB-REI Rent A Car',
+            message=mensaje,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[reserva.cliente.email],
+        )
+        logger.info(f'Email devolución enviado a {reserva.cliente.email} reserva #{reserva.pk}')
+    except Exception as e:
+        logger.error(f'Error enviando email devolución reserva #{reserva.pk}: {e}')
+
+
 def editar(request, pk):
     reserva = get_object_or_404(
         Reserva.objects.select_related('cliente', 'vehiculo', 'conductor_adicional'),
@@ -354,6 +414,7 @@ def entrega(request, pk):
             reserva.vehiculo.kilometraje = reserva.km_entrega
             reserva.vehiculo.save(update_fields=['kilometraje'])
             actualizar_estado_vehiculo(reserva.vehiculo)
+            _notificar_entrega(reserva)
             messages.success(request, f'Entrega de la reserva #{reserva.pk} registrada.')
             return redirect('reservas:lista')
     else:
@@ -395,6 +456,7 @@ def devolucion(request, pk):
             reserva.vehiculo.kilometraje = reserva.km_devolucion
             reserva.vehiculo.save(update_fields=['kilometraje'])
             actualizar_estado_vehiculo(reserva.vehiculo)
+            _notificar_devolucion(reserva)
             messages.success(request, f'Devolución de la reserva #{reserva.pk} registrada.')
             return redirect('reservas:lista')
     else:
