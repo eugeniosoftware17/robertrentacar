@@ -2,9 +2,11 @@ import json
 import os
 from datetime import date, timedelta
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_not_required
 from django.core.files.storage import default_storage
+from django.core.mail import send_mail
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -297,6 +299,35 @@ def pagina(request, slug):
     return render(request, 'sitio/pagina.html', ctx)
 
 
+def _notificar_reserva_nueva(reserva, config_sitio, request):
+    if not config_sitio.email_notificaciones:
+        return
+    url_panel = request.build_absolute_uri(
+        reverse('reservas:editar', kwargs={'pk': reserva.pk})
+    )
+    mensaje = (
+        f'Nueva reserva recibida:\n\n'
+        f'Cliente: {reserva.cliente.nombre} {reserva.cliente.apellido}\n'
+        f'Teléfono: {reserva.cliente.telefono}\n'
+        f'Vehículo: {reserva.vehiculo.nombre_corto}\n'
+        f'Desde: {reserva.fecha_inicio}\n'
+        f'Hasta: {reserva.fecha_fin}\n'
+        f'Días: {reserva.dias}\n'
+        f'Total estimado: USD$ {reserva.precio_total}\n\n'
+        f'Ver reserva en el panel:\n{url_panel}\n'
+    )
+    try:
+        send_mail(
+            subject=f'Nueva reserva — {reserva.vehiculo.nombre_corto}',
+            message=mensaje,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[config_sitio.email_notificaciones],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
 @login_not_required
 def reservar(request, slug):
     ctx = _contexto_publico(request)
@@ -321,6 +352,7 @@ def reservar(request, slug):
         if form.is_valid():
             reserva = form.guardar_reserva()
             config_sitio = ConfiguracionSitio.obtener()
+            _notificar_reserva_nueva(reserva, config_sitio, request)
             ctx['reserva'] = reserva
             if ctx['idioma'] == 'en' and config_sitio.mensaje_reserva_exito_en:
                 ctx['mensaje'] = config_sitio.mensaje_reserva_exito_en
@@ -362,7 +394,7 @@ CAMPOS_PESTANA_SITIO = {
     },
     'reservas': {
         'reserva_auto_confirmar', 'anticipacion_horas', 'bloquear_mantenimiento',
-        'mensaje_reserva_exito', 'mensaje_reserva_exito_en',
+        'email_notificaciones', 'mensaje_reserva_exito', 'mensaje_reserva_exito_en',
     },
     'avanzado': {'home_html_extra', 'css_global', 'js_global'},
 }

@@ -467,6 +467,10 @@
           <div class="mod-field mod-field-check">{{ form.reserva_auto_confirmar }}{{ form.reserva_auto_confirmar.label_tag }}<span class="mod-hint">{{ form.reserva_auto_confirmar.help_text }}</span></div>
           <div class="mod-field">{{ form.anticipacion_horas.label_tag }}{{ form.anticipacion_horas }}</div>
           <div class="mod-field mod-field-check">{{ form.bloquear_mantenimiento }}{{ form.bloquear_mantenimiento.label_tag }}</div>
+          <div class="mod-field mod-field-full">
+            {{ form.email_notificaciones.label_tag }}{{ form.email_notificaciones }}
+            <span class="mod-hint">{{ form.email_notificaciones.help_text }}</span>
+          </div>
           <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito.label_tag }}{{ form.mensaje_reserva_exito }}</div>
           <div class="mod-field mod-field-full">{{ form.mensaje_reserva_exito_en.label_tag }}{{ form.mensaje_reserva_exito_en }}</div>
         </div>
