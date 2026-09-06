@@ -1,6 +1,8 @@
 from datetime import timedelta
 
+from django.conf import settings
 from django.contrib import messages
+from django.core.mail import send_mail
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
@@ -185,6 +187,32 @@ def crear(request):
     })
 
 
+def _notificar_confirmacion_reserva(reserva):
+    if not reserva.cliente.email:
+        return
+    mensaje = (
+        f'Estimado/a {reserva.cliente.nombre_completo},\n\n'
+        f'Su reserva ha sido confirmada. Aquí están los detalles:\n\n'
+        f'Vehículo: {reserva.vehiculo.nombre_corto}\n'
+        f'Fechas: {reserva.fecha_inicio.strftime("%d/%m/%Y")} — {reserva.fecha_fin.strftime("%d/%m/%Y")}\n'
+        f'Días: {reserva.dias}\n'
+        f'Total: USD$ {reserva.precio_total}\n'
+        f'Lugar de entrega: {reserva.lugar_entrega or "Por confirmar"}\n\n'
+        f'Para cualquier consulta puede contactarnos por WhatsApp.\n\n'
+        f'Gracias por elegir ROB-REI Rent A Car.\n'
+    )
+    try:
+        send_mail(
+            subject=f'Reserva confirmada — {reserva.vehiculo.nombre_corto}',
+            message=mensaje,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[reserva.cliente.email],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
 def editar(request, pk):
     reserva = get_object_or_404(
         Reserva.objects.select_related('cliente', 'vehiculo', 'conductor_adicional'),
@@ -198,6 +226,7 @@ def editar(request, pk):
             reserva.save(update_fields=['requiere_contacto_web'])
             messages.success(request, 'Reserva marcada como contactada.')
             return redirect('reservas:editar', pk=pk)
+        estado_anterior = reserva.estado
         form = ReservaForm(request.POST, instance=reserva)
         conductor_form = ConductorAdicionalForm(
             request.POST, instance=conductor_instance, prefix='conductor',
@@ -206,6 +235,8 @@ def editar(request, pk):
             reserva = form.save()
             _guardar_conductor_adicional(reserva, conductor_form)
             actualizar_estado_vehiculo(reserva.vehiculo)
+            if estado_anterior != Reserva.Estado.CONFIRMADA and reserva.estado == Reserva.Estado.CONFIRMADA:
+                _notificar_confirmacion_reserva(reserva)
             messages.success(request, f'Reserva #{reserva.pk} actualizada.')
             return redirect('reservas:lista')
     else:
