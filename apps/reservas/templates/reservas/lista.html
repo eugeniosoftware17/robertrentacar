@@ -104,6 +104,71 @@
       </tbody>
     </table>
   </div>
+
+  <div class="res-cards-movil">
+    {% for reserva in reservas %}
+    <div class="res-card-movil">
+      <div class="res-card-movil-header">
+        <div>
+          <span class="res-card-movil-num">#{{ reserva.pk }}</span>
+          {% if reserva.origen == 'web' %}
+          <span class="mod-badge violeta">Web</span>
+          {% endif %}
+          {% if reserva.estado == 'confirmada' %}
+          <span class="mod-badge azul">Confirmada</span>
+          {% elif reserva.estado == 'activa' %}
+          <span class="mod-badge verde">Activa</span>
+          {% elif reserva.estado == 'completada' %}
+          <span class="mod-badge gris">Completada</span>
+          {% elif reserva.estado == 'cancelada' %}
+          <span class="mod-badge rojo">Cancelada</span>
+          {% else %}
+          <span class="mod-badge amarillo">Pendiente</span>
+          {% endif %}
+        </div>
+        <div class="res-card-movil-saldo">
+          {% if reserva.saldo_pendiente > 0 %}
+          <strong class="mod-saldo-pend">USD$ {{ reserva.saldo_pendiente|floatformat:0 }}</strong>
+          <div style="font-size:0.7rem;color:#888;">pendiente</div>
+          {% else %}
+          <span class="mod-saldo-ok">✓ Pagado</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="res-card-movil-cliente">
+        <strong>{{ reserva.cliente.nombre_completo }}</strong>
+        <span class="mod-sub">{{ reserva.lugar_entrega }}</span>
+      </div>
+      <div class="res-card-movil-vehiculo">
+        🚗 {{ reserva.vehiculo.nombre_corto }}
+        <span class="mod-sub">{{ reserva.vehiculo.placa }}</span>
+      </div>
+      <div class="res-card-movil-fechas">
+        📅 {{ reserva.fecha_inicio|date:"d/m/Y" }} — {{ reserva.fecha_fin|date:"d/m/Y" }}
+        <span class="mod-sub">{{ reserva.dias }} día{{ reserva.dias|pluralize:"s" }}</span>
+      </div>
+      <div class="res-card-movil-montos">
+        <span><strong>Total:</strong> USD$ {{ reserva.precio_total|floatformat:0 }}</span>
+        <span><strong>Pagado:</strong> USD$ {{ reserva.total_pagado|floatformat:0 }}</span>
+      </div>
+      <div class="res-card-movil-acciones">
+        <a href="{% url 'reservas:editar' reserva.pk %}" class="mod-btn mod-btn-sec">Editar</a>
+        <a href="{% url 'reservas:contrato' reserva.pk %}" class="mod-btn mod-btn-sec">Contrato</a>
+        <a href="{% url 'pagos:crear' %}?reserva={{ reserva.pk }}" class="mod-btn mod-btn-sec">Pago</a>
+        {% if reserva.puede_registrar_entrega and not reserva.entrega_registrada %}
+        <a href="{% url 'reservas:entrega' reserva.pk %}" class="mod-btn mod-btn-sec">Entrega</a>
+        {% endif %}
+        {% if reserva.puede_registrar_devolucion and reserva.entrega_registrada %}
+        <a href="{% url 'reservas:devolucion' reserva.pk %}" class="mod-btn mod-btn-sec" style="color:#38a169;">Devolución</a>
+        {% endif %}
+        {% if reserva.estado != 'cancelada' %}
+        <a href="{% url 'reservas:cancelar' reserva.pk %}" class="mod-btn mod-btn-sec" style="color:#e53e3e;">Cancelar</a>
+        {% endif %}
+        <a href="{% url 'reservas:eliminar' reserva.pk %}" class="mod-btn mod-btn-sec" style="color:#e53e3e;">Eliminar</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
   {% else %}
   <div class="mod-vacio">
     <p>No hay reservas registradas.</p>
