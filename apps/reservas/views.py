@@ -13,6 +13,7 @@ from apps.vehiculos.models import Vehiculo
 
 from .forms import ConductorAdicionalForm, DevolucionForm, EntregaForm, ReservaForm
 from .models import ConductorAdicional, Reserva
+from .pdf import render_pdf
 from .services import actualizar_estado_vehiculo
 
 
@@ -283,6 +284,18 @@ def contrato(request, pk):
         'empresa': empresa,
         'sitio': sitio,
     })
+
+
+def contrato_pdf(request, pk):
+    reserva = get_object_or_404(
+        Reserva.objects.select_related('cliente', 'vehiculo', 'conductor_adicional'),
+        pk=pk,
+    )
+    return render_pdf('reservas/contrato_pdf.html', {
+        'reserva': reserva,
+        'empresa': ConfiguracionEmpresa.obtener(),
+        'sitio': ConfiguracionSitio.obtener(),
+    }, f'contrato-{reserva.pk}.pdf')
 
 
 def entrega(request, pk):

@@ -1,0 +1,66 @@
+<section>
+  <h2>Cliente</h2>
+  <p><strong>{{ reserva.cliente.nombre_completo }}</strong></p>
+  <p>Cédula: {{ reserva.cliente.documento }}{% if reserva.cliente.pasaporte %} · Pasaporte: {{ reserva.cliente.pasaporte }}{% endif %} · Tel: {{ reserva.cliente.telefono }}</p>
+  <p>Nacionalidad: {{ reserva.cliente.nacionalidad|default:"—" }} · Ocupación: {{ reserva.cliente.ocupacion|default:"—" }}</p>
+  {% if reserva.cliente.direccion %}<p>Dirección: {{ reserva.cliente.direccion }}</p>{% endif %}
+  <p>Licencia: {{ reserva.cliente.licencia_numero }} (vence {{ reserva.cliente.licencia_vence|date:"d/m/Y" }}){% if reserva.cliente.lugar_expedicion %} · Expedida en: {{ reserva.cliente.lugar_expedicion }}{% endif %}</p>
+</section>
+
+{% if reserva.conductor_adicional %}
+<section>
+  <h2>Conductor adicional</h2>
+  <p><strong>{{ reserva.conductor_adicional.nombre_completo }}</strong></p>
+  <p>Cédula: {{ reserva.conductor_adicional.documento|default:"—" }}{% if reserva.conductor_adicional.pasaporte %} · Pasaporte: {{ reserva.conductor_adicional.pasaporte }}{% endif %} · Tel: {{ reserva.conductor_adicional.telefono|default:"—" }}</p>
+  <p>Nacionalidad: {{ reserva.conductor_adicional.nacionalidad|default:"—" }} · Ocupación: {{ reserva.conductor_adicional.ocupacion|default:"—" }}</p>
+  {% if reserva.conductor_adicional.direccion %}<p>Dirección: {{ reserva.conductor_adicional.direccion }}</p>{% endif %}
+  <p>Licencia: {{ reserva.conductor_adicional.licencia_numero|default:"—" }}{% if reserva.conductor_adicional.licencia_vence %} (vence {{ reserva.conductor_adicional.licencia_vence|date:"d/m/Y" }}){% endif %}{% if reserva.conductor_adicional.lugar_expedicion %} · Expedida en: {{ reserva.conductor_adicional.lugar_expedicion }}{% endif %}</p>
+</section>
+{% endif %}
+
+<section>
+  <h2>Vehículo</h2>
+  <p><strong>{{ reserva.vehiculo.nombre_corto }}</strong> — Placa {{ reserva.vehiculo.placa }}{% if reserva.vehiculo.color %} · Color: {{ reserva.vehiculo.color }}{% endif %}</p>
+  <p>Categoría: {{ reserva.vehiculo.categoria.nombre }} · Tarifa diaria USD$ {{ reserva.vehiculo.tarifa_diaria }}</p>
+  <p>
+    Km de salida: {{ reserva.km_entrega|default:"—" }} ·
+    Combustible al entregar: {{ reserva.get_combustible_entrega_display|default:"—" }}
+    {% if reserva.deducible %} · Deducible: USD$ {{ reserva.deducible|floatformat:2 }}{% endif %}
+  </p>
+  {% if reserva.posible_retorno and reserva.posible_retorno != reserva.fecha_fin %}
+  <p>Posible retorno estimado: {{ reserva.posible_retorno|date:"d/m/Y" }}</p>
+  {% endif %}
+</section>
+
+<section>
+  <h2>Periodo y lugares</h2>
+  <table>
+    <tr><td>Inicio</td><td>{{ reserva.fecha_inicio|date:"d/m/Y" }} {{ reserva.hora_entrega|time:"H:i" }}</td><td>{{ reserva.lugar_entrega }}</td></tr>
+    <tr><td>Fin</td><td>{{ reserva.fecha_fin|date:"d/m/Y" }} {{ reserva.hora_devolucion|time:"H:i" }}</td><td>{{ reserva.lugar_devolucion }}</td></tr>
+    <tr><td>Días</td><td colspan="2">{{ reserva.dias }}</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>Montos</h2>
+  <table>
+    <tr><td>Precio total</td><td>USD$ {{ reserva.precio_total|floatformat:2 }}</td></tr>
+    <tr><td>Depósito</td><td>USD$ {{ reserva.deposito|floatformat:2 }}</td></tr>
+    <tr><td>Pagado</td><td>USD$ {{ reserva.total_pagado|floatformat:2 }}</td></tr>
+    <tr><td>Saldo pendiente</td><td>USD$ {{ reserva.saldo_pendiente|floatformat:2 }}</td></tr>
+    {% if reserva.pago_deposito %}
+    <tr>
+      <td>Forma de pago (depósito)</td>
+      <td>
+        {{ reserva.pago_deposito.get_metodo_display }}
+        {% if reserva.pago_deposito.metodo == 'tarjeta' %}
+          {% if reserva.pago_deposito.tarjeta_tipo %} · {{ reserva.pago_deposito.tarjeta_tipo }}{% endif %}
+          {% if reserva.pago_deposito.tarjeta_ultimos4 %} · **** {{ reserva.pago_deposito.tarjeta_ultimos4 }}{% endif %}
+          {% if reserva.pago_deposito.tarjeta_vencimiento %} · Vence {{ reserva.pago_deposito.tarjeta_vencimiento }}{% endif %}
+          {% if reserva.pago_deposito.tarjeta_autorizacion %} · Autorización {{ reserva.pago_deposito.tarjeta_autorizacion }}{% endif %}
+        {% endif %}
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+</section>

@@ -1,0 +1,13 @@
+{% if empresa.notas_contrato or reserva.notas %}
+<section>
+  <h2>Condiciones</h2>
+  {% if empresa.notas_contrato %}<p>{{ empresa.notas_contrato|linebreaks }}</p>{% endif %}
+  {% if reserva.notas %}<p><strong>Notas:</strong> {{ reserva.notas }}</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="contrato-declaracion">
+  <h2>Declaración</h2>
+  <p>Soy el Cliente, quien garantizo y aseguro que todo lo que está marcado arriba es correcto, por lo cual me comprometo a devolverlo de la misma forma, en caso de no ser así, tengo que pagar a ROB-REI RENT-A-CAR el valor del costo de cada accesorio que le falte al vehículo.</p>
+  <p><em>I am the Client, who guarantee and assure that everything that is marked above is correct, for which I promise to return it in the same way, if not, I have to pay ROB-REI RENT-A-CAR the value of the cost of each accessory missing from the vehicle.</em></p>
+</section>

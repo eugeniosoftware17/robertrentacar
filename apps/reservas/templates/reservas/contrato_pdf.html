@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Contrato #{{ reserva.pk }} — {{ empresa.nombre }}</title>
+<style>
+  @page { size: letter; margin: 1.8cm 1.5cm; }
+  body { font-family: Helvetica, sans-serif; font-size: 10pt; color: #0f172a; }
+  h1 { font-size: 16pt; margin: 0 0 4px; }
+  h2 { font-size: 10pt; text-transform: uppercase; color: #64748b; margin: 0 0 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; }
+  p { margin: 0 0 4px; line-height: 1.4; }
+  section { margin-bottom: 14px; }
+  table { width: 100%; }
+  td { padding: 4px 0; border-bottom: 1px solid #e2e8f0; }
+  .checklist-item { font-size: 9pt; margin: 0 0 3px; }
+  .checklist-item.ausente { color: #94a3b8; }
+  .contrato-declaracion p { font-size: 8pt; color: #334155; line-height: 1.4; }
+</style>
+</head>
+<body>
+  <table width="100%" style="margin-bottom:16px; border-bottom:2px solid #0e7a80; padding-bottom:10px;">
+    <tr>
+      <td width="65%" style="border:none; padding:0; vertical-align:top;">
+        {% if sitio.tiene_logo %}<img src="{{ sitio.logo.url }}" style="height:40px;" /><br/>{% endif %}
+        <strong style="font-size:13pt;">{{ empresa.nombre }}</strong><br/>
+        {{ empresa.direccion }}{% if empresa.telefono %} · {{ empresa.telefono }}{% endif %}<br/>
+        {% if empresa.rnc %}RNC: {{ empresa.rnc }}{% endif %}
+      </td>
+      <td width="35%" style="border:none; padding:0; vertical-align:top; text-align:right; font-size:9pt; color:#64748b;">
+        <strong style="display:block; color:#0f172a; font-size:11pt;">Contrato de alquiler</strong>
+        #{{ reserva.pk }}<br/>
+        {{ reserva.creado_en|date:"d/m/Y" }}
+      </td>
+    </tr>
+  </table>
+
+  {% include "reservas/_contrato_cuerpo.html" %}
+
+  <section>
+    <h2>Checklist de entrega</h2>
+    <table width="100%">
+      <tr>
+        <td width="50%" style="border:none; padding:0 10px 0 0; vertical-align:top;">
+          {% for clave, etiqueta in reserva.CHECKLIST_ITEMS|slice:":12" %}
+          <div class="checklist-item{% if clave not in reserva.checklist_entrega %} ausente{% endif %}">
+            {% if clave in reserva.checklist_entrega %}[X]{% else %}[ ]{% endif %} {{ etiqueta }}
+          </div>
+          {% endfor %}
+        </td>
+        <td width="50%" style="border:none; padding:0; vertical-align:top;">
+          {% for clave, etiqueta in reserva.CHECKLIST_ITEMS|slice:"12:" %}
+          <div class="checklist-item{% if clave not in reserva.checklist_entrega %} ausente{% endif %}">
+            {% if clave in reserva.checklist_entrega %}[X]{% else %}[ ]{% endif %} {{ etiqueta }}
+          </div>
+          {% endfor %}
+        </td>
+      </tr>
+    </table>
+  </section>
+
+  {% include "reservas/_contrato_condiciones.html" %}
+
+  <table width="100%" style="margin-top:60px;">
+    <tr>
+      <td width="50%" style="border:none; border-top:1px solid #0f172a; padding-top:6px; text-align:center; font-size:9pt;">Cliente</td>
+      <td width="50%" style="border:none; border-top:1px solid #0f172a; padding-top:6px; text-align:center; font-size:9pt;">Agente de Renta (Rental Agent)</td>
+    </tr>
+  </table>
+</body>
+</html>

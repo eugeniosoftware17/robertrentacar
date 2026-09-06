@@ -14,4 +14,5 @@ urlpatterns = [
     path('<int:pk>/cancelar/', views.cancelar, name='cancelar'),
     path('<int:pk>/eliminar/', views.eliminar, name='eliminar'),
     path('<int:pk>/contrato/', views.contrato, name='contrato'),
+    path('<int:pk>/contrato/pdf/', views.contrato_pdf, name='contrato_pdf'),
 ]
