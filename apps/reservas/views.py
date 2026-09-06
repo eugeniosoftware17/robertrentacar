@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from django.conf import settings
@@ -17,6 +18,8 @@ from .forms import ConductorAdicionalForm, DevolucionForm, EntregaForm, ReservaF
 from .models import ConductorAdicional, Reserva
 from .pdf import render_pdf
 from .services import actualizar_estado_vehiculo
+
+logger = logging.getLogger(__name__)
 
 
 def _guardar_conductor_adicional(reserva, conductor_form):
@@ -188,6 +191,7 @@ def crear(request):
 
 
 def _notificar_confirmacion_reserva(reserva):
+    logger.info(f'Intentando notificar confirmación reserva #{reserva.pk}, email cliente: "{reserva.cliente.email}"')
     if not reserva.cliente.email:
         return
     mensaje = (
@@ -207,10 +211,10 @@ def _notificar_confirmacion_reserva(reserva):
             message=mensaje,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[reserva.cliente.email],
-            fail_silently=True,
         )
-    except Exception:
-        pass
+        logger.info(f'Email confirmación enviado a {reserva.cliente.email} reserva #{reserva.pk}')
+    except Exception as e:
+        logger.error(f'Error enviando email confirmación reserva #{reserva.pk}: {e}')
 
 
 def editar(request, pk):
