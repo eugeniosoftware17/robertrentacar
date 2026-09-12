@@ -300,7 +300,12 @@ def pagina(request, slug):
 
 
 def _notificar_reserva_nueva(reserva, config_sitio, request):
-    if not config_sitio.email_notificaciones:
+    destinatarios = [
+        correo.strip()
+        for correo in config_sitio.email_notificaciones.split(',')
+        if correo.strip()
+    ]
+    if not destinatarios:
         return
     url_panel = request.build_absolute_uri(
         reverse('reservas:editar', kwargs={'pk': reserva.pk})
@@ -321,7 +326,7 @@ def _notificar_reserva_nueva(reserva, config_sitio, request):
             subject=f'Nueva reserva — {reserva.vehiculo.nombre_corto}',
             message=mensaje,
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[config_sitio.email_notificaciones],
+            recipient_list=destinatarios,
             fail_silently=True,
         )
     except Exception:

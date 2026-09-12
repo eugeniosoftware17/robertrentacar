@@ -277,7 +277,7 @@ class ConfiguracionSitioForm(forms.ModelForm):
             'youtube': forms.URLInput(attrs={'class': 'mod-input', 'placeholder': 'https://youtube.com/@...'}),
             'twitter': forms.URLInput(attrs={'class': 'mod-input', 'placeholder': 'https://x.com/...'}),
             'anticipacion_horas': forms.NumberInput(attrs={'class': 'mod-input', 'min': 0}),
-            'email_notificaciones': forms.EmailInput(attrs={'class': 'mod-input', 'placeholder': 'reservas@turentacar.com'}),
+            'email_notificaciones': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 2, 'placeholder': 'reservas@turentacar.com'}),
             'mensaje_reserva_exito': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
             'mensaje_reserva_exito_en': forms.Textarea(attrs={'class': 'mod-input mod-textarea', 'rows': 3}),
             'meta_descripcion': forms.TextInput(attrs={'class': 'mod-input', 'maxlength': 160}),

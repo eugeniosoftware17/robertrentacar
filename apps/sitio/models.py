@@ -153,11 +153,11 @@ class ConfiguracionSitio(models.Model):
         'Ocultar vehículos en mantenimiento de la web',
         default=True,
     )
-    email_notificaciones = models.EmailField(
+    email_notificaciones = models.TextField(
         verbose_name='Email para notificaciones de reservas',
         blank=True,
         default='',
-        help_text='El sistema enviará un email a esta dirección cada vez que llegue una reserva nueva.',
+        help_text='Puedes agregar varios correos separados por comas. Ej: roberto@gmail.com, eugenio@gmail.com',
     )
     mensaje_reserva_exito = models.TextField(
         'Mensaje tras reservar',
